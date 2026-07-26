@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Products | WigBiz ERP
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="page-header">
+
+    <h1>
+        Products
+    </h1>
+
+
+    <a href="{% url 'add_product' %}" class="btn-primary">
+        + Add Product
+    </a>
+
+</div>
+
+
+
+<table class="erp-table">
+
+<thead>
+
+<tr>
+
+<th>Code</th>
+<th>Image</th>
+<th>Name</th>
+<th>Category</th>
+<th>Brand</th>
+<th>Price</th>
+<th>Status</th>
+<th>Actions</th>
+
+</tr>
+
+</thead>
+
+
+
+<tbody>
+
+
+{% for product in products %}
+
+
+<tr>
+
+
+<td>
+{{ product.product_code }}
+</td>
+
+
+<td>
+
+{% if product.image %}
+
+<img src="{{ product.image.url }}" width="50">
+
+{% else %}
+
+No Image
+
+{% endif %}
+
+</td>
+
+
+
+<td>
+{{ product.name }}
+</td>
+
+
+
+<td>
+{{ product.category }}
+</td>
+
+
+
+<td>
+{{ product.brand }}
+</td>
+
+
+
+<td>
+£{{ product.selling_price }}
+</td>
+
+
+
+<td>
+
+{% if product.status %}
+
+<span class="active">
+Active
+</span>
+
+{% else %}
+
+<span class="inactive">
+Inactive
+</span>
+
+{% endif %}
+
+
+</td>
+
+
+
+<td>
+
+<a href="{% url 'product-detail' product.id %}">
+View
+</a>
+
+
+<a href="{% url 'product-edit' product.id %}">
+Edit
+</a>
+
+
+<a href="{% url 'product-delete' product.id %}">
+Delete
+</a>
+
+
+</td>
+
+
+</tr>
+
+
+{% empty %}
+
+
+<tr>
+
+<td colspan="8">
+No products found
+</td>
+
+</tr>
+
+
+{% endfor %}
+
+
+</tbody>
+
+
+</table>
+
+
+{% endblock %}
