@@ -1,0 +1,76 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Wig Business ERP{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="navbar-left">
+{% if user.is_authenticated %}
+<button class="sidebar-toggle" id="sidebarToggle">
+    &#9776;
+</button>
+{% endif %}           
+ <span class="brand">WigBiz ERP</span>
+        </div>
+        <div class="navbar-right">
+
+    {% if user.is_authenticated %}
+
+        <span class="user-name">
+            {{ user.username }}
+        </span>
+
+        <a href="{% url 'logout' %}" class="logout-link">
+            Logout
+        </a>
+
+    {% else %}
+
+        <a href="{% url 'login' %}">
+            Login
+        </a>
+
+    {% endif %}
+
+</div>
+    </header>
+
+    <div class="layout">
+        {% if user.is_authenticated %}
+        <aside class="sidebar" id="sidebar">
+            <nav>
+                <ul>
+                    <li><a href="">Dashboard</a></li>
+                    <li><a href="">Products</a></li>
+                    <li><a href="">Inventory</a></li>
+                    <li><a href="">Customers</a></li>
+                    <li><a href="">Sales</a></li>
+                    <li><a href="">Suppliers</a></li>
+                    <li><a href="">Purchases</a></li>
+                    <li><a href="">Employees</a></li>
+                    <li><a href="">Reports</a></li>
+                    <li><a href="">Settings</a></li>
+                </ul>
+            </nav>
+        </aside>
+        {% endif %}
+        <main class="main-content">
+            {% block content %}
+            {% endblock %}
+        </main>
+
+    </div>
+
+    <footer class="footer">
+        <p>&copy; {% now "Y" %} WigBiz ERP. All rights reserved.</p>
+    </footer>
+
+    <script src="{% static 'js/dashboard.js' %}"></script>
+</body>
+</html>
