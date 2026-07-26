@@ -1,7 +1,233 @@
 {% extends "base.html" %}
-{% block title %}Dashboard{% endblock %}
+
+
+{% block title %}
+Dashboard | WigBiz ERP
+{% endblock %}
+
 
 {% block content %}
-<h1>Welcome back, {{ request.user.username }}</h1>
-<p>Dashboard summary cards will go here (Total Sales, Stock Alerts, etc.)</p>
+
+<div class="dashboard-header">
+
+    <h1>Dashboard</h1>
+
+    <p>
+        Welcome back, {{ user.username }}
+    </p>
+
+</div>
+
+
+
+<!-- Statistics Cards -->
+
+<div class="dashboard-cards">
+
+
+    <div class="dashboard-card">
+
+        <div class="card-title">
+            Products
+        </div>
+
+        <div class="card-value">
+            {{ total_products }}
+        </div>
+
+    </div>
+
+
+
+    <div class="dashboard-card">
+
+        <div class="card-title">
+            Customers
+        </div>
+
+        <div class="card-value">
+            {{ total_customers }}
+        </div>
+
+    </div>
+
+
+
+    <div class="dashboard-card">
+
+        <div class="card-title">
+            Today's Sales
+        </div>
+
+        <div class="card-value">
+            {{ today_sales }}
+        </div>
+
+    </div>
+
+
+
+    <div class="dashboard-card">
+
+        <div class="card-title">
+            Revenue Today
+        </div>
+
+        <div class="card-value">
+            £{{ today_revenue }}
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+
+
+<!-- Main Dashboard Content -->
+
+<div class="dashboard-grid">
+
+
+
+    <!-- Recent Sales -->
+
+    <div class="dashboard-panel">
+
+        <h2>
+            Recent Sales
+        </h2>
+
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Invoice</th>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+            {% for sale in recent_sales %}
+
+            <tr>
+
+                <td>
+                    {{ sale.invoice_number }}
+                </td>
+
+
+                <td>
+                    {{ sale.customer }}
+                </td>
+
+
+                <td>
+                    £{{ sale.total_amount }}
+                </td>
+
+
+                <td>
+                    {{ sale.sale_date|date:"d M Y" }}
+                </td>
+
+
+            </tr>
+
+
+            {% empty %}
+
+            <tr>
+
+                <td colspan="4">
+                    No sales available
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+
+            </tbody>
+
+        </table>
+
+
+    </div>
+
+
+
+
+
+    <!-- Low Stock -->
+
+
+    <div class="dashboard-panel">
+
+
+        <h2>
+            Low Stock Alert
+        </h2>
+
+
+        {% for item in low_stock_products %}
+
+
+        <div class="stock-item">
+
+
+            <div>
+
+                <strong>
+                    {{ item.product.name }}
+                </strong>
+
+
+                <p>
+                    Stock:
+                    {{ item.quantity_available }}
+                </p>
+
+
+            </div>
+
+
+            <span class="warning">
+                Low
+            </span>
+
+
+        </div>
+
+
+        {% empty %}
+
+
+        <p>
+            No low stock products
+        </p>
+
+
+        {% endfor %}
+
+
+
+    </div>
+
+
+
+</div>
+
+
+
 {% endblock %}

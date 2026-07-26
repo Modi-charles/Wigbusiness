@@ -1,8 +1,26 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const toggleBtn = document.getElementById("sidebarToggle");
-    const sidebar = document.getElementById("sidebar");
+const button =
+document.getElementById("sidebarToggle");
 
-    toggleBtn.addEventListener("click", function () {
-        sidebar.classList.toggle("collapsed");
-    });
-});
+
+const sidebar =
+document.getElementById("sidebar");
+
+
+
+button.onclick = function(){
+
+
+if(window.innerWidth <= 768){
+
+    sidebar.classList.toggle("show");
+
+}
+
+else{
+
+    sidebar.classList.toggle("collapsed");
+
+}
+
+
+};
