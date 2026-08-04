@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}
+Update Inventory
+{% endblock %}
+
+{% block content %}
+
+<h2>Update Inventory</h2>
+
+<p>
+<strong>Product:</strong>
+{{ inventory.product.name }}
+</p>
+
+<form method="POST">
+
+{% csrf_token %}
+
+<label>Quantity Available</label>
+
+<input
+type="number"
+name="quantity"
+value="{{ inventory.quantity_available }}"
+required>
+
+<br><br>
+
+<button type="submit">
+Save Changes
+</button>
+
+<a href="{% url 'view_inventory' %}">
+Cancel
+</a>
+
+</form>
+
+{% endblock %}

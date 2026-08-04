@@ -4,6 +4,7 @@ from inventory.models import Inventory
 from .forms import ProductForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 
 # Create your views here.
 @login_required
@@ -36,11 +37,7 @@ def add_product(request):
 
         form = ProductForm()
 
-    return render(request, "Products/add_products.html",
-        {
-        "form":form
-        }
-        )
+    return render(request, "Products/add_products.html",{"form":form})
      
 def view_product(request):
     query = request.GET.get("search")
@@ -54,30 +51,21 @@ def view_product(request):
         "search": query
         }
     return render(request, "Products/view_products.html",context)
-def delete_product(request):
-    return render(request, "Product/view_products.html")
+
+def delete_product(request, id):
+    product=get_object_or_404(Product, id=id)
+    if request.method =='POST':
+        product.delete()
+        messages.success(request,"Product Deleted Succesfully") 
+        return redirect("view_products")
+    return render(request,"Products/delete_product.html",{"product":product})
 
 def product_detail(request,id):
+    product = get_object_or_404(Product,id=id)
+    return render(request,"products/product_detail.html",{"product":product})
 
-    product = get_object_or_404(
-        Product,
-        id=id
-    )
-
-
-    return render(
-        request,
-        "products/product_detail.html",
-        {
-            "product":product
-        }
-    )
 def edit_product(request, id):
-
-    product = get_object_or_404(
-        Product,
-        id=id
-    )
+    product = get_object_or_404(Product,id=id)
 
 
     if request.method == "POST":

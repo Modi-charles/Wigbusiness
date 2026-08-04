@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}
+Inventory
+{% endblock %}
+{% block content %}
+<h1>Inventory Management</h1>
+<div class="searchbar">
+    <form action="" method="get">
+        <input type="text" name="search" placeholder="Search Product" value="{{search}}">
+        <button type="submit">Search</button>
+    </form>
+</div>
+
+<table>
+    <thead>
+        <th>Products</th>
+        <th>Availablble</th>
+        <th>Sold</th>
+        <th>Recieved</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </thead>
+   <tbody>
+
+{% for item in inventory %}
+
+<tr>
+    <td>{{ item.product.name }}</td>
+    <td>{{ item.quantity_available }}</td>
+    <td>{{ item.quantity_sold }}</td>
+    <td>{{ item.quantity_received }}</td>
+
+    <td>
+
+        {% if item.quantity_available == 0 %}
+            <span class="badge danger">Out of Stock</span>
+
+        {% elif item.quantity_available <= item.product.reorder_level %}
+            <span class="badge warning">Low Stock</span>
+
+        {% else %}
+            <span class="badge success">In Stock</span>
+
+        {% endif %}
+
+    </td>
+
+    <td>
+        View
+
+        <a href="{% url 'update_inventory' item.id %}">
+            Update
+        </a>
+    </td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+    <td colspan="6">
+        No inventory available
+    </td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+</table>
+{% endblock %}
