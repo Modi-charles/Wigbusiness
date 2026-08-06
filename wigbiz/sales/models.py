@@ -2,6 +2,7 @@ from django.db import models
 from customers.models import Customer
 from products.models import Product
 from accounts.models import User
+from django.core.validators import MinValueValidator
 
 # Create your models here.
 class Sale(models.Model):
@@ -11,8 +12,23 @@ class Sale(models.Model):
         ("CARD", "Card"),
         ("BANK", "Bank"),
     )
-
-    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True, related_name="sales")
+    class Status(models.TextChoices):
+        DRAFT = 'DRAFT', 'Draft'
+        COMPLETED = 'COMPLETED', 'Completed'
+        CANCELLED = 'CANCELLED', 'Cancelled'
+        REFUNDED = 'REFUNDED', 'Refunded'
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.DRAFT,
+    )
+    customer = models.ForeignKey(
+        Customer, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name="sales"
+        )
     invoice_number = models.CharField(max_length=50, unique=True)
     sale_date = models.DateTimeField(auto_now_add=True)
 
@@ -25,7 +41,7 @@ class Sale(models.Model):
     balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS, default="CASH")
 
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="sales_created")
 
     def __str__(self):
         return self.invoice_number
@@ -34,12 +50,15 @@ class Sale(models.Model):
 class SaleItem(models.Model):
     sale = models.ForeignKey(Sale, on_delete=models.CASCADE, related_name="items")
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
-    quantity = models.IntegerField()
-    selling_price = models.DecimalField(max_digits=10, decimal_places=2)
-
+    quantity = models.IntegerField(
+        validators=[MinValueValidator(1)])
+    selling_price = models.DecimalField(max_digits=12, decimal_places=2)
     @property
-    def subtotal(self):
+    def line_total(self):
         return self.quantity * self.selling_price
+    def __str__(self):
+        return f"{self.product}*{self.quantity}"
+
 
 
 class Payment(models.Model):
@@ -49,3 +68,18 @@ class Payment(models.Model):
     transaction_reference = models.CharField(max_length=100, blank=True)
     payment_date = models.DateTimeField(auto_now_add=True)
     received_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    class Status(models.TextChoices):
+        PENDING = 'PENDING', 'Pending'
+        COMPLETED = 'COMPLETED', 'Completed'
+        FAILED = 'FAILED', 'Failed'
+        REFUNDED = 'REFUNDED', 'Refunded'
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.PENDING,
+    )
+class InvoiceSequence(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    last_number = models.PositiveIntegerField(default=0)
+    def __str__(self):
+        return f"{self.name}:{self.last_number}"

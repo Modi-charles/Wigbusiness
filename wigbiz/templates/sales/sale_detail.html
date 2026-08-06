@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sale {{ sale.invoice_number }}</title>
+</head>
+
+<body>
+
+    <h1>Sale Receipt</h1>
+
+    <p>
+        <strong>Invoice:</strong>
+        {{ sale.invoice_number }}
+    </p>
+
+    <p>
+        <strong>Date:</strong>
+        {{ sale.sale_date }}
+    </p>
+
+    <p>
+        <strong>Cashier:</strong>
+        {{ sale.created_by }}
+    </p>
+
+    {% if sale.customer %}
+        <p>
+            <strong>Customer:</strong>
+            {{ sale.customer }}
+        </p>
+    {% endif %}
+
+    <hr>
+
+    <h2>Items</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Selling Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for item in sale.items.all %}
+
+                <tr>
+                    <td>
+                        {{ item.product.name }}
+                    </td>
+
+                    <td>
+                        {{ item.selling_price }}
+                    </td>
+
+                    <td>
+                        {{ item.quantity }}
+                    </td>
+
+                    <td>
+                        {{ item.line_total }}
+                    </td>
+                </tr>
+
+            {% endfor %}
+
+        </tbody>
+    </table>
+
+    <hr>
+
+    <p>
+        <strong>Subtotal:</strong>
+        {{ sale.subtotal }}
+    </p>
+
+    <p>
+        <strong>Discount:</strong>
+        {{ sale.discount }}
+    </p>
+
+    <p>
+        <strong>Tax:</strong>
+        {{ sale.tax }}
+    </p>
+
+    <p>
+        <strong>Total:</strong>
+        {{ sale.total_amount }}
+    </p>
+
+    <p>
+        <strong>Paid:</strong>
+        {{ sale.paid_amount }}
+    </p>
+
+    <p>
+        <strong>Balance:</strong>
+        {{ sale.balance }}
+    </p>
+
+    <p>
+        <strong>Payment Method:</strong>
+        {{ sale.get_payment_method_display }}
+    </p>
+
+    <p>
+        <strong>Status:</strong>
+        {{ sale.get_status_display }}
+    </p>
+
+</body>
+</html>

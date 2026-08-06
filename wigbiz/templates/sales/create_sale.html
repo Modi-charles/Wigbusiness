@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>New Sale</title>
+
+```
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        padding: 8px;
+        border: 1px solid #ccc;
+    }
+
+    .delete-row {
+        cursor: pointer;
+    }
+
+    .totals {
+        margin-top: 20px;
+    }
+</style>
+```
+
+</head>
+
+<body>
+
+<h1>New Sale</h1>
+
+<form method="post" id="sale-form">
+
+```
+{% csrf_token %}
+
+{% if sale_form.non_field_errors %}
+    <div>
+        {{ sale_form.non_field_errors }}
+    </div>
+{% endif %}
+
+<h2>Customer</h2>
+
+<div>
+    {{ sale_form.customer.label_tag }}
+    {{ sale_form.customer }}
+    {{ sale_form.customer.errors }}
+</div>
+
+<hr>
+
+<h2>Products</h2>
+
+{{ item_formset.management_form }}
+
+<table>
+
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Selling Price</th>
+            <th>Total</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody id="item-rows">
+
+        {% for form in item_formset %}
+
+            <tr class="item-row">
+
+                <td>
+                    {{ form.product }}
+                    {{ form.product.errors }}
+                </td>
+
+                <td>
+                    {{ form.quantity }}
+                    {{ form.quantity.errors }}
+                </td>
+                
+                <td>
+                    <span class="selling-price">
+                        0.00
+                    </span>
+                </td>
+
+                <td>
+                    <span class="line-total">
+                        0.00
+                    </span>
+                </td>
+                <td>
+
+                    {% if form.DELETE %}
+                        {{ form.DELETE.as_hidden }}
+                    {% endif %}
+
+                    <button
+                        type="button"
+                        class="delete-row"
+                    >
+                        Remove
+                    </button>
+
+                </td>
+
+            </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+<div class="totals">
+
+    <p>
+        <strong>Subtotal:</strong>
+        <span id="subtotal">0.00</span>
+    </p>
+
+    <p>
+        <strong>Discount:</strong>
+        <span id="discount-display">0.00</span>
+    </p>
+
+    <p>
+        <strong>Tax:</strong>
+        <span id="tax-display">0.00</span>
+    </p>
+
+    <p>
+        <strong>Total:</strong>
+        <span id="total">0.00</span>
+    </p>
+
+    <p>
+        <strong>Amount Paid:</strong>
+        <span id="paid-display">0.00</span>
+    </p>
+
+    <p>
+        <strong>Balance:</strong>
+        <span id="balance">0.00</span>
+    </p>
+
+</div>
+<br>
+
+<button
+    type="button"
+    id="add-product"
+>
+    + Add Product
+</button>
+
+<hr>
+
+<h2>Payment</h2>
+
+<div>
+    {{ sale_form.discount.label_tag }}
+    {{ sale_form.discount }}
+    {{ sale_form.discount.errors }}
+</div>
+
+<br>
+
+<div>
+    {{ sale_form.tax.label_tag }}
+    {{ sale_form.tax }}
+    {{ sale_form.tax.errors }}
+</div>
+
+<br>
+
+<div>
+    {{ sale_form.payment_method.label_tag }}
+    {{ sale_form.payment_method }}
+    {{ sale_form.payment_method.errors }}
+</div>
+
+<br>
+
+<div>
+    {{ sale_form.amount_paid.label_tag }}
+    {{ sale_form.amount_paid }}
+    {{ sale_form.amount_paid.errors }}
+</div>
+
+<br>
+
+<button type="submit">
+    Complete Sale
+</button>
+```
+
+</form>
+
+<script>
+
+const itemRows = document.getElementById("item-rows");
+
+const addProductButton = document.getElementById("add-product");
+
+const totalForms = document.getElementById(
+    "id_form-TOTAL_FORMS"
+);
+
+const discountInput = document.getElementById(
+    "id_discount"
+);
+
+const taxInput = document.getElementById(
+    "id_tax"
+);
+
+const amountPaidInput = document.getElementById(
+    "id_amount_paid"
+);
+
+
+// Format money
+function formatMoney(value) {
+
+    return Number(value).toFixed(2);
+
+}
+
+
+// Calculate one row
+function calculateRow(row) {
+
+    const productSelect = row.querySelector(
+        "select[name$='product']"
+    );
+
+    const quantityInput = row.querySelector(
+        "input[name$='quantity']"
+    );
+
+    const priceDisplay = row.querySelector(
+        ".selling-price"
+    );
+
+    const totalDisplay = row.querySelector(
+        ".line-total"
+    );
+
+
+    if (!productSelect || !quantityInput) {
+        return 0;
+    }
+
+
+    const selectedOption =
+        productSelect.options[
+            productSelect.selectedIndex
+        ];
+
+
+    if (!selectedOption) {
+        priceDisplay.textContent = "0.00";
+        totalDisplay.textContent = "0.00";
+
+        return 0;
+    }
+
+
+    const price = parseFloat(
+        selectedOption.dataset.price || 0
+    );
+
+    const quantity = parseInt(
+        quantityInput.value || 0
+    );
+
+
+    const lineTotal = price * quantity;
+
+
+    priceDisplay.textContent =
+        formatMoney(price);
+
+    totalDisplay.textContent =
+        formatMoney(lineTotal);
+
+
+    return lineTotal;
+}
+
+
+// Calculate complete sale
+function calculateSale() {
+
+    let subtotal = 0;
+
+
+    document
+        .querySelectorAll(".item-row")
+        .forEach(function(row) {
+
+            if (row.style.display === "none") {
+                return;
+            }
+
+            subtotal += calculateRow(row);
+
+        });
+
+
+    const discount = parseFloat(
+        discountInput.value || 0
+    );
+
+    const tax = parseFloat(
+        taxInput.value || 0
+    );
+
+    const amountPaid = parseFloat(
+        amountPaidInput.value || 0
+    );
+
+
+    const taxableAmount =
+        subtotal - discount;
+
+
+    const total =
+        taxableAmount + tax;
+
+
+    const balance =
+        total - amountPaid;
+
+
+    document.getElementById(
+        "subtotal"
+    ).textContent = formatMoney(subtotal);
+
+
+    document.getElementById(
+        "discount-display"
+    ).textContent = formatMoney(discount);
+
+
+    document.getElementById(
+        "tax-display"
+    ).textContent = formatMoney(tax);
+
+
+    document.getElementById(
+        "total"
+    ).textContent = formatMoney(total);
+
+
+    document.getElementById(
+        "paid-display"
+    ).textContent = formatMoney(amountPaid);
+
+
+    document.getElementById(
+        "balance"
+    ).textContent = formatMoney(balance);
+
+}
+
+
+// Product changed
+itemRows.addEventListener(
+    "change",
+    function(event) {
+
+        if (
+            event.target.matches(
+                "select[name$='product']"
+            )
+        ) {
+
+            calculateSale();
+
+        }
+
+    }
+);
+
+
+// Quantity changed
+itemRows.addEventListener(
+    "input",
+    function(event) {
+
+        if (
+            event.target.matches(
+                "input[name$='quantity']"
+            )
+        ) {
+
+            calculateSale();
+
+        }
+
+    }
+);
+
+
+// Discount changed
+discountInput.addEventListener(
+    "input",
+    calculateSale
+);
+
+
+// Tax changed
+taxInput.addEventListener(
+    "input",
+    calculateSale
+);
+
+
+// Amount paid changed
+amountPaidInput.addEventListener(
+    "input",
+    calculateSale
+);
+
+
+// Add product
+addProductButton.addEventListener(
+    "click",
+    function() {
+
+        const formCount =
+            parseInt(totalForms.value);
+
+
+        const firstRow =
+            document.querySelector(".item-row");
+
+
+        const newRow =
+            firstRow.cloneNode(true);
+
+
+        newRow.innerHTML =
+            newRow.innerHTML.replace(
+                /form-\d+/g,
+                `form-${formCount}`
+            );
+
+
+        const productSelect =
+            newRow.querySelector(
+                "select[name$='product']"
+            );
+
+
+        const quantityInput =
+            newRow.querySelector(
+                "input[name$='quantity']"
+            );
+
+
+        if (productSelect) {
+            productSelect.selectedIndex = 0;
+        }
+
+
+        if (quantityInput) {
+            quantityInput.value = 1;
+        }
+
+
+        const priceDisplay =
+            newRow.querySelector(
+                ".selling-price"
+            );
+
+
+        const totalDisplay =
+            newRow.querySelector(
+                ".line-total"
+            );
+
+
+        priceDisplay.textContent = "0.00";
+
+        totalDisplay.textContent = "0.00";
+
+
+        itemRows.appendChild(newRow);
+
+
+        totalForms.value =
+            formCount + 1;
+
+
+        calculateSale();
+
+    }
+);
+
+
+// Remove product
+itemRows.addEventListener(
+    "click",
+    function(event) {
+
+        if (
+            !event.target.classList.contains(
+                "delete-row"
+            )
+        ) {
+            return;
+        }
+
+
+        const row =
+            event.target.closest(".item-row");
+
+
+        const deleteInput =
+            row.querySelector(
+                "input[name$='DELETE']"
+            );
+
+
+        if (deleteInput) {
+
+            deleteInput.value = "on";
+
+            row.style.display = "none";
+
+        } else {
+
+            row.remove();
+
+        }
+
+
+        calculateSale();
+
+    }
+);
+
+
+// Calculate when page loads
+calculateSale();
+</script>
+
+</body>
+</html>
