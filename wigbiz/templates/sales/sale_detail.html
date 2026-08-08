@@ -1,12 +1,154 @@
 <!DOCTYPE html>
-<html>
+
+<html lang="en">
+
 <head>
-    <title>Sale {{ sale.invoice_number }}</title>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+    Receipt {{ sale.invoice_number }}
+</title>
+
+<style>
+
+    body {
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+        margin: 0;
+        padding: 30px;
+    }
+
+    .receipt {
+        width: 380px;
+        margin: auto;
+        background: white;
+        padding: 25px;
+    }
+
+    .center {
+        text-align: center;
+    }
+
+    .business-name {
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    .receipt-info {
+        font-size: 14px;
+        margin-top: 15px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th,
+    td {
+        padding: 7px 3px;
+        border-bottom: 1px dashed #aaa;
+        font-size: 13px;
+    }
+
+    th {
+        text-align: left;
+    }
+
+    .number {
+        text-align: right;
+    }
+
+    .totals {
+        margin-top: 20px;
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        margin: 7px 0;
+    }
+
+    .grand-total {
+        font-size: 20px;
+        font-weight: bold;
+        border-top: 2px solid black;
+        padding-top: 10px;
+    }
+
+    .buttons {
+        text-align: center;
+        margin-top: 25px;
+    }
+
+    button,
+    a {
+        padding: 10px 18px;
+        margin: 5px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .print-button {
+        background: black;
+        color: white;
+    }
+
+    .new-sale {
+        background: #ddd;
+        color: black;
+    }
+
+
+    @media print {
+
+        body {
+            background: white;
+            padding: 0;
+        }
+
+        .receipt {
+            width: 100%;
+            padding: 0;
+        }
+
+        .buttons {
+            display: none;
+        }
+
+    }
+
+</style>
+
+
 </head>
 
 <body>
 
-    <h1>Sale Receipt</h1>
+<div class="receipt">
+<div class="center">
+
+    <div class="business-name">
+        Mck Beauty Enterprise
+    </div>
+
+    <p>
+        Sales Receipt
+    </p>
+
+</div>
+
+
+<div class="receipt-info">
 
     <p>
         <strong>Invoice:</strong>
@@ -15,103 +157,230 @@
 
     <p>
         <strong>Date:</strong>
-        {{ sale.sale_date }}
+        {{ sale.sale_date|date:"d M Y H:i" }}
     </p>
 
     <p>
+
         <strong>Cashier:</strong>
+
         {{ sale.created_by }}
+
     </p>
 
-    {% if sale.customer %}
-        <p>
-            <strong>Customer:</strong>
+    <p>
+
+        <strong>Customer:</strong>
+
+        {% if sale.customer %}
+
             {{ sale.customer }}
-        </p>
-    {% endif %}
 
-    <hr>
+        {% else %}
 
-    <h2>Items</h2>
+            Walk-in Customer
 
-    <table>
-        <thead>
+        {% endif %}
+
+    </p>
+
+</div>
+
+
+<table>
+
+    <thead>
+
+        <tr>
+
+            <th>
+                Product
+            </th>
+
+            <th>
+                Qty
+            </th>
+
+            <th class="number">
+                Price
+            </th>
+
+            <th class="number">
+                Total
+            </th>
+
+        </tr>
+
+    </thead>
+
+
+    <tbody>
+
+        {% for item in sale.items.all %}
+
             <tr>
-                <th>Product</th>
-                <th>Selling Price</th>
-                <th>Quantity</th>
-                <th>Total</th>
+
+                <td>
+                    {{ item.product.name }}
+                </td>
+
+                <td>
+                    {{ item.quantity }}
+                </td>
+
+                <td class="number">
+                    {{ item.selling_price }}
+                </td>
+
+                <td class="number">
+                    {{ item.line_total }}
+                </td>
+
             </tr>
-        </thead>
 
-        <tbody>
+        {% endfor %}
 
-            {% for item in sale.items.all %}
+    </tbody>
 
-                <tr>
-                    <td>
-                        {{ item.product.name }}
-                    </td>
+</table>
 
-                    <td>
-                        {{ item.selling_price }}
-                    </td>
 
-                    <td>
-                        {{ item.quantity }}
-                    </td>
+<div class="totals">
 
-                    <td>
-                        {{ item.line_total }}
-                    </td>
-                </tr>
+    <div class="total-row">
 
-            {% endfor %}
+        <span>
+            Subtotal
+        </span>
 
-        </tbody>
-    </table>
+        <span>
+            {{ sale.subtotal }}
+        </span>
 
-    <hr>
+    </div>
+
+
+    <div class="total-row">
+
+        <span>
+            Discount
+        </span>
+
+        <span>
+            {{ sale.discount }}
+        </span>
+
+    </div>
+
+
+    <div class="total-row">
+
+        <span>
+            Tax
+        </span>
+
+        <span>
+            {{ sale.tax }}
+        </span>
+
+    </div>
+
+
+    <div class="total-row grand-total">
+
+        <span>
+            TOTAL
+        </span>
+
+        <span>
+            {{ sale.total_amount }}
+        </span>
+
+    </div>
+
+
+    <div class="total-row">
+
+        <span>
+            Paid
+        </span>
+
+        <span>
+            {{ sale.paid_amount }}
+        </span>
+
+    </div>
+
+
+    <div class="total-row">
+
+        <span>
+            Balance
+        </span>
+
+        <span>
+            {{ sale.balance }}
+        </span>
+
+    </div>
+
+
+    <div class="total-row">
+
+        <span>
+            Payment
+        </span>
+
+        <span>
+            {{ sale.get_payment_method_display }}
+        </span>
+
+    </div>
+
+</div>
+
+
+<div class="center">
 
     <p>
-        <strong>Subtotal:</strong>
-        {{ sale.subtotal }}
+        Thank you for your business!
     </p>
 
-    <p>
-        <strong>Discount:</strong>
-        {{ sale.discount }}
-    </p>
+</div>
 
-    <p>
-        <strong>Tax:</strong>
-        {{ sale.tax }}
-    </p>
 
-    <p>
-        <strong>Total:</strong>
-        {{ sale.total_amount }}
-    </p>
+<div class="buttons">
 
-    <p>
-        <strong>Paid:</strong>
-        {{ sale.paid_amount }}
-    </p>
+    <button
+        class="print-button"
+        onclick="window.print()"
+    >
+        Print Receipt
+    </button>
 
-    <p>
-        <strong>Balance:</strong>
-        {{ sale.balance }}
-    </p>
 
-    <p>
-        <strong>Payment Method:</strong>
-        {{ sale.get_payment_method_display }}
-    </p>
+    <a
+        href="{% url 'sales:create_sale' %}"
+        class="new-sale"
+    >
+        New Sale
+    </a>
+<a
+    href="{% url 'sales:create_return' sale.pk %}"
+    class="new-sale"
+>
+    Return Items
+</a>
+<a href="{% url 'sales:refund_history' %}">
+    Refund History
+</a>
+<a href="{% url 'sales:return_detail' %}">
+    Return History
+</a>
+</div>
 
-    <p>
-        <strong>Status:</strong>
-        {{ sale.get_status_display }}
-    </p>
+</div>
 
 </body>
+
 </html>

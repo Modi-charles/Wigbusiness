@@ -1,5 +1,4 @@
-from django.shortcuts import render
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import ValidationError
 from .forms import SaleForm, SaleItemFormSet
 from .services import create_sale
@@ -7,7 +6,12 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from products.models import Product
 from django.contrib.auth.decorators import login_required
-from .models import Sale
+from .models import Sale,Refund
+from django.db.models import Q
+from datetime import datetime
+from django.core.paginator import Paginator
+from .returns import create_sale_return, create_refund, SaleReturn
+
 # Create your views here.
 @login_required
 def create_sale_view(request):
@@ -53,15 +57,12 @@ def create_sale_view(request):
         },
     )
 def sale_detail(request, pk):
-
-    sale = (
-        Sale.objects
-        .select_related("customer", "created_by")
-        .prefetch_related(
+    sale = get_object_or_404(
+        Sale.objects.prefetch_related(
             "items__product",
             "payments",
-        )
-        .get(pk=pk)
+        ),
+        pk=pk,
     )
 
     return render(
@@ -71,9 +72,7 @@ def sale_detail(request, pk):
             "sale": sale,
         },
     )
-@require_GET
 def product_by_barcode(request):
-
     barcode = request.GET.get("barcode", "").strip()
 
     if not barcode:
@@ -112,4 +111,397 @@ def product_by_barcode(request):
                 ),
             },
         }
+    )
+def sales_history(request):
+    sales = (
+        Sale.objects
+        .select_related(
+            "customer",
+            "created_by",
+        )
+        .order_by("-sale_date")
+    )
+
+    # Search
+    search = request.GET.get(
+        "search",
+        ""
+    ).strip()
+
+    if search:
+        sales = sales.filter(
+            Q(invoice_number__icontains=search)
+            |
+            Q(customer__name__icontains=search)
+        )
+
+
+    # Status filter
+    status = request.GET.get(
+        "status",
+        ""
+    )
+
+    if status:
+        sales = sales.filter(
+            status=status
+        )
+
+
+    # Payment method filter
+    payment_method = request.GET.get(
+        "payment_method",
+        ""
+    )
+
+    if payment_method:
+        sales = sales.filter(
+            payment_method=payment_method
+        )
+
+
+    # Date filters
+    date_from = request.GET.get(
+        "date_from",
+        ""
+    )
+
+    date_to = request.GET.get(
+        "date_to",
+        ""
+    )
+
+    if date_from:
+        sales = sales.filter(
+            sale_date__date__gte=date_from
+        )
+
+    if date_to:
+        sales = sales.filter(
+            sale_date__date__lte=date_to
+        )
+
+
+    # Pagination
+    paginator = Paginator(
+        sales,
+        20
+    )
+
+    page_number = request.GET.get(
+        "page"
+    )
+
+    page_obj = paginator.get_page(
+        page_number
+    )
+
+
+    return render(
+        request,
+        "sales/sales_history.html",
+        {
+            "sales": page_obj,
+
+            "search": search,
+
+            "selected_status": status,
+
+            "selected_payment_method":
+                payment_method,
+
+            "status_choices":
+                Sale.Status.choices,
+
+            "payment_choices":
+                Sale.PAYMENT_METHODS,
+
+            "date_from": date_from,
+
+            "date_to": date_to,
+        }
+    )
+@login_required
+def create_return(request, pk):
+
+    sale = get_object_or_404(
+        Sale.objects.prefetch_related(
+            "items__product"
+        ),
+        pk=pk,
+    )
+
+
+    if request.method == "POST":
+
+        items = []
+
+
+        for sale_item in sale.items.all():
+
+            quantity = request.POST.get(
+                f"quantity_{sale_item.id}",
+                "0",
+            )
+
+
+            try:
+                quantity = int(quantity)
+
+            except (TypeError, ValueError):
+
+                quantity = 0
+
+
+            if quantity > 0:
+
+                items.append(
+                    {
+                        "sale_item": sale_item,
+                        "quantity": quantity,
+                    }
+                )
+
+
+        reason = request.POST.get(
+            "reason",
+            "",
+        ).strip()
+
+
+        try:
+
+            sale_return = create_sale_return(
+                sale=sale,
+                created_by=request.user,
+                items=items,
+                reason=reason,
+            )
+
+        except ValidationError as e:
+
+            return render(
+                request,
+                "sales/create_return.html",
+                {
+                    "sale": sale,
+                    "error": e.message,
+                },
+            )
+
+
+        return redirect(
+            "sales:return_detail",
+            pk=sale_return.pk,
+        )
+
+
+    return render(
+        request,
+        "sales/create_return.html",
+        {
+            "sale": sale,
+        },
+    )
+def create_refund_view(request, pk):
+
+    sale_return = get_object_or_404(
+        SaleReturn.objects.select_related(
+            "sale",
+        ),
+        pk=pk,
+    )
+
+
+    if request.method == "POST":
+
+        payment_method = request.POST.get(
+            "payment_method"
+        )
+
+
+        try:
+
+            refund = create_refund(
+                sale_return=sale_return,
+                refunded_by=request.user,
+                payment_method=payment_method,
+            )
+
+        except ValidationError as e:
+
+            return render(
+                request,
+                "sales/create_refund.html",
+                {
+                    "sale_return": sale_return,
+                    "error": e.message,
+                    "payment_choices":
+                        Sale.PAYMENT_METHODS,
+                },
+            )
+
+
+        return redirect(
+            "sales:refund_detail",
+            pk=refund.pk,
+        )
+
+
+    return render(
+        request,
+        "sales/create_refund.html",
+        {
+            "sale_return": sale_return,
+            "payment_choices":
+                Sale.PAYMENT_METHODS,
+        },
+    )
+@login_required
+def return_detail(request, pk):
+
+    sale_return = get_object_or_404(
+        SaleReturn.objects.select_related(
+            "sale",
+            "created_by",
+        ).prefetch_related(
+            "items__sale_item__product"
+        ),
+        pk=pk,
+    )
+
+    return render(
+        request,
+        "sales/return_detail.html",
+        {
+            "sale_return": sale_return,
+        },
+    )
+def return_history(request):
+
+    returns = (
+        SaleReturn.objects
+        .select_related(
+            "sale",
+            "created_by",
+        )
+        .prefetch_related(
+            "items__sale_item__product",
+        )
+        .order_by("-created_at")
+    )
+
+    search = request.GET.get(
+        "search",
+        ""
+    ).strip()
+
+    if search:
+        returns = returns.filter(
+            Q(return_number__icontains=search)
+            |
+            Q(sale__invoice_number__icontains=search)
+        )
+
+    status = request.GET.get(
+        "status",
+        ""
+    )
+
+    if status:
+        returns = returns.filter(
+            status=status
+        )
+
+    paginator = Paginator(
+        returns,
+        20
+    )
+
+    page_number = request.GET.get(
+        "page"
+    )
+
+    page_obj = paginator.get_page(
+        page_number
+    )
+
+    return render(
+        request,
+        "sales/return_history.html",
+        {
+            "returns": page_obj,
+            "search": search,
+            "selected_status": status,
+            "status_choices": SaleReturn.Status.choices,
+        },
+    )
+def refund_history(request):
+
+    refunds = (
+        Refund.objects
+        .select_related(
+            "sale_return",
+            "sale_return__sale",
+            "refunded_by",
+        )
+        .order_by("-created_at")
+    )
+
+    search = request.GET.get(
+        "search",
+        ""
+    ).strip()
+
+    if search:
+        refunds = refunds.filter(
+            Q(sale_return__return_number__icontains=search)
+            |
+            Q(sale_return__sale__invoice_number__icontains=search)
+        )
+
+    payment_method = request.GET.get(
+        "payment_method",
+        ""
+    )
+
+    if payment_method:
+        refunds = refunds.filter(
+            payment_method=payment_method
+        )
+
+    status = request.GET.get(
+        "status",
+        ""
+    )
+
+    if status:
+        refunds = refunds.filter(
+            status=status
+        )
+
+    paginator = Paginator(
+        refunds,
+        20
+    )
+
+    page_number = request.GET.get(
+        "page"
+    )
+
+    page_obj = paginator.get_page(
+        page_number
+    )
+
+    return render(
+        request,
+        "sales/refund_history.html",
+        {
+            "refunds": page_obj,
+            "search": search,
+            "selected_payment_method": payment_method,
+            "selected_status": status,
+            "payment_choices": Sale.PAYMENT_METHODS,
+            "status_choices": Refund.Status.choices,
+        },
     )

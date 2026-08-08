@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>
+        Refund History
+    </title>
+
+</head>
+
+<body>
+
+    <h1>
+        Refund History
+    </h1>
+
+
+    <form method="get">
+
+        <input
+            type="text"
+            name="search"
+            placeholder="Return number or invoice..."
+            value="{{ search }}"
+        >
+
+
+        <select name="payment_method">
+
+            <option value="">
+                All Payment Methods
+            </option>
+
+
+            {% for value, label in payment_choices %}
+
+                <option
+                    value="{{ value }}"
+                    {% if selected_payment_method == value %}
+                        selected
+                    {% endif %}
+                >
+                    {{ label }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+
+        <select name="status">
+
+            <option value="">
+                All Statuses
+            </option>
+
+
+            {% for value, label in status_choices %}
+
+                <option
+                    value="{{ value }}"
+                    {% if selected_status == value %}
+                        selected
+                    {% endif %}
+                >
+                    {{ label }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+
+        <button type="submit">
+            Search
+        </button>
+
+    </form>
+
+
+    <br>
+
+
+    <table border="1" cellpadding="10">
+
+        <thead>
+
+            <tr>
+
+                <th>
+                    Return Number
+                </th>
+
+                <th>
+                    Invoice
+                </th>
+
+                <th>
+                    Refund Amount
+                </th>
+
+                <th>
+                    Payment Method
+                </th>
+
+                <th>
+                    Status
+                </th>
+
+                <th>
+                    Refunded By
+                </th>
+
+                <th>
+                    Date
+                </th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            {% for refund in refunds %}
+
+                <tr>
+
+                    <td>
+                        {{ refund.sale_return.return_number }}
+                    </td>
+
+                    <td>
+                        {{ refund.sale_return.sale.invoice_number }}
+                    </td>
+
+                    <td>
+                        {{ refund.amount }}
+                    </td>
+
+                    <td>
+                        {{ refund.get_payment_method_display }}
+                    </td>
+
+                    <td>
+                        {{ refund.get_status_display }}
+                    </td>
+
+                    <td>
+                        {{ refund.refunded_by }}
+                    </td>
+
+                    <td>
+                        {{ refund.created_at|date:"d M Y H:i" }}
+                    </td>
+
+                </tr>
+
+            {% empty %}
+
+                <tr>
+
+                    <td colspan="7">
+                        No refunds found.
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+
+    <br>
+
+
+    {% if refunds.has_previous %}
+
+        <a
+            href="?page={{ refunds.previous_page_number }}&search={{ search }}&payment_method={{ selected_payment_method }}&status={{ selected_status }}"
+        >
+            Previous
+        </a>
+
+    {% endif %}
+
+
+    Page {{ refunds.number }}
+    of {{ refunds.paginator.num_pages }}
+
+
+    {% if refunds.has_next %}
+
+        <a
+            href="?page={{ refunds.next_page_number }}&search={{ search }}&payment_method={{ selected_payment_method }}&status={{ selected_status }}"
+        >
+            Next
+        </a>
+
+    {% endif %}
+
+</body>
+
+</html>

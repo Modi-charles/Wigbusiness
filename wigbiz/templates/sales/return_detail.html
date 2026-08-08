@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>
+        Return {{ sale_return.return_number }}
+    </title>
+
+</head>
+
+<body>
+
+    <h1>
+        Return {{ sale_return.return_number }}
+    </h1>
+
+    <p>
+        <strong>Original Invoice:</strong>
+        {{ sale_return.sale.invoice_number }}
+    </p>
+
+    <p>
+        <strong>Return Date:</strong>
+        {{ sale_return.created_at|date:"d M Y H:i" }}
+    </p>
+
+    <p>
+        <strong>Status:</strong>
+        {{ sale_return.get_status_display }}
+    </p>
+
+    {% if sale_return.reason %}
+
+        <p>
+            <strong>Reason:</strong>
+            {{ sale_return.reason }}
+        </p>
+
+    {% endif %}
+
+
+    <h2>
+        Returned Items
+    </h2>
+
+
+    <table border="1" cellpadding="10">
+
+        <thead>
+
+            <tr>
+
+                <th>Product</th>
+
+                <th>Quantity</th>
+
+                <th>Selling Price</th>
+
+                <th>Refund</th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            {% for item in sale_return.items.all %}
+
+                <tr>
+
+                    <td>
+                        {{ item.sale_item.product.name }}
+                    </td>
+
+                    <td>
+                        {{ item.quantity }}
+                    </td>
+
+                    <td>
+                        {{ item.sale_item.selling_price }}
+                    </td>
+
+                    <td>
+                        {{ item.refund_amount }}
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+
+    <h2>
+        Total Refund:
+        {{ sale_return.total_refund }}
+    </h2>
+
+
+    {% if sale_return.status == "COMPLETED" %}
+
+        {% if not sale_return.refund %}
+
+            <a
+                href="{% url 'sales:create_refund' sale_return.pk %}"
+            >
+                Process Refund
+            </a>
+
+        {% else %}
+
+            <p>
+                Refund has already been processed.
+            </p>
+
+        {% endif %}
+
+    {% endif %}
+
+
+</body>
+
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+```
+<meta charset="UTF-8">
+
+<title>
+    Sales History
+</title>
+<form method="get">
+
+    <input
+        type="text"
+        name="search"
+        placeholder="Search invoice or customer..."
+        value="{{ search }}"
+    >
+
+
+    <select name="status">
+
+        <option value="">
+            All Statuses
+        </option>
+
+        {% for value, label in status_choices %}
+
+            <option
+                value="{{ value }}"
+                {% if selected_status == value %}
+                    selected
+                {% endif %}
+            >
+                {{ label }}
+            </option>
+
+        {% endfor %}
+
+    </select>
+
+
+    <select name="payment_method">
+
+        <option value="">
+            All Payment Methods
+        </option>
+
+        {% for value, label in payment_choices %}
+
+            <option
+                value="{{ value }}"
+                {% if selected_payment_method == value %}
+                    selected
+                {% endif %}
+            >
+                {{ label }}
+            </option>
+
+        {% endfor %}
+
+    </select>
+
+<label>
+    From:
+</label>
+
+<input
+    type="date"
+    name="date_from"
+    value="{{ date_from }}"
+>
+
+
+<label>
+    To:
+</label>
+
+<input
+    type="date"
+    name="date_to"
+    value="{{ date_to }}"
+>
+    <button type="submit">
+        Search
+    </button>
+
+
+    <a href="{% url 'sales:sales_history' %}">
+        Clear
+    </a>
+
+</form>
+<style>
+
+    body {
+        font-family: Arial, sans-serif;
+        padding: 30px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        padding: 10px;
+        border: 1px solid #ddd;
+    }
+
+    th {
+        background: #f2f2f2;
+    }
+
+    .view-button {
+        text-decoration: none;
+        padding: 6px 10px;
+        background: #222;
+        color: white;
+    }
+
+</style>
+```
+
+</head>
+
+<body>
+
+```
+<h1>
+    Sales History
+</h1>
+
+
+<table>
+
+    <thead>
+
+        <tr>
+
+            <th>
+                Invoice
+            </th>
+
+            <th>
+                Date
+            </th>
+
+            <th>
+                Customer
+            </th>
+
+            <th>
+                Cashier
+            </th>
+
+            <th>
+                Total
+            </th>
+
+            <th>
+                Paid
+            </th>
+
+            <th>
+                Balance
+            </th>
+
+            <th>
+                Payment
+            </th>
+
+            <th>
+                Status
+            </th>
+
+            <th>
+                Action
+            </th>
+
+        </tr>
+
+    </thead>
+
+
+    <tbody>
+
+        {% for sale in sales %}
+
+            <tr>
+
+                <td>
+                    {{ sale.invoice_number }}
+                </td>
+
+                <td>
+                    {{ sale.sale_date|date:"d M Y H:i" }}
+                </td>
+
+                <td>
+
+                    {% if sale.customer %}
+                        {{ sale.customer }}
+                    {% else %}
+                        Walk-in Customer
+                    {% endif %}
+
+                </td>
+
+                <td>
+                    {{ sale.created_by }}
+                </td>
+
+                <td>
+                    {{ sale.total_amount }}
+                </td>
+
+                <td>
+                    {{ sale.paid_amount }}
+                </td>
+
+                <td>
+                    {{ sale.balance }}
+                </td>
+
+                <td>
+                    {{ sale.get_payment_method_display }}
+                </td>
+
+                <td>
+                    {{ sale.get_status_display }}
+                </td>
+
+                <td>
+
+                    <a
+                        href="{% url 'sales:sale_detail' sale.pk %}"
+                        class="view-button"
+                    >
+                        View
+                    </a>
+
+                </td>
+
+            </tr>
+
+        {% empty %}
+
+            <tr>
+
+                <td colspan="10">
+                    No sales found.
+                </td>
+
+            </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+<div class="pagination">
+
+    {% if sales.has_previous %}
+
+        <a
+            href="?page={{ sales.previous_page_number }}&search={{ search }}&status={{ selected_status }}&payment_method={{ selected_payment_method }}&date_from={{ date_from }}&date_to={{ date_to }}"
+        >
+            Previous
+        </a>
+
+    {% endif %}
+
+
+    <span>
+        Page {{ sales.number }}
+        of {{ sales.paginator.num_pages }}
+    </span>
+
+
+    {% if sales.has_next %}
+
+        <a
+            href="?page={{ sales.next_page_number }}&search={{ search }}&status={{ selected_status }}&payment_method={{ selected_payment_method }}&date_from={{ date_from }}&date_to={{ date_to }}"
+        >
+            Next
+        </a>
+
+    {% endif %}
+
+</div>
+
+</body>
+
+</html>

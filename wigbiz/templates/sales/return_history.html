@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>
+        Return History
+    </title>
+
+</head>
+
+<body>
+
+    <h1>
+        Return History
+    </h1>
+
+
+    <form method="get">
+
+        <input
+            type="text"
+            name="search"
+            placeholder="Return number or invoice..."
+            value="{{ search }}"
+        >
+
+
+        <select name="status">
+
+            <option value="">
+                All Statuses
+            </option>
+
+
+            {% for value, label in status_choices %}
+
+                <option
+                    value="{{ value }}"
+                    {% if selected_status == value %}
+                        selected
+                    {% endif %}
+                >
+                    {{ label }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+
+        <button type="submit">
+            Search
+        </button>
+
+    </form>
+
+
+    <br>
+
+
+    <table border="1" cellpadding="10">
+
+        <thead>
+
+            <tr>
+
+                <th>
+                    Return Number
+                </th>
+
+                <th>
+                    Invoice
+                </th>
+
+                <th>
+                    Refund
+                </th>
+
+                <th>
+                    Status
+                </th>
+
+                <th>
+                    Created By
+                </th>
+
+                <th>
+                    Date
+                </th>
+
+                <th>
+                    Action
+                </th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            {% for return in returns %}
+
+                <tr>
+
+                    <td>
+                        {{ return.return_number }}
+                    </td>
+
+                    <td>
+                        {{ return.sale.invoice_number }}
+                    </td>
+
+                    <td>
+                        {{ return.total_refund }}
+                    </td>
+
+                    <td>
+                        {{ return.get_status_display }}
+                    </td>
+
+                    <td>
+                        {{ return.created_by }}
+                    </td>
+
+                    <td>
+                        {{ return.created_at|date:"d M Y H:i" }}
+                    </td>
+
+                    <td>
+
+                        <a
+                            href="{% url 'sales:return_detail' return.pk %}"
+                        >
+                            View
+                        </a>
+
+                    </td>
+
+                </tr>
+
+            {% empty %}
+
+                <tr>
+
+                    <td colspan="7">
+                        No returns found.
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+
+    <br>
+
+
+    {% if returns.has_previous %}
+
+        <a
+            href="?page={{ returns.previous_page_number }}&search={{ search }}&status={{ selected_status }}"
+        >
+            Previous
+        </a>
+
+    {% endif %}
+
+
+    Page {{ returns.number }}
+    of {{ returns.paginator.num_pages }}
+
+
+    {% if returns.has_next %}
+
+        <a
+            href="?page={{ returns.next_page_number }}&search={{ search }}&status={{ selected_status }}"
+        >
+            Next
+        </a>
+
+    {% endif %}
+
+</body>
+
+</html>

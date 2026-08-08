@@ -83,3 +83,130 @@ class InvoiceSequence(models.Model):
     last_number = models.PositiveIntegerField(default=0)
     def __str__(self):
         return f"{self.name}:{self.last_number}"
+    
+class SaleReturn(models.Model):
+
+    class Status(models.TextChoices):
+
+        PENDING = "PENDING", "Pending"
+
+        COMPLETED = "COMPLETED", "Completed"
+
+        CANCELLED = "CANCELLED", "Cancelled"
+
+
+    sale = models.ForeignKey(
+        Sale,
+        on_delete=models.PROTECT,
+        related_name="returns",
+    )
+
+    return_number = models.CharField(
+        max_length=50,
+        unique=True,
+    )
+
+    reason = models.TextField(
+        blank=True,
+    )
+
+    total_refund = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.PENDING,
+    )
+
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="created_returns",
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    def __str__(self):
+
+        return self.return_number
+class SaleReturnItem(models.Model):
+
+    sale_return = models.ForeignKey(
+        SaleReturn,
+        on_delete=models.CASCADE,
+        related_name="items",
+    )
+
+    sale_item = models.ForeignKey(
+        SaleItem,
+        on_delete=models.PROTECT,
+        related_name="return_items",
+    )
+
+    quantity = models.PositiveIntegerField()
+
+    refund_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+    )
+
+    def __str__(self):
+
+        return (
+            f"{self.sale_return.return_number} - "
+            f"{self.sale_item.product.name}"
+        )
+class Refund(models.Model):
+
+    class Status(models.TextChoices):
+
+        COMPLETED = "COMPLETED", "Completed"
+        CANCELLED = "CANCELLED", "Cancelled"
+
+    sale_return = models.OneToOneField(
+        SaleReturn,
+        on_delete=models.PROTECT,
+        related_name="refund",
+    )
+
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+    )
+
+    payment_method = models.CharField(
+        max_length=20,
+        choices=Sale.PAYMENT_METHODS,
+    )
+
+    refunded_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="refunds_processed",
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.COMPLETED,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    def __str__(self):
+
+        return (
+            f"Refund for "
+            f"{self.sale_return.return_number}"
+        )    

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+```
+<meta charset="UTF-8">
+
+<title>
+    Process Refund
+</title>
+```
+
+</head>
+
+<body>
+
+```
+<h1>
+    Process Refund
+</h1>
+
+
+{% if error %}
+
+    <p style="color: red;">
+        {{ error }}
+    </p>
+
+{% endif %}
+
+
+<p>
+
+    <strong>
+        Return:
+    </strong>
+
+    {{ sale_return.return_number }}
+
+</p>
+
+
+<p>
+
+    <strong>
+        Original Sale:
+    </strong>
+
+    {{ sale_return.sale.invoice_number }}
+
+</p>
+
+
+<p>
+
+    <strong>
+        Refund Amount:
+    </strong>
+
+    {{ sale_return.total_refund }}
+
+</p>
+
+
+<form method="post">
+
+    {% csrf_token %}
+
+
+    <label>
+        Refund Method:
+    </label>
+
+
+    <select name="payment_method" required>
+
+        <option value="">
+            Select payment method
+        </option>
+
+
+        {% for value, label in payment_choices %}
+
+            <option value="{{ value }}">
+                {{ label }}
+            </option>
+
+        {% endfor %}
+
+    </select>
+
+
+    <br><br>
+
+
+    <button type="submit">
+        Complete Refund
+    </button>
+
+</form>
+```
+
+</body>
+
+</html>
