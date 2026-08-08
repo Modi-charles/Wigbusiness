@@ -1,0 +1,211 @@
+{% extends "dashboard/home.html" %}
+
+{% block content %}
+<style>
+
+    .report-cards {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin: 20px 0;
+    }
+
+    .report-card {
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: white;
+    }
+
+    .report-card h3 {
+        margin-top: 0;
+    }
+
+    .report-card p {
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        padding: 10px;
+        text-align: left;
+    }
+
+</style>
+<h2>Purchase Reports</h2>
+
+<!-- SUMMARY CARDS -->
+
+<div class="report-cards">
+
+    <div class="report-card">
+        <h3>Total Purchases</h3>
+        <p>{{ total_purchases }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Total Spending</h3>
+        <p>{{ total_spending }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Total Paid</h3>
+        <p>{{ total_paid }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Outstanding</h3>
+        <p>{{ total_outstanding }}</p>
+    </div>
+
+</div>
+
+
+<hr>
+
+
+<!-- PAYMENT SUMMARY -->
+
+<h3>Payment Summary</h3>
+
+<table border="1" cellpadding="8" cellspacing="0">
+
+    <thead>
+        <tr>
+            <th>Status</th>
+            <th>Number of Purchases</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        <tr>
+            <td>Paid</td>
+            <td>{{ paid_purchases }}</td>
+        </tr>
+
+        <tr>
+            <td>Partial</td>
+            <td>{{ partial_purchases }}</td>
+        </tr>
+
+        <tr>
+            <td>Unpaid</td>
+            <td>{{ unpaid_purchases }}</td>
+        </tr>
+
+    </tbody>
+
+</table>
+
+
+<br>
+
+
+<!-- PURCHASE STATUS -->
+
+<h3>Purchase Status</h3>
+
+<table border="1" cellpadding="8" cellspacing="0">
+
+    <thead>
+        <tr>
+            <th>Status</th>
+            <th>Number of Purchases</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        <tr>
+            <td>Received</td>
+            <td>{{ received_purchases }}</td>
+        </tr>
+
+        <tr>
+            <td>Pending</td>
+            <td>{{ pending_purchases }}</td>
+        </tr>
+
+    </tbody>
+
+</table>
+
+
+<br>
+
+
+<!-- SUPPLIER SUMMARY -->
+
+<h3>Purchases by Supplier</h3>
+
+<table border="1" cellpadding="8" cellspacing="0">
+
+    <thead>
+
+        <tr>
+            <th>Supplier</th>
+            <th>Purchases</th>
+            <th>Total Amount</th>
+            <th>Total Paid</th>
+            <th>Outstanding</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for supplier in supplier_summary %}
+
+        <tr>
+
+            <td>
+                {{ supplier.supplier__name }}
+            </td>
+
+            <td>
+                {{ supplier.purchase_count }}
+            </td>
+
+            <td>
+                {{ supplier.total_amount }}
+            </td>
+
+            <td>
+                {{ supplier.total_paid }}
+            </td>
+
+            <td>
+                {{ supplier.balance }}
+            </td>
+
+        </tr>
+
+        {% empty %}
+
+        <tr>
+            <td colspan="5">
+                No purchase data available.
+            </td>
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+
+<br>
+
+<a href="{% url 'view_purchase' %}">
+    Back to Purchases
+</a>
+
+{% endblock %}

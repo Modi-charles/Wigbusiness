@@ -3,6 +3,9 @@ from django.shortcuts import render, redirect
 from django.core.exceptions import ValidationError
 from .forms import SaleForm, SaleItemFormSet
 from .services import create_sale
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
+from products.models import Product
 from django.contrib.auth.decorators import login_required
 from .models import Sale
 # Create your views here.
@@ -67,4 +70,46 @@ def sale_detail(request, pk):
         {
             "sale": sale,
         },
+    )
+@require_GET
+def product_by_barcode(request):
+
+    barcode = request.GET.get("barcode", "").strip()
+
+    if not barcode:
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Barcode is required.",
+            },
+            status=400,
+        )
+
+    try:
+        product = Product.objects.get(
+            barcode=barcode,
+            status=True,
+        )
+
+    except Product.DoesNotExist:
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Product not found.",
+            },
+            status=404,
+        )
+
+    return JsonResponse(
+        {
+            "success": True,
+            "product": {
+                "id": product.id,
+                "name": product.name,
+                "barcode": product.barcode,
+                "selling_price": str(
+                    product.selling_price
+                ),
+            },
+        }
     )

@@ -1,0 +1,355 @@
+{% extends "dashboard/home.html" %}
+
+{% block content %}
+
+<h2>Add Purchase</h2>
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    <h3>Purchase Information</h3>
+
+    {{ purchase_form.non_field_errors }}
+    {{ purchase_form.errors }}
+    <p>
+        {{ purchase_form.supplier.label_tag }}
+        {{ purchase_form.supplier }}
+        {{ purchase_form.supplier.errors }}
+    </p>
+
+    <p>
+        {{ purchase_form.invoice_number.label_tag }}
+        {{ purchase_form.invoice_number }}
+        {{ purchase_form.invoice_number.errors }}
+    </p>
+
+    <p>
+        {{ purchase_form.purchase_date.label_tag }}
+        {{ purchase_form.purchase_date }}
+        {{ purchase_form.purchase_date.errors }}
+    </p>
+
+
+    <h2>Products</h2>
+
+    {{ formset.management_form }}
+{{ formset.non_form_errors }}
+    <table border="1" cellpadding="8" cellspacing="0" width="100%">
+
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Cost Price</th>
+                <th>Subtotal</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody id="purchase-items">
+
+            {% for form in formset %}
+
+                <tr class="purchase-item">
+
+                    {{ form.id }}
+
+                    <td>
+                        {{ form.product }}
+                        {{ form.product.errors }}
+                    </td>
+
+                    <td>
+                        {{ form.quantity }}
+                        {{ form.quantity.errors }}
+                    </td>
+
+                    <td>
+                        {{ form.cost_price }}
+                        {{ form.cost_price.errors }}
+                    </td>
+
+                    <td class="item-subtotal">
+                        0.00
+                    </td>
+
+                    <td>
+                        <button
+                            type="button"
+                            class="remove-item">
+                            Remove
+                        </button>
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+
+    <br>
+
+    <button
+        type="button"
+        id="add-item">
+        + Add Product
+    </button>
+
+
+    <br><br>
+
+
+    <h3>
+        Total Amount:
+        <span id="purchase-total">0.00</span>
+    </h3>
+
+
+    <br>
+
+
+    <button type="submit">
+        Save Purchase
+    </button>
+
+</form>
+
+<table style="display: none;">
+
+    <tbody>
+
+        <tr id="empty-form" class="purchase-item">
+
+            {{ formset.empty_form.id }}
+
+            <td>
+                {{ formset.empty_form.product }}
+            </td>
+
+            <td>
+                {{ formset.empty_form.quantity }}
+            </td>
+
+            <td>
+                {{ formset.empty_form.cost_price }}
+            </td>
+
+            <td class="item-subtotal">
+                0.00
+            </td>
+
+            <td>
+                <button
+                    type="button"
+                    class="remove-item">
+                    Remove
+                </button>
+            </td>
+
+        </tr>
+
+    </tbody>
+
+</table>
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const addButton =
+        document.getElementById("add-item");
+
+    const itemsContainer =
+        document.getElementById("purchase-items");
+
+    const totalForms =
+        document.querySelector(
+            'input[name$="-TOTAL_FORMS"]'
+        );
+
+    const emptyForm =
+        document.getElementById("empty-form");
+
+
+    /*
+     * Calculate each row subtotal
+     * and the purchase total.
+     */
+    function calculateTotal() {
+
+        let total = 0;
+
+        const items =
+            document.querySelectorAll(".purchase-item");
+
+
+        items.forEach(function (item) {
+
+            const quantityInput =
+                item.querySelector(
+                    'input[name$="-quantity"]'
+                );
+
+            const costInput =
+                item.querySelector(
+                    'input[name$="-cost_price"]'
+                );
+
+            const subtotalCell =
+                item.querySelector(".item-subtotal");
+
+
+            if (!quantityInput || !costInput) {
+                return;
+            }
+
+
+            const quantity =
+                parseFloat(quantityInput.value) || 0;
+
+            const costPrice =
+                parseFloat(costInput.value) || 0;
+
+
+            const subtotal =
+                quantity * costPrice;
+
+
+            if (subtotalCell) {
+
+                subtotalCell.textContent =
+                    subtotal.toLocaleString(
+                        "en-US",
+                        {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }
+                    );
+            }
+
+
+            total += subtotal;
+
+        });
+
+
+        document.getElementById(
+            "purchase-total"
+        ).textContent =
+            total.toLocaleString(
+                "en-US",
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            );
+
+    }
+
+
+    /*
+     * ADD PRODUCT
+     */
+    addButton.addEventListener(
+        "click",
+        function () {
+
+            const formIndex =
+                parseInt(totalForms.value);
+
+
+            const newForm =
+                emptyForm.outerHTML.replace(
+                    /__prefix__/g,
+                    formIndex
+                );
+
+
+            itemsContainer.insertAdjacentHTML(
+                "beforeend",
+                newForm
+            );
+
+
+            totalForms.value =
+                formIndex + 1;
+
+
+            calculateTotal();
+
+        }
+    );
+
+
+    /*
+     * REMOVE PRODUCT
+     */
+    itemsContainer.addEventListener(
+        "click",
+        function (event) {
+
+            if (
+                !event.target.classList.contains(
+                    "remove-item"
+                )
+            ) {
+                return;
+            }
+
+
+            const item =
+                event.target.closest(
+                    ".purchase-item"
+                );
+
+
+            if (item) {
+
+                item.remove();
+
+                calculateTotal();
+
+            }
+
+        }
+    );
+
+
+    /*
+     * Recalculate when quantity
+     * or cost price changes.
+     */
+    itemsContainer.addEventListener(
+        "input",
+        function (event) {
+
+            if (
+                event.target.matches(
+                    'input[name$="-quantity"], input[name$="-cost_price"]'
+                )
+            ) {
+
+                calculateTotal();
+
+            }
+
+        }
+    );
+
+
+    /*
+     * Initial calculation
+     */
+    calculateTotal();
+
+});
+
+</script>
+
+
+{% endblock %}

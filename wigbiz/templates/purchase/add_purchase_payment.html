@@ -1,0 +1,83 @@
+{% extends "dashboard/home.html" %}
+
+{% block content %}
+
+<h2>Add Payment</h2>
+
+<h3>Purchase Information</h3>
+
+<table border="1" cellpadding="8" cellspacing="0">
+
+    <tr>
+        <th>Invoice Number</th>
+        <td>{{ purchase.invoice_number }}</td>
+    </tr>
+
+    <tr>
+        <th>Supplier</th>
+        <td>{{ purchase.supplier }}</td>
+    </tr>
+
+    <tr>
+        <th>Total Amount</th>
+        <td>{{ purchase.total_amount }}</td>
+    </tr>
+
+    <tr>
+        <th>Paid Amount</th>
+        <td>{{ purchase.paid_amount }}</td>
+    </tr>
+
+    <tr>
+        <th>Balance</th>
+        <td>{{ purchase.balance }}</td>
+    </tr>
+
+    <tr>
+        <th>Payment Status</th>
+        <td>{{ purchase.get_payment_status_display }}</td>
+    </tr>
+
+</table>
+
+<br>
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form.non_field_errors }}
+
+    <p>
+        {{ form.amount.label_tag }}
+        {{ form.amount }}
+        {{ form.amount.errors }}
+    </p>
+
+    <p>
+        {{ form.payment_method.label_tag }}
+        {{ form.payment_method }}
+        {{ form.payment_method.errors }}
+    </p>
+
+    <p>
+        {{ form.reference.label_tag }}
+        {{ form.reference }}
+        {{ form.reference.errors }}
+    </p>
+    <h3>
+    Total Payments:
+    {{ purchase.paid_amount }}
+    </h3>
+
+    <button type="submit">
+        Record Payment
+    </button>
+
+    <a href="{% url 'purchase_details' purchase.id %}">
+        Cancel
+    </a>
+
+</form>
+
+{% endblock %}

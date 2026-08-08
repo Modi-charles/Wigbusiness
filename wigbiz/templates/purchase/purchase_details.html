@@ -1,0 +1,263 @@
+{% extends "dashboard/home.html" %}
+
+{% block content %}
+
+<h2>Purchase Details</h2>
+
+
+<h3>Purchase Information</h3>
+
+<table border="1" cellpadding="8" cellspacing="0">
+
+    <tr>
+        <th>Invoice Number</th>
+        <td>{{ purchase.invoice_number }}</td>
+    </tr>
+
+    <tr>
+        <th>Supplier</th>
+        <td>{{ purchase.supplier }}</td>
+    </tr>
+
+    <tr>
+        <th>Purchase Date</th>
+        <td>{{ purchase.purchase_date }}</td>
+    </tr>
+
+    <tr>
+        <th>Status</th>
+        <td>
+            {% if purchase.status == "PENDING" %}
+
+                <strong>Pending</strong>
+
+            {% elif purchase.status == "RECEIVED" %}
+
+                <strong>Received</strong>
+
+            {% elif purchase.status == "CANCELLED" %}
+
+                <strong>Cancelled</strong>
+
+            {% endif %}
+        </td>
+    </tr>
+
+    <tr>
+        <th>Total Amount</th>
+        <td>
+            {{ purchase.total_amount }}
+        </td>
+    </tr>
+
+    <tr>
+        <th>Paid Amount</th>
+        <td>
+            {{ purchase.paid_amount }}
+        </td>
+    </tr>
+
+    <tr>
+        <th>Balance</th>
+        <td>
+            {{ purchase.balance }}
+        </td>
+    </tr>
+
+    <tr>
+        <th>Payment Status</th>
+        <td>
+            {{ purchase.get_payment_status_display }}
+        </td>
+    </tr>
+
+    <tr>
+        <th>Created By</th>
+        <td>
+            {{ purchase.created_by }}
+        </td>
+    </tr>
+
+</table>
+
+
+<br>
+
+
+<!-- =========================
+     PURCHASE ITEMS
+========================= -->
+
+<h3>Products</h3>
+
+{% if items %}
+
+<table border="1" cellpadding="8" cellspacing="0" width="100%">
+
+    <thead>
+
+        <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Cost Price</th>
+            <th>Subtotal</th>
+        </tr>
+
+    </thead>
+
+
+    <tbody>
+
+        {% for item in items %}
+
+        <tr>
+
+            <td>
+                {{ item.product }}
+            </td>
+
+            <td>
+                {{ item.quantity }}
+            </td>
+
+            <td>
+                {{ item.cost_price }}
+            </td>
+
+            <td>
+                {{ item.subtotal }}
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% else %}
+
+<p>
+    No products have been added to this purchase.
+</p>
+
+{% endif %}
+
+
+<br>
+
+
+<h3>Actions</h3>
+
+
+{% if purchase.status == "PENDING" %}
+
+    <a href="{% url 'receive_purchase' purchase.id %}">
+        Receive Purchase
+    </a>
+
+
+{% elif purchase.status == "RECEIVED" %}
+
+    <strong>
+        Purchase Received
+    </strong>
+
+
+{% elif purchase.status == "CANCELLED" %}
+
+    <strong>
+        Purchase Cancelled
+    </strong>
+
+{% endif %}
+
+
+<br><br>
+{% if purchase.payment_status != "PAID" %}
+
+    <a href="{% url 'add_purchase_payment' purchase.id %}">
+        Add Payment
+    </a>
+
+{% else %}
+
+    <strong>
+        Fully Paid
+    </strong>
+<br><br>
+
+{% endif %}
+<a href="{% url 'purchase_invoice' purchase.id %}">
+    View Invoice
+</a>
+<a href="{% url 'view_purchase' %}">
+    Back to Purchases
+</a>
+
+<h2>Payment History</h2>
+
+{% if payments %}
+
+<table border="1" cellpadding="8" cellspacing="0">
+
+    <thead>
+
+        <tr>
+            <th>Date</th>
+            <th>Payment Method</th>
+            <th>Reference</th>
+            <th>Amount</th>
+            <th>Recorded By</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for payment in payments %}
+
+        <tr>
+
+            <td>
+                {{ payment.payment_date|date:"d M Y H:i" }}
+            </td>
+
+            <td>
+                {{ payment.get_payment_method_display }}
+            </td>
+
+            <td>
+                {% if payment.reference %}
+                    {{ payment.reference }}
+                {% else %}
+                    —
+                {% endif %}
+            </td>
+
+            <td>
+                {{ payment.amount }}
+            </td>
+
+            <td>
+                {{ payment.created_by }}
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% else %}
+
+<p>
+    No payments have been recorded for this purchase.
+</p>
+
+{% endif %}
+
+{% endblock %}

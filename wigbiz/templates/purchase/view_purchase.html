@@ -1,0 +1,206 @@
+{% extends "dashboard/home.html" %}
+
+{% block content %}
+
+<h2>Purchases</h2>
+
+<form method="GET">
+
+    <input
+        type="text"
+        name="search"
+        placeholder="Search invoice, supplier, product, code or barcode..."
+        value="{{ search }}"
+    >
+
+    <select name="payment_status">
+
+        <option value="">
+            All Payment Statuses
+        </option>
+
+        <option value="UNPAID"
+            {% if payment_status == "UNPAID" %}selected{% endif %}>
+            Unpaid
+        </option>
+
+        <option value="PARTIAL"
+            {% if payment_status == "PARTIAL" %}selected{% endif %}>
+            Partial
+        </option>
+
+        <option value="PAID"
+            {% if payment_status == "PAID" %}selected{% endif %}>
+            Paid
+        </option>
+
+    </select>
+
+    <select name="purchase_status">
+
+        <option value="">
+            All Purchase Statuses
+        </option>
+
+        <option value="DRAFT"
+            {% if purchase_status == "DRAFT" %}selected{% endif %}>
+            Draft
+        </option>
+
+        <option value="RECEIVED"
+            {% if purchase_status == "RECEIVED" %}selected{% endif %}>
+            Received
+        </option>
+
+        <option value="CANCELLED"
+            {% if purchase_status == "CANCELLED" %}selected{% endif %}>
+            Cancelled
+        </option>
+
+    </select>
+
+    <label>
+        From:
+        <input
+            type="date"
+            name="date_from"
+            value="{{ date_from }}"
+        >
+    </label>
+
+    <label>
+        To:
+        <input
+            type="date"
+            name="date_to"
+            value="{{ date_to }}"
+        >
+    </label>
+
+    <button type="submit">
+        Search
+    </button>
+
+    <a href="{% url 'view_purchase' %}">
+        Clear
+    </a>
+
+</form>
+
+<br>
+
+<table border="1" cellpadding="8" cellspacing="0">
+
+    <thead>
+
+        <tr>
+            <th>Invoice</th>
+            <th>Supplier</th>
+            <th>Date</th>
+            <th>Total</th>
+            <th>Paid</th>
+            <th>Balance</th>
+            <th>Payment Status</th>
+            <th>Purchase Status</th>
+            <th>Actions</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for purchase in purchases %}
+
+        <tr>
+
+            <td>
+                {{ purchase.invoice_number }}
+            </td>
+
+            <td>
+                {{ purchase.supplier }}
+            </td>
+
+            <td>
+                {{ purchase.purchase_date }}
+            </td>
+
+            <td>
+                {{ purchase.total_amount }}
+            </td>
+
+            <td>
+                {{ purchase.paid_amount }}
+            </td>
+
+            <td>
+                {{ purchase.balance }}
+            </td>
+
+            <td>
+                {{ purchase.get_payment_status_display }}
+            </td>
+
+            <td>
+                {{ purchase.get_status_display }}
+            </td>
+
+            <td>
+
+                <a href="{% url 'purchase_details' purchase.id %}">
+                    View
+                </a>
+
+                |
+
+                <a href="{% url 'purchase_invoice' purchase.id %}">
+                    Invoice
+                </a>
+
+            </td>
+
+        </tr>
+
+        {% empty %}
+
+        <tr>
+            <td colspan="9">
+                No purchases found.
+            </td>
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+<div>
+
+    {% if page_obj.has_previous %}
+
+        <a href="?page={{ page_obj.previous_page_number }}&search={{ search }}&payment_status={{ payment_status }}&purchase_status={{ purchase_status }}&date_from={{ date_from }}&date_to={{ date_to }}">
+            Previous
+        </a>
+
+    {% endif %}
+
+
+    <span>
+        Page {{ page_obj.number }}
+        of {{ page_obj.paginator.num_pages }}
+    </span>
+
+
+    {% if page_obj.has_next %}
+
+        <a href="?page={{ page_obj.next_page_number }}&search={{ search }}&payment_status={{ payment_status }}&purchase_status={{ purchase_status }}&date_from={{ date_from }}&date_to={{ date_to }}">
+            Next
+        </a>
+
+    {% endif %}
+
+</div>
+<a href="{% url 'purchase_reports' %}">
+    Purchase Reports
+</a>
+{% endblock %}

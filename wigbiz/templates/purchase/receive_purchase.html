@@ -1,0 +1,100 @@
+{% extends "dashboard/home.html" %}
+
+{% block content %}
+
+<h2>Receive Purchase</h2>
+
+<h3>Purchase Information</h3>
+
+<table border="1" cellpadding="8" cellspacing="0">
+
+    <tr>
+        <th>Invoice Number</th>
+        <td>{{ purchase.invoice_number }}</td>
+    </tr>
+
+    <tr>
+        <th>Supplier</th>
+        <td>{{ purchase.supplier }}</td>
+    </tr>
+
+    <tr>
+        <th>Purchase Date</th>
+        <td>{{ purchase.purchase_date }}</td>
+    </tr>
+
+    <tr>
+        <th>Total Amount</th>
+        <td>{{ purchase.total_amount }}</td>
+    </tr>
+
+</table>
+
+<br>
+
+<h3>Products</h3>
+
+<table border="1" cellpadding="8" cellspacing="0">
+
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Cost Price</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        {% for item in purchase.items.all %}
+
+        <tr>
+
+            <td>
+                {{ item.product }}
+            </td>
+
+            <td>
+                {{ item.quantity }}
+            </td>
+
+            <td>
+                {{ item.cost_price }}
+            </td>
+
+            <td>
+                {{ item.subtotal }}
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+<br>
+
+<p>
+    <strong>
+        Are you sure you want to receive this purchase?
+    </strong>
+</p>
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    <button type="submit">
+        Confirm Receive Purchase
+    </button>
+
+    <a href="{% url 'purchase_details' purchase.id %}">
+        Cancel
+    </a>
+
+</form>
+
+{% endblock %}

@@ -4,7 +4,7 @@
 <head>
     <title>New Sale</title>
 
-```
+
 <style>
     table {
         width: 100%;
@@ -53,7 +53,28 @@
 </div>
 
 <hr>
+<div>
+    <label for="barcode-input">
+        Scan Barcode
+    </label>
 
+    <input
+        type="text"
+        id="barcode-input"
+        placeholder="Scan barcode..."
+        autocomplete="off"
+        autofocus
+    >
+
+    <button
+        type="button"
+        id="scan-barcode"
+    >
+        Scan
+    </button>
+
+    <p id="barcode-message"></p>
+</div>
 <h2>Products</h2>
 
 {{ item_formset.management_form }}
@@ -553,6 +574,188 @@ itemRows.addEventListener(
 
 // Calculate when page loads
 calculateSale();
+/*---------------barcode js---------------*/
+const barcodeInput =
+    document.getElementById("barcode-input");
+
+const scanBarcodeButton =
+    document.getElementById("scan-barcode");
+
+const barcodeMessage =
+    document.getElementById("barcode-message");
+async function scanBarcode() {
+
+    const barcode =
+        barcodeInput.value.trim();
+
+    if (!barcode) {
+        return;
+    }
+
+    barcodeMessage.textContent =
+        "Searching...";
+
+    try {
+
+        const response = await fetch(
+            `/sales/product-by-barcode/?barcode=${encodeURIComponent(barcode)}`
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+
+            barcodeMessage.textContent =
+                data.message || "Product not found.";
+
+            barcodeInput.select();
+
+            return;
+        }
+
+        addProductToCart(
+            data.product
+        );
+
+        barcodeInput.value = "";
+
+        barcodeMessage.textContent =
+            `${data.product.name} added.`;
+
+        barcodeInput.focus();
+
+    } catch (error) {
+
+        barcodeMessage.textContent =
+            "Unable to search for product.";
+
+        console.error(error);
+    }
+}
+scanBarcodeButton.addEventListener(
+    "click",
+    scanBarcode
+);
+barcodeInput.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key === "Enter") {
+
+            event.preventDefault();
+
+            scanBarcode();
+        }
+    }
+);
+function addProductToCart(product) {
+
+    const rows = document.querySelectorAll(".item-row");
+
+    // Check whether product is already in cart
+    for (const row of rows) {
+
+        if (row.style.display === "none") {
+            continue;
+        }
+
+        const productSelect = row.querySelector(
+            "select[name$='product']"
+        );
+
+        const quantityInput = row.querySelector(
+            "input[name$='quantity']"
+        );
+
+        if (!productSelect || !quantityInput) {
+            continue;
+        }
+
+        if (productSelect.value == product.id) {
+
+            let quantity =
+                parseInt(quantityInput.value || 0);
+
+            quantity += 1;
+
+            quantityInput.value = quantity;
+
+            calculateSale();
+
+            return;
+        }
+    }
+
+
+    // Product isn't already in cart.
+    // Create a new formset row.
+    const formCount =
+        parseInt(totalForms.value);
+
+    const firstRow =
+        document.querySelector(".item-row");
+
+    const newRow =
+        firstRow.cloneNode(true);
+
+
+    // Change form-0 to form-N
+    newRow.innerHTML =
+        newRow.innerHTML.replace(
+            /form-\d+/g,
+            `form-${formCount}`
+        );
+
+
+    const productSelect =
+        newRow.querySelector(
+            "select[name$='product']"
+        );
+
+    const quantityInput =
+        newRow.querySelector(
+            "input[name$='quantity']"
+        );
+
+
+    // Select scanned product
+    productSelect.value = product.id;
+
+
+    // Start with quantity 1
+    quantityInput.value = 1;
+
+
+    // Reset price/total displays
+    const priceDisplay =
+        newRow.querySelector(
+            ".selling-price"
+        );
+
+    const totalDisplay =
+        newRow.querySelector(
+            ".line-total"
+        );
+
+
+    priceDisplay.textContent =
+        formatMoney(product.selling_price);
+
+    totalDisplay.textContent =
+        formatMoney(product.selling_price);
+
+
+    // Add row
+    itemRows.appendChild(newRow);
+
+
+    // Tell Django there is another form
+    totalForms.value =
+        formCount + 1;
+
+
+    calculateSale();
+}
 </script>
 
 </body>
