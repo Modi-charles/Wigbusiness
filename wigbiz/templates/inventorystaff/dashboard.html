@@ -1,0 +1,59 @@
+{% extends "inventory_staff/base.html" %}
+
+{% block title %}
+Inventory Dashboard
+{% endblock %}
+
+{% block content %}
+
+<h1>Inventory Dashboard</h1>
+
+<p>
+    Welcome, {{ user.get_full_name|default:user.username }}
+</p>
+
+
+<div class="report-cards">
+
+    <div class="report-card">
+        <h3>Total Products</h3>
+        <p>{{ total_products|default:"0" }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Stock Units</h3>
+        <p>{{ total_stock|default:"0" }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Low Stock</h3>
+        <p>{{ low_stock|default:"0" }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Out of Stock</h3>
+        <p>{{ out_of_stock|default:"0" }}</p>
+    </div>
+
+</div>
+
+
+<h2>Inventory Operations</h2>
+
+<a href="{% url 'inventory:view_inventory' %}">
+    Open Inventory
+</a>
+
+<br>
+
+<a href="{% url 'purchase:view_purchase' %}">
+    Purchases
+</a>
+
+<br>
+
+<a href="{% url 'suppliers:supplier_list' %}">
+    Suppliers
+</a>
+
+{% endblock %}

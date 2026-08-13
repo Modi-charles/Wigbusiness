@@ -1,93 +1,254 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Wig Business ERP{% endblock %}</title>
+
+    <title>
+        {% block title %}Wig Business ERP{% endblock %}
+    </title>
+
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 </head>
+
 <body>
 
-    <header class="navbar">
-        <div class="navbar-left">
-{% if user.is_authenticated %}
-<button class="sidebar-toggle" id="sidebarToggle">
-    &#9776;
-</button>
-{% endif %}           
- <span class="brand">WigBiz ERP</span>
-        </div>
-        <div class="navbar-right">
+<header class="navbar">
+
+    <div class="navbar-left">
+
+        {% if user.is_authenticated %}
+            <button class="sidebar-toggle" id="sidebarToggle">
+                &#9776;
+            </button>
+        {% endif %}
+
+        <span class="brand">
+            WigBiz ERP
+        </span>
+
+    </div>
+
+
+    <div class="navbar-right">
+
+        {% if user.is_authenticated %}
+
+            <span class="user-name">
+                {{ user.username }}
+            </span>
+
+            <a href="{% url 'accounts:logout' %}" class="logout-link">
+                Logout
+            </a>
+
+        {% else %}
+
+            <a href="{% url 'accounts:login' %}">
+                Login
+            </a>
+
+        {% endif %}
+
+    </div>
+
+</header>
+
+
+<div class="layout">
 
     {% if user.is_authenticated %}
 
-        <span class="user-name">
-            {{ user.username }}
-        </span>
+        <aside class="sidebar" id="sidebar">
 
-        <a href="{% url 'logout' %}" class="logout-link">
-            Logout
-        </a>
+            <nav>
 
-    {% else %}
+                <ul>
 
-        <a href="{% url 'login' %}">
-            Login
-        </a>
+                    <!-- DASHBOARD -->
+
+                    <li>
+                        <a href="{% url 'dashboard:dashboard' %}">
+                            Dashboard
+                        </a>
+                    </li>
+
+
+                    <!-- SALES -->
+
+                    {% if user.role_name == "Administrator" or user.role_name == "Manager" or user.role_name == "Salesperson" %}
+
+                        <li>
+                            <a href="{% url 'sales:create_sale' %}">
+                                Sales
+                            </a>
+                        </li>
+
+                    {% endif %}
+
+
+                    <!-- INVENTORY -->
+
+                    {% if user.role_name == "Administrator" or user.role_name == "Manager" or user.role_name == "Inventory Staff" %}
+
+                        <li>
+                            <a href="{% url 'inventory:view_inventory' %}">
+                                Inventory
+                            </a>
+                        </li>
+
+                    {% endif %}
+
+
+                    <!-- PURCHASES -->
+
+                    {% if user.role_name == "Administrator" or user.role_name == "Manager" or user.role_name == "Inventory Staff" or user.role_name == "Accountant" %}
+
+                        <li>
+                            <a href="{% url 'purchase:view_purchase' %}">
+                                Purchases
+                            </a>
+                        </li>
+
+                    {% endif %}
+
+
+                    <!-- REPORTS -->
+
+                    {% if user.role_name == "Administrator" or user.role_name == "Manager" or user.role_name == "Accountant" %}
+
+                        <li>
+                            <a href="{% url 'reports:dashboard' %}">
+                                Reports
+                            </a>
+                        </li>
+
+                    {% endif %}
+
+
+                    <!-- CUSTOMERS -->
+
+                    {% if user.role_name == "Administrator" or user.role_name == "Manager" or user.role_name == "Salesperson" or user.role_name == "Accountant" %}
+
+                        <li>
+                            <a href="{% url 'customers:customer_list' %}">
+                                Customers
+                            </a>
+                        </li>
+
+                    {% endif %}
+
+
+                    <!-- SUPPLIERS -->
+
+                    {% if user.role_name == "Administrator" or user.role_name == "Manager" or user.role_name == "Inventory Staff" or user.role_name == "Accountant" %}
+
+                        <li>
+                            <a href="{% url 'suppliers:supplier_list' %}">
+                                Suppliers
+                            </a>
+                        </li>
+
+                    {% endif %}
+
+
+                    <!-- EMPLOYEES -->
+
+                    {% if user.role_name == "Administrator" or user.role_name == "Manager" %}
+
+                        <li>
+                            <a href="{% url 'employees:employee_list' %}">
+                                Employees
+                            </a>
+                        </li>
+
+                    {% endif %}
+
+
+                    <!-- USERS -->
+
+                    {% if user.role_name == "Administrator" %}
+
+                        <li>
+                            <a href="{% url 'accounts:user_list' %}">
+                                Users
+                            </a>
+                        </li>
+
+                    {% endif %}
+
+
+                    <!-- CHANGE PASSWORD -->
+
+                    <li>
+                        <a href="{% url 'accounts:change_password' %}">
+                            Change Password
+                        </a>
+                    </li>
+
+
+                    <!-- LOGOUT -->
+
+                    <li>
+                        <a href="{% url 'accounts:logout' %}">
+                            Logout
+                        </a>
+                    </li>
+
+                </ul>
+
+            </nav>
+
+        </aside>
 
     {% endif %}
 
-</div>
-    </header>
 
-    <div class="layout">
-        {% if user.is_authenticated %}
-        <aside class="sidebar" id="sidebar">
-            <nav>
-                <ul>
-                    <li><a href="">Dashboard</a></li>
-                    <li><a href="">Products</a></li>
-                    <li><a href="">Inventory</a></li>
-                    <li><a href="">Customers</a></li>
-                    <li><a href="">Sales</a></li>
-                    <li><a href="">Suppliers</a></li>
-                    <li><a href="">Purchases</a></li>
-                    <li><a href="">Employees</a></li>
-                    <li><a href="">Reports</a></li>
-                    <li><a href="">Settings</a></li>
-                    <li><a href="{% url 'inventory_history' %}">
-                    Inventory History</a>
-                    </li>
-                </ul>
-            </nav>
-        </aside>
-        {% endif %}
-        <main class="main-content">
-            {% block content %}
-            {% endblock %}
-        </main>
-        {% if messages %}
+    <!-- MAIN CONTENT -->
 
-<div class="messages">
+    <main class="main-content">
 
-    {% for message in messages %}
+        {% block content %}
+        {% endblock %}
 
-        <div class="alert {{ message.tags }}">
-            {{ message }}
-        </div>
-
-    {% endfor %}
+    </main>
 
 </div>
 
-{% endif %}
+
+<!-- MESSAGES -->
+
+{% if messages %}
+
+    <div class="messages">
+
+        {% for message in messages %}
+
+            <div class="alert {{ message.tags }}">
+                {{ message }}
+            </div>
+
+        {% endfor %}
+
     </div>
 
-    <footer class="footer">
-        <p>&copy; {% now "Y" %} WigBiz ERP. All rights reserved.</p>
-    </footer>
+{% endif %}
 
-    <script src="{% static 'js/dashboard.js' %}"></script>
+
+<footer class="footer">
+
+    <p>
+        &copy; {% now "Y" %} WigBiz ERP. All rights reserved.
+    </p>
+
+</footer>
+
+
+<script src="{% static 'js/dashboard.js' %}"></script>
+
 </body>
+
 </html>

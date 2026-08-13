@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ action }} Employee
+{% endblock %}
+
+
+{% block content %}
+
+<h1>{{ action }} Employee</h1>
+
+
+<form method="POST">
+
+    {% csrf_token %}
+
+
+    {{ form.non_field_errors }}
+
+
+    <h3>Employee Information</h3>
+
+
+    <p>
+
+        {{ form.user.label_tag }}
+
+        {{ form.user }}
+
+        {{ form.user.errors }}
+
+    </p>
+
+
+    <p>
+
+        {{ form.employee_number.label_tag }}
+
+        {{ form.employee_number }}
+
+        {{ form.employee_number.errors }}
+
+    </p>
+
+
+    <p>
+
+        {{ form.address.label_tag }}
+
+        {{ form.address }}
+
+        {{ form.address.errors }}
+
+    </p>
+
+
+    <p>
+
+        {{ form.position.label_tag }}
+
+        {{ form.position }}
+
+        {{ form.position.errors }}
+
+    </p>
+
+
+    <p>
+
+        {{ form.department.label_tag }}
+
+        {{ form.department }}
+
+        {{ form.department.errors }}
+
+    </p>
+
+
+    <p>
+
+        {{ form.salary.label_tag }}
+
+        {{ form.salary }}
+
+        {{ form.salary.errors }}
+
+    </p>
+
+
+    <p>
+
+        {{ form.hire_date.label_tag }}
+
+        {{ form.hire_date }}
+
+        {{ form.hire_date.errors }}
+
+    </p>
+
+
+    <p>
+
+        {{ form.status.label_tag }}
+
+        {{ form.status }}
+
+        {{ form.status.errors }}
+
+    </p>
+
+
+    <button type="submit">
+        Save Employee
+    </button>
+
+
+    <a href="{% url 'employees:employee_list' %}">
+        Cancel
+    </a>
+
+</form>
+
+
+{% endblock %}

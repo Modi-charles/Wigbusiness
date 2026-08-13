@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}
+Inventory Report
+{% endblock %}
+
+{% block content %}
+
+<h1>Inventory Report</h1>
+
+<div>
+
+    <strong>Total Products:</strong>
+    {{ total_products }}
+
+</div>
+
+<div>
+
+    <strong>Available:</strong>
+    {{ total_available }}
+
+</div>
+
+<div>
+
+    <strong>Received:</strong>
+    {{ total_received }}
+
+</div>
+
+<div>
+
+    <strong>Sold:</strong>
+    {{ total_sold }}
+
+</div>
+
+<div>
+
+    <strong>Low Stock:</strong>
+    {{ low_stock }}
+
+</div>
+
+<div>
+
+    <strong>Out of Stock:</strong>
+    {{ out_of_stock }}
+
+</div>
+
+<hr>
+
+<table border="1" cellpadding="8">
+
+    <thead>
+
+        <tr>
+            <th>Product</th>
+            <th>Code</th>
+            <th>Available</th>
+            <th>Received</th>
+            <th>Sold</th>
+            <th>Reorder Level</th>
+            <th>Status</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for item in inventory %}
+
+        <tr>
+
+            <td>
+                {{ item.product.name }}
+            </td>
+
+            <td>
+                {{ item.product.product_code }}
+            </td>
+
+            <td>
+                {{ item.quantity_available }}
+            </td>
+
+            <td>
+                {{ item.quantity_received }}
+            </td>
+
+            <td>
+                {{ item.quantity_sold }}
+            </td>
+
+            <td>
+                {{ item.product.reorder_level }}
+            </td>
+
+            <td>
+
+                {% if item.quantity_available == 0 %}
+
+                    Out of Stock
+
+                {% elif item.quantity_available <= item.product.reorder_level %}
+
+                    Low Stock
+
+                {% else %}
+
+                    In Stock
+
+                {% endif %}
+
+            </td>
+
+        </tr>
+
+        {% empty %}
+
+        <tr>
+
+            <td colspan="7">
+                No inventory records found.
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+<br>
+
+<button onclick="window.print()">
+    Print
+</button>
+
+{% endblock %}

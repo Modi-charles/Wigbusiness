@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}
+Deactivate Employee
+{% endblock %}
+
+
+{% block content %}
+
+<h1>Deactivate Employee</h1>
+
+
+<p>
+    Are you sure you want to deactivate this employee?
+</p>
+
+
+<table border="1" cellpadding="8">
+
+    <tr>
+
+        <th>
+            Employee Number
+        </th>
+
+        <td>
+            {{ employee.employee_number }}
+        </td>
+
+    </tr>
+
+
+    <tr>
+
+        <th>
+            Username
+        </th>
+
+        <td>
+            {{ employee.user.username }}
+        </td>
+
+    </tr>
+
+
+    <tr>
+
+        <th>
+            Name
+        </th>
+
+        <td>
+
+            {{ employee.user.first_name }}
+
+            {{ employee.user.last_name }}
+
+        </td>
+
+    </tr>
+
+
+    <tr>
+
+        <th>
+            Position
+        </th>
+
+        <td>
+            {{ employee.position }}
+        </td>
+
+    </tr>
+
+</table>
+
+
+<br>
+
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    <button type="submit">
+        Yes, Deactivate
+    </button>
+
+
+    <a
+        href="{% url 'employees:employee_detail' employee.pk %}"
+    >
+        Cancel
+    </a>
+
+</form>
+
+
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "accountant/base.html" %}
+
+{% block title %}
+Accountant Dashboard
+{% endblock %}
+
+{% block content %}
+
+<h1>Accountant Dashboard</h1>
+
+<p>
+    Welcome, {{ user.get_full_name|default:user.username }}
+</p>
+
+
+<div class="report-cards">
+
+    <div class="report-card">
+        <h3>Total Revenue</h3>
+        <p>UGX {{ total_sales|default:"0" }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Total Purchases</h3>
+        <p>UGX {{ total_purchases|default:"0" }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Gross Profit</h3>
+        <p>UGX {{ gross_profit|default:"0" }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Customer Outstanding</h3>
+        <p>UGX {{ customer_outstanding|default:"0" }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Supplier Outstanding</h3>
+        <p>UGX {{ supplier_outstanding|default:"0" }}</p>
+    </div>
+
+</div>
+
+
+<h2>Financial Reports</h2>
+
+<a href="{% url 'reports:dashboard' %}">
+    Open Reports
+</a>
+
+{% endblock %}

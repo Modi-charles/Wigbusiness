@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}
+Sales Report
+{% endblock %}
+
+{% block content %}
+
+<h1>Sales Report</h1>
+
+<form method="GET">
+
+    <label>From:</label>
+
+    <input
+        type="date"
+        name="date_from"
+        value="{{ date_from }}"
+    >
+
+    <label>To:</label>
+
+    <input
+        type="date"
+        name="date_to"
+        value="{{ date_to }}"
+    >
+
+    <label>Status:</label>
+
+    <select name="status">
+
+        <option value="">All</option>
+
+        <option
+            value="DRAFT"
+            {% if status == "DRAFT" %}selected{% endif %}
+        >
+            Draft
+        </option>
+
+        <option
+            value="COMPLETED"
+            {% if status == "COMPLETED" %}selected{% endif %}
+        >
+            Completed
+        </option>
+
+        <option
+            value="CANCELLED"
+            {% if status == "CANCELLED" %}selected{% endif %}
+        >
+            Cancelled
+        </option>
+
+        <option
+            value="REFUNDED"
+            {% if status == "REFUNDED" %}selected{% endif %}
+        >
+            Refunded
+        </option>
+
+    </select>
+
+    <button type="submit">
+        Filter
+    </button>
+
+</form>
+
+<hr>
+
+<div>
+    <strong>Total Sales:</strong>
+    {{ total_sales }}
+</div>
+
+<div>
+    <strong>Total Revenue:</strong>
+    UGX {{ total_revenue }}
+</div>
+
+<div>
+    <strong>Total Paid:</strong>
+    UGX {{ total_paid }}
+</div>
+
+<div>
+    <strong>Outstanding:</strong>
+    UGX {{ total_balance }}
+</div>
+
+<hr>
+
+<table border="1" cellpadding="8">
+
+    <thead>
+
+        <tr>
+            <th>Invoice</th>
+            <th>Customer</th>
+            <th>Date</th>
+            <th>Total</th>
+            <th>Paid</th>
+            <th>Balance</th>
+            <th>Status</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for sale in sales %}
+
+        <tr>
+
+            <td>
+                {{ sale.invoice_number }}
+            </td>
+
+            <td>
+
+                {% if sale.customer %}
+                    {{ sale.customer }}
+                {% else %}
+                    Walk-in Customer
+                {% endif %}
+
+            </td>
+
+            <td>
+                {{ sale.sale_date|date:"d/m/Y H:i" }}
+            </td>
+
+            <td>
+                UGX {{ sale.total_amount }}
+            </td>
+
+            <td>
+                UGX {{ sale.paid_amount }}
+            </td>
+
+            <td>
+                UGX {{ sale.balance }}
+            </td>
+
+            <td>
+                {{ sale.get_status_display }}
+            </td>
+
+        </tr>
+
+        {% empty %}
+
+        <tr>
+            <td colspan="7">
+                No sales found.
+            </td>
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+<br>
+
+<button onclick="window.print()">
+    Print
+</button>
+
+{% endblock %}

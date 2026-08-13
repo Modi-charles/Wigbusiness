@@ -1,0 +1,250 @@
+{% extends "dashboard/home.html" %}
+
+{% block content %}
+
+<h2>Customer Details</h2>
+
+<hr>
+
+<!-- =========================
+     CUSTOMER INFORMATION
+========================= -->
+
+<h3>Customer Information</h3>
+
+<p>
+    <strong>Name:</strong>
+    {{ customer.first_name }}
+    {{ customer.last_name }}
+</p>
+
+<p>
+    <strong>Phone:</strong>
+    {{ customer.phone }}
+</p>
+
+<p>
+    <strong>Email:</strong>
+
+    {% if customer.email %}
+        {{ customer.email }}
+    {% else %}
+        Not provided
+    {% endif %}
+</p>
+
+<p>
+    <strong>Address:</strong>
+
+    {% if customer.address %}
+        {{ customer.address }}
+    {% else %}
+        Not provided
+    {% endif %}
+</p>
+
+<p>
+    <strong>Gender:</strong>
+
+    {% if customer.gender %}
+        {{ customer.gender }}
+    {% else %}
+        Not provided
+    {% endif %}
+</p>
+
+<p>
+    <strong>Date of Birth:</strong>
+
+    {% if customer.date_of_birth %}
+        {{ customer.date_of_birth }}
+    {% else %}
+        Not provided
+    {% endif %}
+</p>
+
+
+<hr>
+
+
+<!-- =========================
+     CUSTOMER ACCOUNT
+========================= -->
+
+<h3>Customer Account</h3>
+
+<p>
+    <strong>Loyalty Points:</strong>
+    {{ customer.loyalty_points }}
+</p>
+
+<p>
+    <strong>Balance:</strong>
+    UGX {{ customer.balance }}
+</p>
+
+<p>
+    <strong>Total Spent:</strong>
+    UGX {{ total_spent }}
+</p>
+
+<p>
+    <strong>Status:</strong>
+
+    {% if customer.is_active %}
+        Active
+    {% else %}
+        Inactive
+    {% endif %}
+</p>
+
+
+<hr>
+
+
+<!-- =========================
+     SALES HISTORY
+========================= -->
+
+<h3>Sales History</h3>
+
+{% if sales %}
+
+<table border="1" cellpadding="8" cellspacing="0">
+
+    <thead>
+
+        <tr>
+            <th>Invoice</th>
+            <th>Date</th>
+            <th>Subtotal</th>
+            <th>Discount</th>
+            <th>Tax</th>
+            <th>Total</th>
+            <th>Paid</th>
+            <th>Balance</th>
+            <th>Status</th>
+        </tr>
+
+    </thead>
+
+
+    <tbody>
+
+        {% for sale in sales %}
+
+        <tr>
+
+            <td>
+                {{ sale.invoice_number }}
+            </td>
+
+            <td>
+                {{ sale.sale_date|date:"d/m/Y H:i" }}
+            </td>
+
+            <td>
+                UGX {{ sale.subtotal }}
+            </td>
+
+            <td>
+                UGX {{ sale.discount }}
+            </td>
+
+            <td>
+                UGX {{ sale.tax }}
+            </td>
+
+            <td>
+                UGX {{ sale.total_amount }}
+            </td>
+
+            <td>
+                UGX {{ sale.paid_amount }}
+            </td>
+
+            <td>
+                UGX {{ sale.balance }}
+            </td>
+
+            <td>
+                {{ sale.status }}
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+
+<!-- =========================
+     SALES PAGINATION
+========================= -->
+
+{% if page_obj.has_other_pages %}
+
+<hr>
+
+<div>
+
+    {% if page_obj.has_previous %}
+
+        <a href="?page={{ page_obj.previous_page_number }}">
+            Previous
+        </a>
+
+    {% endif %}
+
+
+    <span>
+
+        Page {{ page_obj.number }}
+        of
+        {{ page_obj.paginator.num_pages }}
+
+    </span>
+
+
+    {% if page_obj.has_next %}
+
+        <a href="?page={{ page_obj.next_page_number }}">
+            Next
+        </a>
+
+    {% endif %}
+
+</div>
+
+{% endif %}
+
+
+{% else %}
+
+<p>
+    This customer has no sales yet.
+</p>
+
+{% endif %}
+
+
+<hr>
+
+
+<!-- =========================
+     CUSTOMER ACTIONS
+========================= -->
+
+<a href="{% url 'customers:customer_update' customer.pk %}">
+    Edit Customer
+</a>
+
+&nbsp; | &nbsp;
+
+<a href="{% url 'customers:customer_list' %}">
+    Back to Customers
+</a>
+
+{% endblock %}

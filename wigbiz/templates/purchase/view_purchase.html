@@ -81,7 +81,7 @@
         Search
     </button>
 
-    <a href="{% url 'view_purchase' %}">
+    <a href="{% url 'purchase:view_purchase' %}">
         Clear
     </a>
 
@@ -147,13 +147,13 @@
 
             <td>
 
-                <a href="{% url 'purchase_details' purchase.id %}">
+                <a href="{% url 'purchase:purchase_details' purchase.id %}">
                     View
                 </a>
 
                 |
 
-                <a href="{% url 'purchase_invoice' purchase.id %}">
+                <a href="{% url 'purchase:purchase_invoice' purchase.id %}">
                     Invoice
                 </a>
 
@@ -200,7 +200,7 @@
     {% endif %}
 
 </div>
-<a href="{% url 'purchase_reports' %}">
+<a href="{% url 'purchase:purchase_reports' %}">
     Purchase Reports
 </a>
 {% endblock %}

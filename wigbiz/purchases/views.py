@@ -9,6 +9,7 @@ from inventory.models import Inventory, InventoryTransaction
 from django.db import models
 from django.core.paginator import Paginator
 from django.db.models import Sum, Count
+from suppliers.services import record_supplier_purchase
 
 # Create your views here.
 @login_required
@@ -138,30 +139,86 @@ def view_purchase(request):
     )
 
 def receive_purchase(request, id):
+
     purchase = get_object_or_404(
-        Purchase,
+        Purchase.objects.select_related("supplier"),
         id=id
     )
+
+    # --------------------------------
+    # Prevent duplicate receiving
+    # --------------------------------
+
     if purchase.status == Purchase.Status.RECEIVED:
+
         messages.warning(
             request,
             "This purchase has already been received."
         )
+
         return redirect(
             "purchase_details",
             purchase.id
         )
+
+    # --------------------------------
+    # Receive purchase
+    # --------------------------------
+
     if request.method == "POST":
+
         with transaction.atomic():
-            items = purchase.items.select_related("product")
+
+            # Lock the purchase row.
+            # This protects against two requests
+            # receiving the same purchase at once.
+
+            purchase = Purchase.objects.select_for_update().select_related(
+                "supplier"
+            ).get(
+                id=id
+            )
+
+            # Check again after locking.
+
+            if purchase.status == Purchase.Status.RECEIVED:
+
+                messages.warning(
+                    request,
+                    "This purchase has already been received."
+                )
+
+                return redirect(
+                    "purchase_details",
+                    purchase.id
+                )
+
+            # --------------------------------
+            # Get purchase items
+            # --------------------------------
+
+            items = purchase.items.select_related(
+                "product"
+            )
+
+            # --------------------------------
+            # Update inventory
+            # --------------------------------
+
             for item in items:
+
                 inventory, created = Inventory.objects.get_or_create(
                     product=item.product
                 )
-                # Increase stock
-                inventory.quantity_available += item.quantity 
-                # Record how much stock has been received
+
+                # Increase available stock
+
+                inventory.quantity_available += item.quantity
+
+                # Increase total received stock
+
                 inventory.quantity_received += item.quantity
+
                 inventory.save(
                     update_fields=[
                         "quantity_available",
@@ -169,27 +226,83 @@ def receive_purchase(request, id):
                         "updated_at",
                     ]
                 )
-                #inventory history
+
+                # --------------------------------
+                # Create inventory history
+                # --------------------------------
+
                 InventoryTransaction.objects.create(
+
                     product=item.product,
+
                     transaction_type="PURCHASE",
+
                     quantity=item.quantity,
+
                     reference_id=purchase.id,
-                    description=f"Purchase {purchase.invoice_number}",
+
+                    description=(
+                        f"Purchase "
+                        f"{purchase.invoice_number}"
+                    ),
+
                     created_by=request.user,
                 )
-            purchase.status = Purchase.Status.RECEIVED
-            purchase.save(
-                update_fields=["status"]
+
+            # --------------------------------
+            # Update supplier balance
+            # --------------------------------
+
+            record_supplier_purchase(
+
+                supplier=purchase.supplier,
+
+                amount=purchase.total_amount,
+
+                purchase_id=purchase.id,
+
+                created_by=request.user,
+
+                description=(
+                    f"Purchase "
+                    f"{purchase.invoice_number}"
+                ),
             )
+
+            # --------------------------------
+            # Mark purchase as received
+            # --------------------------------
+
+            purchase.status = Purchase.Status.RECEIVED
+
+            purchase.save(
+                update_fields=[
+                    "status"
+                ]
+            )
+
+        # --------------------------------
+        # Success message
+        # --------------------------------
+
         messages.success(
             request,
-            f"Purchase {purchase.invoice_number} received successfully."
+            (
+                f"Purchase "
+                f"{purchase.invoice_number} "
+                f"received successfully."
+            )
         )
+
         return redirect(
             "purchase_details",
             purchase.id
         )
+
+    # --------------------------------
+    # Receive purchase page
+    # --------------------------------
+
     return render(
         request,
         "purchase/receive_purchase.html",

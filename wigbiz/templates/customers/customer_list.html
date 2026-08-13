@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+
+{% block title %}Customers{% endblock %}
+
+{% block content %}
+
+<h1>Customers</h1>
+
+
+<!-- =========================
+     SEARCH
+========================= -->
+
+<form method="get">
+
+    <input
+        type="text"
+        name="q"
+        value="{{ query }}"
+        placeholder="Search by name, phone, or email"
+    >
+
+    <button type="submit">
+        Search
+    </button>
+
+    {% if query %}
+
+        <a href="{% url 'customers:customer_list' %}">
+            Clear
+        </a>
+
+    {% endif %}
+
+</form>
+
+
+<br>
+
+
+<!-- =========================
+     ADD CUSTOMER
+========================= -->
+
+<a href="{% url 'customers:customer_create' %}">
+    Add Customer
+</a>
+
+
+<br><br>
+
+
+<!-- =========================
+     CUSTOMER TABLE
+========================= -->
+
+<table border="1" cellpadding="10" cellspacing="0">
+
+    <thead>
+
+        <tr>
+
+            <th>Name</th>
+
+            <th>Phone</th>
+
+            <th>Email</th>
+
+            <th>Total Sales</th>
+
+            <th>Total Spent</th>
+
+            <th>Total Paid</th>
+
+            <th>Outstanding</th>
+
+            <th>Last Purchase</th>
+
+            <th>Actions</th>
+
+        </tr>
+
+    </thead>
+
+
+    <tbody>
+
+        {% for customer in page_obj %}
+
+        <tr>
+
+            <!-- CUSTOMER -->
+
+            <td>
+
+                <a href="{% url 'customers:customer_detail' customer.pk %}">
+
+                    {{ customer.first_name }}
+
+                    {% if customer.last_name %}
+                        {{ customer.last_name }}
+                    {% endif %}
+
+                </a>
+
+            </td>
+
+
+            <!-- PHONE -->
+
+            <td>
+                {{ customer.phone }}
+            </td>
+
+
+            <!-- EMAIL -->
+
+            <td>
+
+                {% if customer.email %}
+                    {{ customer.email }}
+                {% else %}
+                    -
+                {% endif %}
+
+            </td>
+
+
+            <!-- TOTAL SALES -->
+
+            <td>
+
+                {{ customer.total_sales }}
+
+            </td>
+
+
+            <!-- TOTAL SPENT -->
+
+            <td>
+
+                UGX
+                {{ customer.total_spent|default:"0.00" }}
+
+            </td>
+
+
+            <!-- TOTAL PAID -->
+
+            <td>
+
+                UGX
+                {{ customer.total_paid|default:"0.00" }}
+
+            </td>
+
+
+            <!-- OUTSTANDING -->
+
+            <td>
+
+                UGX
+                {{ customer.outstanding_balance|default:"0.00" }}
+
+            </td>
+
+
+            <!-- LAST PURCHASE -->
+
+            <td>
+
+                {% if customer.last_purchase %}
+
+                    {{ customer.last_purchase|date:"d/m/Y H:i" }}
+
+                {% else %}
+
+                    No purchases
+
+                {% endif %}
+
+            </td>
+
+
+            <!-- ACTIONS -->
+
+            <td>
+
+                <a href="{% url 'customers:customer_detail' customer.pk %}">
+                    View
+                </a>
+
+                |
+
+                <a href="{% url 'customers:customer_update' customer.pk %}">
+                    Edit
+                </a>
+
+                |
+
+                <a href="{% url 'customers:customer_delete' customer.pk %}">
+                    Delete
+                </a>
+
+            </td>
+
+        </tr>
+
+
+        {% empty %}
+
+        <tr>
+
+            <td colspan="9">
+
+                No customers found.
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+
+<!-- =========================
+     PAGINATION
+========================= -->
+
+{% if page_obj.has_other_pages %}
+
+<br>
+
+<div class="pagination">
+
+    {% if page_obj.has_previous %}
+
+        <a href="?q={{ query }}&page={{ page_obj.previous_page_number }}">
+            Previous
+        </a>
+
+    {% endif %}
+
+
+    <span>
+
+        Page {{ page_obj.number }}
+        of
+        {{ page_obj.paginator.num_pages }}
+
+    </span>
+
+
+    {% if page_obj.has_next %}
+
+        <a href="?q={{ query }}&page={{ page_obj.next_page_number }}">
+            Next
+        </a>
+
+    {% endif %}
+
+</div>
+
+{% endif %}
+
+{% endblock %}

@@ -25,7 +25,6 @@
         margin-top: 20px;
     }
 </style>
-```
 
 </head>
 
@@ -35,7 +34,6 @@
 
 <form method="post" id="sale-form">
 
-```
 {% csrf_token %}
 
 {% if sale_form.non_field_errors %}
@@ -221,176 +219,117 @@
 <button type="submit">
     Complete Sale
 </button>
-```
+<a href="{% url 'sales:sales_history' %}">Sale history</a>
 
 </form>
 
 <script>
-
 const itemRows = document.getElementById("item-rows");
-
 const addProductButton = document.getElementById("add-product");
-
 const totalForms = document.getElementById(
     "id_form-TOTAL_FORMS"
 );
-
 const discountInput = document.getElementById(
     "id_discount"
 );
-
 const taxInput = document.getElementById(
     "id_tax"
 );
-
 const amountPaidInput = document.getElementById(
     "id_amount_paid"
 );
 
-
 // Format money
 function formatMoney(value) {
-
     return Number(value).toFixed(2);
-
 }
 
 
 // Calculate one row
 function calculateRow(row) {
-
     const productSelect = row.querySelector(
         "select[name$='product']"
     );
-
     const quantityInput = row.querySelector(
         "input[name$='quantity']"
     );
-
     const priceDisplay = row.querySelector(
         ".selling-price"
     );
-
-    const totalDisplay = row.querySelector(
+        const totalDisplay = row.querySelector(
         ".line-total"
     );
-
-
     if (!productSelect || !quantityInput) {
         return 0;
     }
-
-
     const selectedOption =
         productSelect.options[
             productSelect.selectedIndex
         ];
-
-
     if (!selectedOption) {
         priceDisplay.textContent = "0.00";
         totalDisplay.textContent = "0.00";
-
         return 0;
     }
-
-
     const price = parseFloat(
         selectedOption.dataset.price || 0
     );
-
     const quantity = parseInt(
         quantityInput.value || 0
     );
-
-
     const lineTotal = price * quantity;
-
-
     priceDisplay.textContent =
         formatMoney(price);
-
-    totalDisplay.textContent =
+        totalDisplay.textContent =
         formatMoney(lineTotal);
-
-
     return lineTotal;
 }
 
 
 // Calculate complete sale
 function calculateSale() {
-
     let subtotal = 0;
-
-
     document
         .querySelectorAll(".item-row")
         .forEach(function(row) {
-
             if (row.style.display === "none") {
                 return;
             }
-
             subtotal += calculateRow(row);
-
         });
-
-
     const discount = parseFloat(
         discountInput.value || 0
     );
-
     const tax = parseFloat(
         taxInput.value || 0
     );
-
     const amountPaid = parseFloat(
         amountPaidInput.value || 0
     );
-
-
     const taxableAmount =
         subtotal - discount;
-
-
     const total =
         taxableAmount + tax;
-
-
     const balance =
         total - amountPaid;
-
-
     document.getElementById(
         "subtotal"
     ).textContent = formatMoney(subtotal);
-
-
     document.getElementById(
         "discount-display"
     ).textContent = formatMoney(discount);
-
-
     document.getElementById(
         "tax-display"
     ).textContent = formatMoney(tax);
-
-
     document.getElementById(
         "total"
     ).textContent = formatMoney(total);
-
-
     document.getElementById(
         "paid-display"
     ).textContent = formatMoney(amountPaid);
-
-
     document.getElementById(
         "balance"
     ).textContent = formatMoney(balance);
-
 }
 
 
@@ -398,17 +337,13 @@ function calculateSale() {
 itemRows.addEventListener(
     "change",
     function(event) {
-
         if (
             event.target.matches(
                 "select[name$='product']"
             )
         ) {
-
             calculateSale();
-
         }
-
     }
 );
 
@@ -417,35 +352,25 @@ itemRows.addEventListener(
 itemRows.addEventListener(
     "input",
     function(event) {
-
         if (
             event.target.matches(
                 "input[name$='quantity']"
             )
         ) {
-
             calculateSale();
-
         }
-
     }
 );
-
-
 // Discount changed
 discountInput.addEventListener(
     "input",
     calculateSale
 );
-
-
 // Tax changed
 taxInput.addEventListener(
     "input",
     calculateSale
 );
-
-
 // Amount paid changed
 amountPaidInput.addEventListener(
     "input",
@@ -457,83 +382,51 @@ amountPaidInput.addEventListener(
 addProductButton.addEventListener(
     "click",
     function() {
-
         const formCount =
             parseInt(totalForms.value);
-
-
         const firstRow =
             document.querySelector(".item-row");
-
-
         const newRow =
             firstRow.cloneNode(true);
-
-
         newRow.innerHTML =
             newRow.innerHTML.replace(
                 /form-\d+/g,
                 `form-${formCount}`
             );
-
-
         const productSelect =
             newRow.querySelector(
                 "select[name$='product']"
             );
-
-
         const quantityInput =
             newRow.querySelector(
                 "input[name$='quantity']"
             );
-
-
         if (productSelect) {
             productSelect.selectedIndex = 0;
         }
-
-
         if (quantityInput) {
             quantityInput.value = 1;
         }
-
-
         const priceDisplay =
             newRow.querySelector(
                 ".selling-price"
             );
-
-
         const totalDisplay =
             newRow.querySelector(
                 ".line-total"
             );
-
-
         priceDisplay.textContent = "0.00";
-
         totalDisplay.textContent = "0.00";
-
-
         itemRows.appendChild(newRow);
-
-
         totalForms.value =
             formCount + 1;
-
-
         calculateSale();
-
     }
 );
-
-
 // Remove product
 itemRows.addEventListener(
     "click",
     function(event) {
-
         if (
             !event.target.classList.contains(
                 "delete-row"
@@ -541,33 +434,19 @@ itemRows.addEventListener(
         ) {
             return;
         }
-
-
         const row =
             event.target.closest(".item-row");
-
-
         const deleteInput =
             row.querySelector(
                 "input[name$='DELETE']"
             );
-
-
         if (deleteInput) {
-
             deleteInput.value = "on";
-
             row.style.display = "none";
-
         } else {
-
             row.remove();
-
         }
-
-
-        calculateSale();
-
+     calculateSale();
     }
 );
 
@@ -577,58 +456,39 @@ calculateSale();
 /*---------------barcode js---------------*/
 const barcodeInput =
     document.getElementById("barcode-input");
-
 const scanBarcodeButton =
     document.getElementById("scan-barcode");
-
 const barcodeMessage =
     document.getElementById("barcode-message");
 async function scanBarcode() {
-
     const barcode =
         barcodeInput.value.trim();
-
     if (!barcode) {
         return;
     }
-
     barcodeMessage.textContent =
         "Searching...";
-
-    try {
-
+try {
         const response = await fetch(
             `/sales/product-by-barcode/?barcode=${encodeURIComponent(barcode)}`
-        );
-
+                );
         const data = await response.json();
-
         if (!response.ok || !data.success) {
-
             barcodeMessage.textContent =
                 data.message || "Product not found.";
-
             barcodeInput.select();
-
             return;
         }
-
         addProductToCart(
             data.product
         );
-
         barcodeInput.value = "";
-
         barcodeMessage.textContent =
             `${data.product.name} added.`;
-
         barcodeInput.focus();
-
     } catch (error) {
-
         barcodeMessage.textContent =
             "Unable to search for product.";
-
         console.error(error);
     }
 }
@@ -639,121 +499,81 @@ scanBarcodeButton.addEventListener(
 barcodeInput.addEventListener(
     "keydown",
     function(event) {
-
         if (event.key === "Enter") {
-
             event.preventDefault();
-
             scanBarcode();
         }
     }
 );
 function addProductToCart(product) {
-
     const rows = document.querySelectorAll(".item-row");
-
     // Check whether product is already in cart
     for (const row of rows) {
-
         if (row.style.display === "none") {
             continue;
         }
-
         const productSelect = row.querySelector(
             "select[name$='product']"
         );
-
         const quantityInput = row.querySelector(
             "input[name$='quantity']"
         );
-
         if (!productSelect || !quantityInput) {
             continue;
         }
-
         if (productSelect.value == product.id) {
-
             let quantity =
                 parseInt(quantityInput.value || 0);
-
             quantity += 1;
-
             quantityInput.value = quantity;
-
             calculateSale();
-
             return;
         }
     }
-
-
     // Product isn't already in cart.
     // Create a new formset row.
     const formCount =
         parseInt(totalForms.value);
-
     const firstRow =
         document.querySelector(".item-row");
-
     const newRow =
         firstRow.cloneNode(true);
-
-
     // Change form-0 to form-N
     newRow.innerHTML =
         newRow.innerHTML.replace(
             /form-\d+/g,
             `form-${formCount}`
         );
-
-
     const productSelect =
         newRow.querySelector(
             "select[name$='product']"
         );
-
     const quantityInput =
         newRow.querySelector(
             "input[name$='quantity']"
         );
-
-
     // Select scanned product
     productSelect.value = product.id;
-
-
     // Start with quantity 1
     quantityInput.value = 1;
-
-
     // Reset price/total displays
     const priceDisplay =
         newRow.querySelector(
             ".selling-price"
         );
-
     const totalDisplay =
         newRow.querySelector(
             ".line-total"
         );
-
-
     priceDisplay.textContent =
         formatMoney(product.selling_price);
-
     totalDisplay.textContent =
         formatMoney(product.selling_price);
-
-
     // Add row
     itemRows.appendChild(newRow);
-
-
-    // Tell Django there is another form
+// Tell Django there is another form
     totalForms.value =
         formCount + 1;
-
-
     calculateSale();
 }
 </script>

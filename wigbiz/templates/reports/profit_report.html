@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}
+Profit Report
+{% endblock %}
+
+{% block content %}
+
+<h1>Profit Report</h1>
+
+<form method="GET">
+
+    <label>From:</label>
+
+    <input
+        type="date"
+        name="date_from"
+        value="{{ date_from }}"
+    >
+
+    <label>To:</label>
+
+    <input
+        type="date"
+        name="date_to"
+        value="{{ date_to }}"
+    >
+
+    <button type="submit">
+        Filter
+    </button>
+
+</form>
+
+<hr>
+
+<div>
+
+    <h3>
+        Sales Revenue
+    </h3>
+
+    <strong>
+        UGX {{ revenue }}
+    </strong>
+
+</div>
+
+<div>
+
+    <h3>
+        Cost of Goods Sold
+    </h3>
+
+    <strong>
+        UGX {{ cost }}
+    </strong>
+
+</div>
+
+<div>
+
+    <h3>
+        Gross Profit
+    </h3>
+
+    <strong>
+        UGX {{ gross_profit }}
+    </strong>
+
+</div>
+
+<hr>
+
+<table border="1" cellpadding="8">
+
+    <thead>
+
+        <tr>
+
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Selling Price</th>
+            <th>Cost Price</th>
+            <th>Revenue</th>
+            <th>Cost</th>
+            <th>Profit</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for item in sale_items %}
+
+        <tr>
+
+            <td>
+                {{ item.product.name }}
+            </td>
+
+            <td>
+                {{ item.quantity }}
+            </td>
+
+            <td>
+                UGX {{ item.unit_price }}
+            </td>
+
+            <td>
+                UGX {{ item.cost_price }}
+            </td>
+
+            <td>
+                UGX
+                {{ item.quantity|floatformat:2 }}
+            </td>
+
+            <td>
+                UGX
+                {{ item.cost_price }}
+            </td>
+
+            <td>
+                -
+            </td>
+
+        </tr>
+
+        {% empty %}
+
+        <tr>
+
+            <td colspan="7">
+                No completed sales found.
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+<br>
+
+<button onclick="window.print()">
+    Print
+</button>
+
+{% endblock %}

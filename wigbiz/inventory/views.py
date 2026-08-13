@@ -50,7 +50,7 @@ def update_inventory(request, id):
         inventory.quantity_available=quantity
         inventory.save()
         messages.success(request,"Inventory Updated Succesfully.")
-        return redirect("view_invetory")
+        return redirect("view_inventory")
     return render(request, "Inventory/update_inventory.html",{"inventory":inventory})
 
 def delete_inventory(request):

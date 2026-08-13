@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}
+Financial Summary
+{% endblock %}
+
+{% block content %}
+
+<h1>Financial Summary</h1>
+
+<hr>
+
+<h2>Sales</h2>
+
+<p>
+    Total Sales:
+    <strong>
+        UGX {{ total_sales }}
+    </strong>
+</p>
+
+<p>
+    Sales Paid:
+    <strong>
+        UGX {{ total_sales_paid }}
+    </strong>
+</p>
+
+<p>
+    Customer Outstanding:
+    <strong>
+        UGX {{ customer_outstanding }}
+    </strong>
+</p>
+
+<hr>
+
+<h2>Purchases</h2>
+
+<p>
+    Total Purchases:
+    <strong>
+        UGX {{ total_purchases }}
+    </strong>
+</p>
+
+<p>
+    Purchases Paid:
+    <strong>
+        UGX {{ total_purchase_paid }}
+    </strong>
+</p>
+
+<p>
+    Supplier Outstanding:
+    <strong>
+        UGX {{ supplier_outstanding }}
+    </strong>
+</p>
+
+<hr>
+
+<h2>Gross Profit</h2>
+
+<h1>
+    UGX {{ gross_profit }}
+</h1>
+
+<br>
+
+<button onclick="window.print()">
+    Print
+</button>
+
+{% endblock %}

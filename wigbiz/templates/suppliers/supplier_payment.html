@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}
+Supplier Payment
+{% endblock %}
+
+
+{% block content %}
+
+<h1>
+    Make Supplier Payment
+</h1>
+
+
+<h2>
+    {{ supplier.name }}
+</h2>
+
+
+<p>
+    Outstanding Balance:
+    <strong>
+        UGX {{ supplier.balance }}
+    </strong>
+</p>
+
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form.non_field_errors }}
+
+    <p>
+        {{ form.amount.label_tag }}
+        {{ form.amount }}
+
+        {{ form.amount.errors }}
+    </p>
+
+
+    <p>
+        {{ form.payment_method.label_tag }}
+        {{ form.payment_method }}
+
+        {{ form.payment_method.errors }}
+    </p>
+
+
+    <p>
+        {{ form.reference.label_tag }}
+        {{ form.reference }}
+
+        {{ form.reference.errors }}
+    </p>
+
+
+    <p>
+        {{ form.notes.label_tag }}
+        {{ form.notes }}
+
+        {{ form.notes.errors }}
+    </p>
+
+
+    <button type="submit">
+        Record Payment
+    </button>
+
+</form>
+
+
+<br>
+
+
+<a href="{% url 'suppliers:supplier_detail' supplier.pk %}">
+    Cancel
+</a>
+
+{% endblock %}

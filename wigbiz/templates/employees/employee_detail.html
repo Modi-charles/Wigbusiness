@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}
+Employee Details
+{% endblock %}
+
+
+{% block content %}
+
+<h1>Employee Details</h1>
+
+
+<h3>Personal Information</h3>
+
+
+<table border="1" cellpadding="8">
+
+    <tr>
+
+        <th>
+            Username
+        </th>
+
+        <td>
+            {{ employee.user.username }}
+        </td>
+
+    </tr>
+
+
+    <tr>
+
+        <th>
+            First Name
+        </th>
+
+        <td>
+
+            {% if employee.user.first_name %}
+
+                {{ employee.user.first_name }}
+
+            {% else %}
+
+                -
+
+            {% endif %}
+
+        </td>
+
+    </tr>
+
+
+    <tr>
+
+        <th>
+            Last Name
+        </th>
+
+        <td>
+
+            {% if employee.user.last_name %}
+
+                {{ employee.user.last_name }}
+
+            {% else %}
+
+                -
+
+            {% endif %}
+
+        </td>
+
+    </tr>
+
+
+    <tr>
+
+        <th>
+            Email
+        </th>
+
+        <td>
+
+            {% if employee.user.email %}
+
+                {{ employee.user.email }}
+
+            {% else %}
+
+                -
+
+            {% endif %}
+
+        </td>
+
+    </tr>
+
+
+    <tr>
+
+        <th>
+            Address
+        </th>
+
+        <td>
+
+            {% if employee.address %}
+
+                {{ employee.address }}
+
+            {% else %}
+
+                -
+
+            {% endif %}
+
+        </td>
+
+    </tr>
+
+</table>
+
+
+<br>
+
+
+<h3>Employment Information</h3>
+
+
+<table border="1" cellpadding="8">
+
+    <tr>
+
+        <th>
+            Employee Number
+        </th>
+
+        <td>
+            {{ employee.employee_number }}
+        </td>
+
+    </tr>
+
+
+    <tr>
+
+        <th>
+            Position
+        </th>
+
+        <td>
+            {{ employee.position }}
+        </td>
+
+    </tr>
+
+
+    <tr>
+
+        <th>
+            Department
+        </th>
+
+        <td>
+
+            {% if employee.department %}
+
+                {{ employee.department }}
+
+            {% else %}
+
+                -
+
+            {% endif %}
+
+        </td>
+
+    </tr>
+
+
+    <tr>
+
+        <th>
+            Salary
+        </th>
+
+        <td>
+            UGX {{ employee.salary }}
+        </td>
+
+    </tr>
+
+
+    <tr>
+
+        <th>
+            Hire Date
+        </th>
+
+        <td>
+            {{ employee.hire_date|date:"d/m/Y" }}
+        </td>
+
+    </tr>
+
+
+    <tr>
+
+        <th>
+            Status
+        </th>
+
+        <td>
+
+            {% if employee.status %}
+
+                Active
+
+            {% else %}
+
+                Inactive
+
+            {% endif %}
+
+        </td>
+
+    </tr>
+
+</table>
+
+
+<br>
+
+
+<a
+    href="{% url 'employees:employee_update' employee.pk %}"
+>
+    Edit Employee
+</a>
+
+
+{% if employee.status %}
+
+    |
+
+    <a
+        href="{% url 'employees:employee_delete' employee.pk %}"
+    >
+        Deactivate Employee
+    </a>
+
+{% endif %}
+
+
+|
+
+
+<a href="{% url 'employees:employee_list' %}">
+    Back to Employees
+</a>
+
+
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Access Error{% endblock %}
+
+{% block content %}
+
+<h1>Account Not Configured</h1>
+
+<p>
+    Your account does not have a role assigned.
+</p>
+
+<p>
+    Please contact the administrator.
+</p>
+
+<a href="{% url 'accounts:logout' %}">
+    Logout
+</a>
+
+{% endblock %}

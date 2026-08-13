@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}
+Deactivate Supplier
+{% endblock %}
+
+
+{% block content %}
+
+<h1>
+    Deactivate Supplier
+</h1>
+
+
+<p>
+    Are you sure you want to deactivate
+    <strong>{{ supplier.name }}</strong>?
+</p>
+
+
+<p>
+    The supplier's purchase and payment history
+    will remain in the system.
+</p>
+
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    <button type="submit">
+        Yes, Deactivate
+    </button>
+
+
+    <a
+        href="{% url 'suppliers:supplier_detail' supplier.pk %}"
+    >
+        Cancel
+    </a>
+
+</form>
+
+
+{% endblock %}

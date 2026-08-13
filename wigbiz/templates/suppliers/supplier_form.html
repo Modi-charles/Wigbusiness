@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ action }} Supplier
+{% endblock %}
+
+
+{% block content %}
+
+<h1>{{ action }} Supplier</h1>
+
+
+<form method="POST">
+
+    {% csrf_token %}
+
+
+    {{ form.non_field_errors }}
+
+
+    <p>
+
+        {{ form.name.label_tag }}
+
+        {{ form.name }}
+
+        {{ form.name.errors }}
+
+    </p>
+
+
+    <p>
+
+        {{ form.company_name.label_tag }}
+
+        {{ form.company_name }}
+
+        {{ form.company_name.errors }}
+
+    </p>
+
+
+    <p>
+
+        {{ form.phone.label_tag }}
+
+        {{ form.phone }}
+
+        {{ form.phone.errors }}
+
+    </p>
+
+
+    <p>
+
+        {{ form.email.label_tag }}
+
+        {{ form.email }}
+
+        {{ form.email.errors }}
+
+    </p>
+
+
+    <p>
+
+        {{ form.address.label_tag }}
+
+        {{ form.address }}
+
+        {{ form.address.errors }}
+
+    </p>
+
+
+    <button type="submit">
+        Save Supplier
+    </button>
+
+
+    <a href="{% url 'suppliers:supplier_list' %}">
+        Cancel
+    </a>
+
+</form>
+
+
+{% endblock %}

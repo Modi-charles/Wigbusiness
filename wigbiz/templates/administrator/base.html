@@ -1,0 +1,131 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {% block title %}
+        Administrator Dashboard
+        {% endblock %}
+    </title>
+
+    <link rel="stylesheet"
+          href="{% static 'css/dashboard.css' %}">
+
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="brand">
+        WigBiz ERP
+    </div>
+
+    <div class="navbar-right">
+
+        <span>
+            {{ user.username }}
+        </span>
+
+        <a href="{% url 'accounts:logout' %}">
+            Logout
+        </a>
+
+    </div>
+
+</header>
+
+
+<div class="layout">
+
+    <aside class="sidebar">
+
+        <nav>
+
+            <a href="{% url 'dashboard:dashboard' %}">
+                Dashboard
+            </a>
+
+            <a href="{% url 'sales:sales_history' %}">
+                Sales
+            </a>
+
+            <a href="{% url 'inventory:view_inventory' %}">
+                Inventory
+            </a>
+
+            <a href="{% url 'purchase:view_purchase' %}">
+                Purchases
+            </a>
+
+            <a href="{% url 'customers:customer_list' %}">
+                Customers
+            </a>
+
+            <a href="{% url 'suppliers:supplier_list' %}">
+                Suppliers
+            </a>
+
+            <a href="{% url 'employees:employee_list' %}">
+                Employees
+            </a>
+
+            <a href="{% url 'accounts:user_list' %}">
+                Users
+            </a>
+
+            <a href="{% url 'reports:dashboard' %}">
+                Reports
+            </a>
+
+            <a href="{% url 'accounts:change_password' %}">
+                Change Password
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <main class="main-content">
+
+        {% if messages %}
+
+            {% for message in messages %}
+
+                <div class="alert {{ message.tags }}">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+</div>
+
+
+<footer class="footer">
+
+    <p>
+        &copy; {% now "Y" %} WigBiz ERP.
+    </p>
+
+</footer>
+
+</body>
+
+</html>

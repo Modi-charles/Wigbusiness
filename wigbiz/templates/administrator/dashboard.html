@@ -1,0 +1,77 @@
+{% extends "administrator/base.html" %}
+
+{% block title %}
+Administrator Dashboard
+{% endblock %}
+
+
+{% block content %}
+
+<h1>Administrator Dashboard</h1>
+
+<p>
+    Welcome, {{ user.get_full_name|default:user.username }}
+</p>
+
+
+<div class="report-cards">
+
+    <div class="report-card">
+        <h3>Total Sales</h3>
+        <p>UGX {{ total_sales|default:"0" }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Total Purchases</h3>
+        <p>UGX {{ total_purchases|default:"0" }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Gross Profit</h3>
+        <p>UGX {{ gross_profit|default:"0" }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Stock Value</h3>
+        <p>UGX {{ stock_value|default:"0" }}</p>
+    </div>
+
+</div>
+
+
+<h2>Administration</h2>
+
+<div class="report-links">
+
+    <div>
+        <h3>Users</h3>
+        <p>Manage system users and roles.</p>
+
+        <a href="{% url 'accounts:user_list' %}">
+            Manage Users
+        </a>
+    </div>
+
+
+    <div>
+        <h3>Employees</h3>
+        <p>Manage employees.</p>
+
+        <a href="{% url 'employees:employee_list' %}">
+            Manage Employees
+        </a>
+    </div>
+
+
+    <div>
+        <h3>Reports</h3>
+        <p>View business and financial reports.</p>
+
+        <a href="{% url 'reports:dashboard' %}">
+            View Reports
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Reports Dashboard
+{% endblock %}
+
+
+{% block content %}
+
+<h1>Reports Dashboard</h1>
+
+<p>
+    Business overview
+</p>
+
+
+<hr>
+
+
+<!-- ========================= -->
+<!-- FINANCIAL CARDS -->
+<!-- ========================= -->
+
+<h2>Financial Overview</h2>
+
+
+<div class="report-cards">
+
+
+    <!-- TOTAL SALES -->
+
+    <div class="report-card">
+
+        <h3>
+            Total Sales
+        </h3>
+
+        <p>
+            UGX {{ total_sales }}
+        </p>
+
+        <small>
+            Completed sales
+        </small>
+
+    </div>
+
+
+    <!-- TOTAL PURCHASES -->
+
+    <div class="report-card">
+
+        <h3>
+            Total Purchases
+        </h3>
+
+        <p>
+            UGX {{ total_purchases }}
+        </p>
+
+        <small>
+            Received purchases
+        </small>
+
+    </div>
+
+
+    <!-- GROSS PROFIT -->
+
+    <div class="report-card">
+
+        <h3>
+            Gross Profit
+        </h3>
+
+        <p>
+            UGX {{ gross_profit }}
+        </p>
+
+        <small>
+            Sales revenue - COGS
+        </small>
+
+    </div>
+
+
+    <!-- CUSTOMER OUTSTANDING -->
+
+    <div class="report-card">
+
+        <h3>
+            Customer Outstanding
+        </h3>
+
+        <p>
+            UGX {{ customer_outstanding }}
+        </p>
+
+        <small>
+            Money customers owe
+        </small>
+
+    </div>
+
+
+    <!-- SUPPLIER OUTSTANDING -->
+
+    <div class="report-card">
+
+        <h3>
+            Supplier Outstanding
+        </h3>
+
+        <p>
+            UGX {{ supplier_outstanding }}
+        </p>
+
+        <small>
+            Money owed to suppliers
+        </small>
+
+    </div>
+
+
+    <!-- STOCK VALUE -->
+
+    <div class="report-card">
+
+        <h3>
+            Stock Value
+        </h3>
+
+        <p>
+            UGX {{ stock_value }}
+        </p>
+
+        <small>
+            Current stock at cost
+        </small>
+
+    </div>
+
+
+</div>
+
+
+<hr>
+
+
+<!-- ========================= -->
+<!-- BUSINESS STATISTICS -->
+<!-- ========================= -->
+
+<h2>Business Statistics</h2>
+
+
+<div class="report-cards">
+
+
+    <div class="report-card">
+
+        <h3>
+            Products
+        </h3>
+
+        <p>
+            {{ total_products }}
+        </p>
+
+    </div>
+
+
+    <div class="report-card">
+
+        <h3>
+            Stock Units
+        </h3>
+
+        <p>
+            {{ total_stock }}
+        </p>
+
+    </div>
+
+
+    <div class="report-card">
+
+        <h3>
+            Customers
+        </h3>
+
+        <p>
+            {{ total_customers }}
+        </p>
+
+    </div>
+
+
+    <div class="report-card">
+
+        <h3>
+            Suppliers
+        </h3>
+
+        <p>
+            {{ total_suppliers }}
+        </p>
+
+    </div>
+
+
+</div>
+
+
+<hr>
+
+
+<!-- ========================= -->
+<!-- DETAILED REPORTS -->
+<!-- ========================= -->
+
+<h2>Detailed Reports</h2>
+
+
+<div class="report-links">
+
+
+    <div>
+
+        <h3>
+            Sales
+        </h3>
+
+        <p>
+            View sales, payments and outstanding balances.
+        </p>
+
+        <a href="{% url 'reports:sales_report' %}">
+            Open Sales Report
+        </a>
+
+    </div>
+
+
+    <div>
+
+        <h3>
+            Purchases
+        </h3>
+
+        <p>
+            View purchases, suppliers and payment status.
+        </p>
+
+        <a href="{% url 'reports:purchase_report' %}">
+            Open Purchase Report
+        </a>
+
+    </div>
+
+
+    <div>
+
+        <h3>
+            Inventory
+        </h3>
+
+        <p>
+            View stock levels, received stock and sold stock.
+        </p>
+
+        <a href="{% url 'reports:inventory_report' %}">
+            Open Inventory Report
+        </a>
+
+    </div>
+
+
+    <div>
+
+        <h3>
+            Customers
+        </h3>
+
+        <p>
+            View customer balances and customer information.
+        </p>
+
+        <a href="{% url 'reports:customer_report' %}">
+            Open Customer Report
+        </a>
+
+    </div>
+
+
+    <div>
+
+        <h3>
+            Suppliers
+        </h3>
+
+        <p>
+            View supplier balances and supplier information.
+        </p>
+
+        <a href="{% url 'reports:supplier_report' %}">
+            Open Supplier Report
+        </a>
+
+    </div>
+
+
+    <div>
+
+        <h3>
+            Profit
+        </h3>
+
+        <p>
+            Analyze revenue, cost of goods sold and gross profit.
+        </p>
+
+        <a href="{% url 'reports:profit_report' %}">
+            Open Profit Report
+        </a>
+
+    </div>
+
+
+</div>
+
+
+{% endblock %}

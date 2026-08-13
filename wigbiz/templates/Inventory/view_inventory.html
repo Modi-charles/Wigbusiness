@@ -46,9 +46,9 @@ Inventory
     </td>
 
     <td>
-        View
+       <a href="{% url 'inventory:inventory_history'%}">View</a>
 
-        <a href="{% url 'update_inventory' item.id %}">
+        <a href="{% url 'inventory:update_inventory' item.id %}">
             Update
         </a>
     </td>

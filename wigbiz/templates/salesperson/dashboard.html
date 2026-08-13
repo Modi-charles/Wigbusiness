@@ -1,0 +1,48 @@
+{% extends "salesperson/base.html" %}
+
+{% block title %}
+Sales Dashboard
+{% endblock %}
+
+{% block content %}
+
+<h1>Sales Dashboard</h1>
+
+<p>
+    Welcome, {{ user.get_full_name|default:user.username }}
+</p>
+
+
+<div class="report-cards">
+
+    <div class="report-card">
+        <h3>Today's Sales</h3>
+        <p>UGX {{ today_sales|default:"0" }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Sales Count</h3>
+        <p>{{ sales_count|default:"0" }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Customer Outstanding</h3>
+        <p>UGX {{ customer_outstanding|default:"0" }}</p>
+    </div>
+
+</div>
+
+
+<h2>Sales Operations</h2>
+
+<a href="{% url 'sales:dashboard' %}">
+    Open Sales
+</a>
+
+<br>
+
+<a href="{% url 'customers:customer_list' %}">
+    Customers
+</a>
+
+{% endblock %}

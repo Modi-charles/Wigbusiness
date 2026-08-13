@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}
+Supplier Ledger
+{% endblock %}
+
+
+{% block content %}
+
+<h1>
+    {{ supplier.name }} - Ledger
+</h1>
+
+
+<h2>
+    Outstanding:
+    UGX {{ supplier.balance }}
+</h2>
+
+
+<table border="1" cellpadding="8">
+
+    <thead>
+
+        <tr>
+
+            <th>Date</th>
+
+            <th>Type</th>
+
+            <th>Description</th>
+
+            <th>Amount</th>
+
+            <th>Balance</th>
+
+            <th>Created By</th>
+
+        </tr>
+
+    </thead>
+
+
+    <tbody>
+
+        {% for entry in entries %}
+
+        <tr>
+
+            <td>
+                {{ entry.created_at|date:"d/m/Y H:i" }}
+            </td>
+
+            <td>
+                {{ entry.get_transaction_type_display }}
+            </td>
+
+            <td>
+                {{ entry.description|default:"-" }}
+            </td>
+
+            <td>
+                UGX {{ entry.amount }}
+            </td>
+
+            <td>
+                UGX {{ entry.balance_after }}
+            </td>
+
+            <td>
+                {{ entry.created_by|default:"System" }}
+            </td>
+
+        </tr>
+
+        {% empty %}
+
+        <tr>
+
+            <td colspan="6">
+                No ledger entries found.
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+
+<br>
+
+
+<a href="{% url 'suppliers:supplier_detail' supplier.pk %}">
+    Back to Supplier
+</a>
+
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}
+Supplier Report
+{% endblock %}
+
+{% block content %}
+
+<h1>Supplier Report</h1>
+
+<p>
+    <strong>Total Suppliers:</strong>
+    {{ total_suppliers }}
+</p>
+
+<p>
+    <strong>Active:</strong>
+    {{ active_suppliers }}
+</p>
+
+<p>
+    <strong>Inactive:</strong>
+    {{ inactive_suppliers }}
+</p>
+
+<p>
+    <strong>Total Outstanding:</strong>
+    UGX {{ total_outstanding }}
+</p>
+
+<hr>
+
+<table border="1" cellpadding="8">
+
+    <thead>
+
+        <tr>
+            <th>Supplier</th>
+            <th>Company</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Balance</th>
+            <th>Status</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for supplier in suppliers %}
+
+        <tr>
+
+            <td>
+                {{ supplier.name }}
+            </td>
+
+            <td>
+                {{ supplier.company_name|default:"-" }}
+            </td>
+
+            <td>
+                {{ supplier.phone }}
+            </td>
+
+            <td>
+                {{ supplier.email|default:"-" }}
+            </td>
+
+            <td>
+                UGX {{ supplier.balance }}
+            </td>
+
+            <td>
+
+                {% if supplier.is_active %}
+                    Active
+                {% else %}
+                    Inactive
+                {% endif %}
+
+            </td>
+
+        </tr>
+
+        {% empty %}
+
+        <tr>
+
+            <td colspan="6">
+                No suppliers found.
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+<br>
+
+<button onclick="window.print()">
+    Print
+</button>
+
+{% endblock %}

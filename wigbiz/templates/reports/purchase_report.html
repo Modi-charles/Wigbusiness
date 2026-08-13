@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}
+Purchase Report
+{% endblock %}
+
+{% block content %}
+
+<h1>Purchase Report</h1>
+
+<form method="GET">
+
+    <label>From:</label>
+
+    <input
+        type="date"
+        name="date_from"
+        value="{{ date_from }}"
+    >
+
+    <label>To:</label>
+
+    <input
+        type="date"
+        name="date_to"
+        value="{{ date_to }}"
+    >
+
+    <label>Status:</label>
+
+    <select name="status">
+
+        <option value="">All</option>
+
+        <option
+            value="PENDING"
+            {% if status == "PENDING" %}selected{% endif %}
+        >
+            Pending
+        </option>
+
+        <option
+            value="RECEIVED"
+            {% if status == "RECEIVED" %}selected{% endif %}
+        >
+            Received
+        </option>
+
+        <option
+            value="CANCELLED"
+            {% if status == "CANCELLED" %}selected{% endif %}
+        >
+            Cancelled
+        </option>
+
+    </select>
+
+    <label>Payment:</label>
+
+    <select name="payment_status">
+
+        <option value="">All</option>
+
+        <option
+            value="PAID"
+            {% if payment_status == "PAID" %}selected{% endif %}
+        >
+            Paid
+        </option>
+
+        <option
+            value="PARTIAL"
+            {% if payment_status == "PARTIAL" %}selected{% endif %}
+        >
+            Partial
+        </option>
+
+        <option
+            value="UNPAID"
+            {% if payment_status == "UNPAID" %}selected{% endif %}
+        >
+            Unpaid
+        </option>
+
+    </select>
+
+    <button type="submit">
+        Filter
+    </button>
+
+</form>
+
+<hr>
+
+<p>
+    <strong>Total Purchases:</strong>
+    {{ total_purchases }}
+</p>
+
+<p>
+    <strong>Total Amount:</strong>
+    UGX {{ total_amount }}
+</p>
+
+<p>
+    <strong>Total Paid:</strong>
+    UGX {{ total_paid }}
+</p>
+
+<p>
+    <strong>Outstanding:</strong>
+    UGX {{ total_balance }}
+</p>
+
+<hr>
+
+<table border="1" cellpadding="8">
+
+    <thead>
+
+        <tr>
+            <th>Invoice</th>
+            <th>Supplier</th>
+            <th>Date</th>
+            <th>Total</th>
+            <th>Paid</th>
+            <th>Balance</th>
+            <th>Status</th>
+            <th>Payment</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for purchase in purchases %}
+
+        <tr>
+
+            <td>
+                {{ purchase.invoice_number }}
+            </td>
+
+            <td>
+                {{ purchase.supplier }}
+            </td>
+
+            <td>
+                {{ purchase.purchase_date|date:"d/m/Y" }}
+            </td>
+
+            <td>
+                UGX {{ purchase.total_amount }}
+            </td>
+
+            <td>
+                UGX {{ purchase.paid_amount }}
+            </td>
+
+            <td>
+                UGX {{ purchase.balance }}
+            </td>
+
+            <td>
+                {{ purchase.get_status_display }}
+            </td>
+
+            <td>
+                {{ purchase.get_payment_status_display }}
+            </td>
+
+        </tr>
+
+        {% empty %}
+
+        <tr>
+            <td colspan="8">
+                No purchases found.
+            </td>
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+<br>
+
+<button onclick="window.print()">
+    Print
+</button>
+
+{% endblock %}

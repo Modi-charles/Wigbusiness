@@ -1,37 +1,44 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login</title>
-</head>
-<style>
-    *{
-        margin: 0;
-        padding:0;
-    }
-    body{
-        background: rgb(1, 18, 53);
-        font-family: Verdana, Geneva, Tahoma, sans-serif;
-    }
-    form{
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        padding: 15px;
-       
-        border: 0 4px 8px rgb(6, 5, 5);
-    }
-</style>
-<body>
+{% extends "base.html" %}
 
+{% block title %}Login{% endblock %}
 
-<form method="POST">
-<h2>Please Login</h2>
+{% block content %}
+
+<h1>Login</h1>
+
+<form method="post">
 
     {% csrf_token %}
 
-    {{ form.as_p }}
+    <div>
+        <label for="username">
+            Username
+        </label>
+
+        <input
+            type="text"
+            id="username"
+            name="username"
+            required
+        >
+    </div>
+
+    <br>
+
+    <div>
+        <label for="password">
+            Password
+        </label>
+
+        <input
+            type="password"
+            id="password"
+            name="password"
+            required
+        >
+    </div>
+
+    <br>
 
     <button type="submit">
         Login
@@ -39,5 +46,16 @@
 
 </form>
 
-</body>
-</html>
+{% if messages %}
+
+    {% for message in messages %}
+
+        <p>
+            {{ message }}
+        </p>
+
+    {% endfor %}
+
+{% endif %}
+
+{% endblock %}

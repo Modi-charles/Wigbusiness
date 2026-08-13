@@ -28,8 +28,7 @@ class Purchase(models.Model):
     payment_status = models.CharField(max_length=10,choices=PAYMENT_STATUS,default="UNPAID")
     created_by = models.ForeignKey(User,on_delete=models.SET_NULL,null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    class Purchase(models.Model):
-        def update_payment_status(self):
+    def update_payment_status(self):
             total_paid = sum(
                 payment.amount
                 for payment in self.payments.all()

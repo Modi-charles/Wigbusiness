@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}
+Customer Report
+{% endblock %}
+
+{% block content %}
+
+<h1>Customer Report</h1>
+
+<p>
+    <strong>Total Customers:</strong>
+    {{ total_customers }}
+</p>
+
+<p>
+    <strong>Outstanding Customer Balance:</strong>
+    UGX {{ total_customer_balance }}
+</p>
+
+<hr>
+
+<table border="1" cellpadding="8">
+
+    <thead>
+
+        <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Loyalty Points</th>
+            <th>Balance</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for customer in customers %}
+
+        <tr>
+
+            <td>
+                {{ customer.first_name }}
+                {{ customer.last_name }}
+            </td>
+
+            <td>
+                {{ customer.phone }}
+            </td>
+
+            <td>
+                {{ customer.email|default:"-" }}
+            </td>
+
+            <td>
+                {{ customer.loyalty_points }}
+            </td>
+
+            <td>
+                UGX {{ customer.balance }}
+            </td>
+
+        </tr>
+
+        {% empty %}
+
+        <tr>
+
+            <td colspan="5">
+                No customers found.
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+<br>
+
+<button onclick="window.print()">
+    Print
+</button>
+
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "manager/base.html" %}
+
+{% block title %}
+Manager Dashboard
+{% endblock %}
+
+{% block content %}
+
+<h1>Manager Dashboard</h1>
+
+<p>
+    Welcome, {{ user.get_full_name|default:user.username }}
+</p>
+
+
+<div class="report-cards">
+
+    <div class="report-card">
+        <h3>Total Sales</h3>
+        <p>UGX {{ total_sales|default:"0" }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Total Purchases</h3>
+        <p>UGX {{ total_purchases|default:"0" }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Gross Profit</h3>
+        <p>UGX {{ gross_profit|default:"0" }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Customer Outstanding</h3>
+        <p>UGX {{ customer_outstanding|default:"0" }}</p>
+    </div>
+
+</div>
+
+
+<h2>Management</h2>
+
+<p>
+    Monitor sales, inventory, employees and business performance.
+</p>
+
+{% endblock %}

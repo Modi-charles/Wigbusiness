@@ -1,0 +1,374 @@
+{% extends "base.html" %}
+
+{% block title %}
+Employees
+{% endblock %}
+
+
+{% block content %}
+
+<h1>Employees</h1>
+
+
+<!-- =========================
+     SUMMARY
+========================= -->
+
+<h3>Employee Summary</h3>
+
+<table border="1" cellpadding="10">
+
+    <thead>
+
+        <tr>
+
+            <th>Total Employees</th>
+
+            <th>Active Employees</th>
+
+            <th>Inactive Employees</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        <tr>
+
+            <td>
+                {{ total_employees }}
+            </td>
+
+            <td>
+                {{ active_employees }}
+            </td>
+
+            <td>
+                {{ inactive_employees }}
+            </td>
+
+        </tr>
+
+    </tbody>
+
+</table>
+
+
+<br>
+
+
+<!-- =========================
+     SEARCH
+========================= -->
+
+<form method="get">
+
+    <input
+        type="text"
+        name="q"
+        value="{{ query }}"
+        placeholder="Search employee..."
+    >
+
+
+    <select name="status">
+
+        <option
+            value="active"
+            {% if status == "active" %}
+                selected
+            {% endif %}
+        >
+            Active
+        </option>
+
+
+        <option
+            value="inactive"
+            {% if status == "inactive" %}
+                selected
+            {% endif %}
+        >
+            Inactive
+        </option>
+
+
+        <option
+            value="all"
+            {% if status == "all" %}
+                selected
+            {% endif %}
+        >
+            All
+        </option>
+
+    </select>
+
+
+    <button type="submit">
+        Search
+    </button>
+
+
+    <a href="{% url 'employees:employee_list' %}">
+        Clear
+    </a>
+
+</form>
+
+
+<br>
+
+
+<a href="{% url 'employees:employee_create' %}">
+    + Add Employee
+</a>
+
+
+<br><br>
+
+
+<!-- =========================
+     EMPLOYEE TABLE
+========================= -->
+
+<table
+    border="1"
+    cellpadding="8"
+    cellspacing="0"
+>
+
+    <thead>
+
+        <tr>
+
+            <th>
+                Employee No.
+            </th>
+
+            <th>
+                Username
+            </th>
+
+            <th>
+                Name
+            </th>
+
+            <th>
+                Email
+            </th>
+
+            <th>
+                Position
+            </th>
+
+            <th>
+                Department
+            </th>
+
+            <th>
+                Salary
+            </th>
+
+            <th>
+                Hire Date
+            </th>
+
+            <th>
+                Status
+            </th>
+
+            <th>
+                Actions
+            </th>
+
+        </tr>
+
+    </thead>
+
+
+    <tbody>
+
+        {% for employee in page_obj %}
+
+        <tr>
+
+            <td>
+                {{ employee.employee_number }}
+            </td>
+
+
+            <td>
+                {{ employee.user.username }}
+            </td>
+
+
+            <td>
+
+                {{ employee.user.first_name }}
+
+                {{ employee.user.last_name }}
+
+            </td>
+
+
+            <td>
+
+                {% if employee.user.email %}
+
+                    {{ employee.user.email }}
+
+                {% else %}
+
+                    -
+
+                {% endif %}
+
+            </td>
+
+
+            <td>
+                {{ employee.position }}
+            </td>
+
+
+            <td>
+
+                {% if employee.department %}
+
+                    {{ employee.department }}
+
+                {% else %}
+
+                    -
+
+                {% endif %}
+
+            </td>
+
+
+            <td>
+                UGX {{ employee.salary }}
+            </td>
+
+
+            <td>
+                {{ employee.hire_date|date:"d/m/Y" }}
+            </td>
+
+
+            <td>
+
+                {% if employee.status %}
+
+                    Active
+
+                {% else %}
+
+                    Inactive
+
+                {% endif %}
+
+            </td>
+
+
+            <td>
+
+                <a
+                    href="{% url 'employees:employee_detail' employee.pk %}"
+                >
+                    View
+                </a>
+
+                |
+
+                <a
+                    href="{% url 'employees:employee_update' employee.pk %}"
+                >
+                    Edit
+                </a>
+
+                |
+
+                {% if employee.status %}
+
+                    <a
+                        href="{% url 'employees:employee_delete' employee.pk %}"
+                    >
+                        Deactivate
+                    </a>
+
+                {% endif %}
+
+            </td>
+
+        </tr>
+
+
+        {% empty %}
+
+        <tr>
+
+            <td colspan="10">
+
+                No employees found.
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+
+<br>
+
+
+<!-- =========================
+     PAGINATION
+========================= -->
+
+{% if page_obj.has_other_pages %}
+
+<div>
+
+    {% if page_obj.has_previous %}
+
+        <a
+            href="?q={{ query }}&status={{ status }}&page={{ page_obj.previous_page_number }}"
+        >
+            Previous
+        </a>
+
+    {% endif %}
+
+
+    <span>
+
+        Page {{ page_obj.number }}
+        of
+        {{ page_obj.paginator.num_pages }}
+
+    </span>
+
+
+    {% if page_obj.has_next %}
+
+        <a
+            href="?q={{ query }}&status={{ status }}&page={{ page_obj.next_page_number }}"
+        >
+            Next
+        </a>
+
+    {% endif %}
+
+</div>
+
+{% endif %}
+
+
+{% endblock %}

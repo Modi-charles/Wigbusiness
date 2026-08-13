@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}
+Supplier Statement
+{% endblock %}
+
+
+{% block content %}
+
+<h1>
+    Supplier Statement
+</h1>
+
+<h2>
+    {{ supplier.name }}
+</h2>
+
+
+<p>
+    Company:
+    {{ supplier.company_name|default:"-" }}
+</p>
+
+<p>
+    Phone:
+    {{ supplier.phone }}
+</p>
+
+
+<hr>
+
+
+<table border="1" cellpadding="8">
+
+    <thead>
+
+        <tr>
+
+            <th>
+                Date
+            </th>
+
+            <th>
+                Description
+            </th>
+
+            <th>
+                Debit
+            </th>
+
+            <th>
+                Credit
+            </th>
+
+            <th>
+                Balance
+            </th>
+
+        </tr>
+
+    </thead>
+
+
+    <tbody>
+
+        {% for entry in entries %}
+
+        <tr>
+
+            <td>
+                {{ entry.created_at|date:"d/m/Y" }}
+            </td>
+
+            <td>
+                {{ entry.description }}
+            </td>
+
+
+            {% if entry.amount > 0 %}
+
+                <td>
+                    UGX {{ entry.amount }}
+                </td>
+
+                <td>
+                    -
+                </td>
+
+            {% else %}
+
+                <td>
+                    -
+                </td>
+
+                <td>
+                    UGX {{ entry.amount|stringformat:"s"|slice:"1:" }}
+                </td>
+
+            {% endif %}
+
+
+            <td>
+                UGX {{ entry.balance_after }}
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+
+<br>
+
+
+<h3>
+    Outstanding:
+    UGX {{ supplier.balance }}
+</h3>
+
+
+<button onclick="window.print()">
+    Print Statement
+</button>
+
+
+{% endblock %}

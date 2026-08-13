@@ -15,7 +15,9 @@ class Customer(models.Model):
     loyalty_points = models.IntegerField(default=0)
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
+    is_active=models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at=models.DateField(auto_now=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}".strip()
