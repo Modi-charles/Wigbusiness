@@ -40,5 +40,8 @@ urlpatterns = [
         "reports/",
         include("reports.urls")
     ),
-
+    path(
+        "expenses/",
+        include("expenses.urls")
+    ),
     ]

@@ -12,7 +12,7 @@
 
     <title>
         {% block title %}
-        Administrator Dashboard
+        Sales Dashboard
         {% endblock %}
     </title>
 
@@ -35,10 +35,6 @@
             {{ user.username }}
         </span>
 
-        <a href="{% url 'accounts:logout' %}">
-            Logout
-        </a>
-
     </div>
 
 </header>
@@ -50,22 +46,34 @@
 
         <nav>
 
+            <!-- MAIN NAVIGATION -->
+
             <a href="{% url 'dashboard:dashboard' %}">
                 Dashboard
             </a>
 
-            <a href="{% url 'sales:dashboard' %}">
+            <a href="{% url 'sales:create_sale' %}">
                 Sales
             </a>
 
             <a href="{% url 'customers:customer_list' %}">
                 Customers
             </a>
-            </a>
 
-            <a href="{% url 'accounts:change_password' %}">
-                Change Password
-            </a>
+
+            <!-- BOTTOM NAVIGATION -->
+
+            <div class="bottom-links">
+
+                <a href="{% url 'accounts:settings' %}">
+                    ⚙ Settings
+                </a>
+
+                <a href="{% url 'accounts:logout' %}">
+                    ⇥ Logout
+                </a>
+
+            </div>
 
         </nav>
 

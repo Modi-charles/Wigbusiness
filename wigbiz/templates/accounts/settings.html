@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+    Settings
+{% endblock %}
+
+
+{% block content %}
+
+<h1>
+    Settings
+</h1>
+
+
+<p>
+    Manage your account and application preferences.
+</p>
+
+
+<hr>
+
+
+<h2>
+    Account
+</h2>
+
+
+<div class="report-links">
+
+    <div>
+
+        <h3>
+            Password
+        </h3>
+
+        <p>
+            Change your account password.
+        </p>
+
+        <a href="{% url 'accounts:change_password' %}">
+            Change Password
+        </a>
+
+    </div>
+
+
+    <div>
+
+        <h3>
+            Profile
+        </h3>
+
+        <p>
+            View and manage your account information.
+        </p>
+
+        <p>
+            <strong>Username:</strong>
+            {{ user.username }}
+        </p>
+
+        <p>
+            <strong>Email:</strong>
+            {{ user.email|default:"Not provided" }}
+        </p>
+
+    </div>
+
+</div>
+
+
+<hr>
+
+
+<h2>
+    Appearance
+</h2>
+
+
+<div class="report-links">
+
+    <div>
+
+        <h3>
+            Light Theme
+        </h3>
+
+        <p>
+            Use the standard light appearance.
+        </p>
+
+        <button
+            type="button"
+            onclick="setTheme('light')"
+        >
+            Use Light Theme
+        </button>
+
+    </div>
+
+
+    <div>
+
+        <h3>
+            Dark Theme
+        </h3>
+
+        <p>
+            Use a darker appearance that is easier on the eyes.
+        </p>
+
+        <button
+            type="button"
+            onclick="setTheme('dark')"
+        >
+            Use Dark Theme
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+function setTheme(theme) {
+
+    document.documentElement.setAttribute(
+        "data-theme",
+        theme
+    );
+
+    localStorage.setItem(
+        "wigbiz-theme",
+        theme
+    );
+
+}
+
+const savedTheme = localStorage.getItem(
+    "wigbiz-theme"
+);
+
+if (savedTheme) {
+
+    document.documentElement.setAttribute(
+        "data-theme",
+        savedTheme
+    );
+
+}
+
+</script>
+
+{% endblock %}

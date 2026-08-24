@@ -4,27 +4,34 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>
-        {% block title %}Wig Business ERP{% endblock %}
+        {% block title %}
+            WigBiz ERP
+        {% endblock %}
     </title>
 
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'css/dashboard.css' %}">
+
 </head>
 
+
 <body>
+
+
+<!-- =====================================================
+     TOP NAVBAR
+     ===================================================== -->
 
 <header class="navbar">
 
     <div class="navbar-left">
-
-        {% if user.is_authenticated %}
-            <button class="sidebar-toggle" id="sidebarToggle">
-                &#9776;
-            </button>
-        {% endif %}
 
         <span class="brand">
             WigBiz ERP
@@ -41,9 +48,13 @@
                 {{ user.username }}
             </span>
 
-            <a href="{% url 'accounts:logout' %}" class="logout-link">
-                Logout
-            </a>
+            {% if user.role %}
+
+                <span class="user-role">
+                    {{ user.role.name }}
+                </span>
+
+            {% endif %}
 
         {% else %}
 
@@ -58,193 +69,433 @@
 </header>
 
 
+
+<!-- =====================================================
+     APPLICATION LAYOUT
+     ===================================================== -->
+
 <div class="layout">
 
-    {% if user.is_authenticated %}
 
-        <aside class="sidebar" id="sidebar">
+{% if user.is_authenticated %}
 
-            <nav>
 
-                <ul>
+<!-- =====================================================
+     SIDEBAR
+     ===================================================== -->
 
-                    <!-- DASHBOARD -->
+<aside class="sidebar">
 
-                    <li>
-                        <a href="{% url 'dashboard:dashboard' %}">
-                            Dashboard
-                        </a>
-                    </li>
+    <nav>
 
 
-                    <!-- SALES -->
+        <!-- =================================================
+             MAIN DASHBOARD
+             ================================================= -->
 
-                    {% if user.role_name == "Administrator" or user.role_name == "Manager" or user.role_name == "Salesperson" %}
+        <a href="{% url 'dashboard:dashboard' %}"
+           class="{% if request.resolver_match.app_name == 'dashboard' %}active{% endif %}">
 
-                        <li>
-                            <a href="{% url 'sales:create_sale' %}">
-                                Sales
-                            </a>
-                        </li>
+            <span>
+                Dashboard
+            </span>
 
-                    {% endif %}
+        </a>
 
 
-                    <!-- INVENTORY -->
 
-                    {% if user.role_name == "Administrator" or user.role_name == "Manager" or user.role_name == "Inventory Staff" %}
+        <!-- =================================================
+             ADMINISTRATOR
+             ================================================= -->
 
-                        <li>
-                            <a href="{% url 'inventory:view_inventory' %}">
-                                Inventory
-                            </a>
-                        </li>
+        {% if user.role and user.role.name == "Administrator" %}
 
-                    {% endif %}
 
+            <a href="{% url 'sales:sales_history' %}"
+               class="{% if request.resolver_match.url_name == 'sales_history' %}active{% endif %}">
 
-                    <!-- PURCHASES -->
+                <span>
+                    Sales
+                </span>
 
-                    {% if user.role_name == "Administrator" or user.role_name == "Manager" or user.role_name == "Inventory Staff" or user.role_name == "Accountant" %}
+            </a>
 
-                        <li>
-                            <a href="{% url 'purchase:view_purchase' %}">
-                                Purchases
-                            </a>
-                        </li>
 
-                    {% endif %}
+            <a href="{% url 'inventory:view_inventory' %}"
+               class="{% if request.resolver_match.app_name == 'inventory' %}active{% endif %}">
 
+                <span>
+                    Inventory
+                </span>
 
-                    <!-- REPORTS -->
+            </a>
 
-                    {% if user.role_name == "Administrator" or user.role_name == "Manager" or user.role_name == "Accountant" %}
 
-                        <li>
-                            <a href="{% url 'reports:dashboard' %}">
-                                Reports
-                            </a>
-                        </li>
+            <a href="{% url 'purchase:view_purchase' %}"
+               class="{% if request.resolver_match.app_name == 'purchase' %}active{% endif %}">
 
-                    {% endif %}
+                <span>
+                    Purchases
+                </span>
 
+            </a>
 
-                    <!-- CUSTOMERS -->
 
-                    {% if user.role_name == "Administrator" or user.role_name == "Manager" or user.role_name == "Salesperson" or user.role_name == "Accountant" %}
+            <a href="{% url 'customers:customer_list' %}"
+               class="{% if request.resolver_match.app_name == 'customers' %}active{% endif %}">
 
-                        <li>
-                            <a href="{% url 'customers:customer_list' %}">
-                                Customers
-                            </a>
-                        </li>
+                <span>
+                    Customers
+                </span>
 
-                    {% endif %}
+            </a>
 
 
-                    <!-- SUPPLIERS -->
+            <a href="{% url 'suppliers:supplier_list' %}"
+               class="{% if request.resolver_match.app_name == 'suppliers' %}active{% endif %}">
 
-                    {% if user.role_name == "Administrator" or user.role_name == "Manager" or user.role_name == "Inventory Staff" or user.role_name == "Accountant" %}
+                <span>
+                    Suppliers
+                </span>
 
-                        <li>
-                            <a href="{% url 'suppliers:supplier_list' %}">
-                                Suppliers
-                            </a>
-                        </li>
+            </a>
 
-                    {% endif %}
 
+            <a href="{% url 'employees:employee_list' %}"
+               class="{% if request.resolver_match.app_name == 'employees' %}active{% endif %}">
 
-                    <!-- EMPLOYEES -->
+                <span>
+                    Employees
+                </span>
 
-                    {% if user.role_name == "Administrator" or user.role_name == "Manager" %}
+            </a>
 
-                        <li>
-                            <a href="{% url 'employees:employee_list' %}">
-                                Employees
-                            </a>
-                        </li>
 
-                    {% endif %}
+            <a href="{% url 'reports:dashboard' %}"
+               class="{% if request.resolver_match.app_name == 'reports' %}active{% endif %}">
 
+                <span>
+                    Reports
+                </span>
 
-                    <!-- USERS -->
+            </a>
 
-                    {% if user.role_name == "Administrator" %}
 
-                        <li>
-                            <a href="{% url 'accounts:user_list' %}">
-                                Users
-                            </a>
-                        </li>
+            <a href="{% url 'accounts:user_list' %}"
+               class="{% if request.resolver_match.url_name == 'user_list' %}active{% endif %}">
 
-                    {% endif %}
+                <span>
+                    Users
+                </span>
 
+            </a>
 
-                    <!-- CHANGE PASSWORD -->
 
-                    <li>
-                        <a href="{% url 'accounts:change_password' %}">
-                            Change Password
-                        </a>
-                    </li>
+        <!-- =================================================
+             MANAGER
+             ================================================= -->
 
+        {% elif user.role and user.role.name == "Manager" %}
 
-                    <!-- LOGOUT -->
 
-                    <li>
-                        <a href="{% url 'accounts:logout' %}">
-                            Logout
-                        </a>
-                    </li>
+            <a href="{% url 'sales:sales_history' %}"
+               class="{% if request.resolver_match.app_name == 'sales' %}active{% endif %}">
 
-                </ul>
+                <span>
+                    Sales
+                </span>
 
-            </nav>
+            </a>
 
-        </aside>
 
-    {% endif %}
+            <a href="{% url 'inventory:view_inventory' %}"
+               class="{% if request.resolver_match.app_name == 'inventory' %}active{% endif %}">
 
+                <span>
+                    Inventory
+                </span>
 
-    <!-- MAIN CONTENT -->
+            </a>
 
-    <main class="main-content">
 
-        {% block content %}
-        {% endblock %}
+            <a href="{% url 'purchase:view_purchase' %}"
+               class="{% if request.resolver_match.app_name == 'purchase' %}active{% endif %}">
 
-    </main>
+                <span>
+                    Purchases
+                </span>
 
-</div>
+            </a>
 
 
-<!-- MESSAGES -->
+            <a href="{% url 'customers:customer_list' %}"
+               class="{% if request.resolver_match.app_name == 'customers' %}active{% endif %}">
 
-{% if messages %}
+                <span>
+                    Customers
+                </span>
 
-    <div class="messages">
+            </a>
 
-        {% for message in messages %}
 
-            <div class="alert {{ message.tags }}">
-                {{ message }}
-            </div>
+            <a href="{% url 'suppliers:supplier_list' %}"
+               class="{% if request.resolver_match.app_name == 'suppliers' %}active{% endif %}">
 
-        {% endfor %}
+                <span>
+                    Suppliers
+                </span>
 
-    </div>
+            </a>
+
+
+            <a href="{% url 'employees:employee_list' %}"
+               class="{% if request.resolver_match.app_name == 'employees' %}active{% endif %}">
+
+                <span>
+                    Employees
+                </span>
+
+            </a>
+
+
+            <a href="{% url 'reports:dashboard' %}"
+               class="{% if request.resolver_match.app_name == 'reports' %}active{% endif %}">
+
+                <span>
+                    Reports
+                </span>
+
+            </a>
+            <a href="{% url 'sales:return_approval_list' %}"
+            class="{% if request.resolver_match.url_name == 'return_approval_list' or request.resolver_match.url_name == 'return_approval_detail' %}active{% endif %}">
+
+            <span>
+            Return Approvals
+            </span>
+
+            </a>
+
+
+
+        <!-- =================================================
+             SALESPERSON
+             ================================================= -->
+
+        {% elif user.role and user.role.name == "Salesperson" %}
+
+
+            <a href="{% url 'sales:create_sale' %}"
+               class="{% if request.resolver_match.app_name == 'sales' %}active{% endif %}">
+
+                <span>
+                    Sales
+                </span>
+
+            </a>
+
+
+            <a href="{% url 'customers:customer_list' %}"
+               class="{% if request.resolver_match.app_name == 'customers' %}active{% endif %}">
+
+                <span>
+                    Customers
+                </span>
+
+            </a>
+
+
+
+        <!-- =================================================
+             INVENTORY STAFF
+             ================================================= -->
+
+        {% elif user.role and user.role.name == "Inventory Staff" %}
+
+
+            <a href="{% url 'inventory:view_inventory' %}"
+               class="{% if request.resolver_match.app_name == 'inventory' %}active{% endif %}">
+
+                <span>
+                    Inventory
+                </span>
+
+            </a>
+
+
+            <a href="{% url 'purchase:view_purchase' %}"
+               class="{% if request.resolver_match.app_name == 'purchase' %}active{% endif %}">
+
+                <span>
+                    Purchases
+                </span>
+
+            </a>
+
+
+            <a href="{% url 'suppliers:supplier_list' %}"
+               class="{% if request.resolver_match.app_name == 'suppliers' %}active{% endif %}">
+
+                <span>
+                    Suppliers
+                </span>
+
+            </a>
+
+
+
+        <!-- =================================================
+             ACCOUNTANT
+             ================================================= -->
+
+        {% elif user.role and user.role.name == "Accountant" %}
+
+
+            <a href="{% url 'sales:sales_history' %}"
+               class="{% if request.resolver_match.app_name == 'sales' %}active{% endif %}">
+
+                <span>
+                    Sales
+                </span>
+
+            </a>
+
+
+            <a href="{% url 'purchase:view_purchase' %}"
+               class="{% if request.resolver_match.app_name == 'purchase' %}active{% endif %}">
+
+                <span>
+                    Purchases
+                </span>
+
+            </a>
+
+
+            <a href="{% url 'customers:customer_list' %}"
+               class="{% if request.resolver_match.app_name == 'customers' %}active{% endif %}">
+
+                <span>
+                    Customers
+                </span>
+
+            </a>
+
+
+            <a href="{% url 'suppliers:supplier_list' %}"
+               class="{% if request.resolver_match.app_name == 'suppliers' %}active{% endif %}">
+
+                <span>
+                    Suppliers
+                </span>
+
+            </a>
+
+
+            <a href="{% url 'reports:dashboard' %}"
+               class="{% if request.resolver_match.app_name == 'reports' %}active{% endif %}">
+
+                <span>
+                    Reports
+                </span>
+
+            </a>
+
+
+        {% endif %}
+
+
+
+        <!-- =================================================
+             BOTTOM LINKS
+             ================================================= -->
+
+        <div class="bottom-links">
+
+
+            <a href="{% url 'accounts:settings' %}"
+               class="{% if request.resolver_match.app_name == 'accounts' and request.resolver_match.url_name == 'settings' %}active{% endif %}">
+
+                <span>
+                    ⚙ Settings
+                </span>
+
+            </a>
+
+
+            <a href="{% url 'accounts:logout' %}">
+
+                <span>
+                    ⇥ Logout
+                </span>
+
+            </a>
+
+
+        </div>
+
+
+    </nav>
+
+</aside>
+
 
 {% endif %}
 
 
+
+<!-- =====================================================
+     MAIN CONTENT
+     ===================================================== -->
+
+<main class="main-content">
+
+
+    {% if messages %}
+
+        <div class="messages">
+
+            {% for message in messages %}
+
+                <div class="alert {{ message.tags }}">
+
+                    {{ message }}
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+
+
+    {% block content %}
+
+    {% endblock %}
+
+
+</main>
+
+
+</div>
+
+
+
+<!-- =====================================================
+     FOOTER
+     ===================================================== -->
+
 <footer class="footer">
 
     <p>
-        &copy; {% now "Y" %} WigBiz ERP. All rights reserved.
+
+        &copy; {% now "Y" %} WigBiz ERP.
+        All rights reserved.
+
     </p>
 
 </footer>
+
 
 
 <script src="{% static 'js/dashboard.js' %}"></script>

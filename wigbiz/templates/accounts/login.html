@@ -4,58 +4,50 @@
 
 {% block content %}
 
-<h1>Login</h1>
+<div class="auth-wrap">
+    <div class="auth-card">
 
-<form method="post">
+        <h1>Login</h1>
 
-    {% csrf_token %}
+        {% if messages %}
+        <div class="auth-messages">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
 
-    <div>
-        <label for="username">
-            Username
-        </label>
+        <form method="post">
+            {% csrf_token %}
 
-        <input
-            type="text"
-            id="username"
-            name="username"
-            required
-        >
+            <div>
+                <label for="username">Username</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    autofocus
+                    autocomplete="username"
+                    required
+                >
+            </div>
+
+            <div>
+                <label for="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    autocomplete="current-password"
+                    required
+                >
+            </div>
+
+            <button type="submit">Login</button>
+
+        </form>
+
     </div>
-
-    <br>
-
-    <div>
-        <label for="password">
-            Password
-        </label>
-
-        <input
-            type="password"
-            id="password"
-            name="password"
-            required
-        >
-    </div>
-
-    <br>
-
-    <button type="submit">
-        Login
-    </button>
-
-</form>
-
-{% if messages %}
-
-    {% for message in messages %}
-
-        <p>
-            {{ message }}
-        </p>
-
-    {% endfor %}
-
-{% endif %}
+</div>
 
 {% endblock %}

@@ -12,7 +12,7 @@
 
     <title>
         {% block title %}
-        Administrator Dashboard
+        Inventory Dashboard
         {% endblock %}
     </title>
 
@@ -35,10 +35,6 @@
             {{ user.username }}
         </span>
 
-        <a href="{% url 'accounts:logout' %}">
-            Logout
-        </a>
-
     </div>
 
 </header>
@@ -50,6 +46,8 @@
 
         <nav>
 
+            <!-- MAIN NAVIGATION -->
+
             <a href="{% url 'dashboard:dashboard' %}">
                 Dashboard
             </a>
@@ -58,7 +56,7 @@
                 Inventory
             </a>
 
-            <a href="{% url 'purchase:purchase_details' %}">
+            <a href="{% url 'purchase:view_purchase' %}">
                 Purchase
             </a>
 
@@ -66,9 +64,20 @@
                 Suppliers
             </a>
 
-            <a href="{% url 'accounts:change_password' %}">
-                Change Password
-            </a>
+
+            <!-- BOTTOM NAVIGATION -->
+
+            <div class="bottom-links">
+
+                <a href="{% url 'accounts:settings' %}">
+                    ⚙ Settings
+                </a>
+
+                <a href="{% url 'accounts:logout' %}">
+                    ⇥ Logout
+                </a>
+
+            </div>
 
         </nav>
 

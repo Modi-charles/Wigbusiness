@@ -11,30 +11,35 @@ def dashboard(request):
     role = request.user.role.name
 
     if role == "Administrator":
+
         return render(
             request,
             "administrator/dashboard.html"
         )
 
-    elif role == "Manager":
+    if role == "Manager":
+
         return render(
             request,
             "manager/dashboard.html"
         )
 
-    elif role == "Salesperson":
+    if role == "Salesperson":
+
         return render(
             request,
             "salesperson/dashboard.html"
         )
 
-    elif role == "Inventory Staff":
+    if role == "Inventory Staff":
+
         return render(
             request,
-            "inventory_staff/dashboard.html"
+            "inventorystaff/dashboard.html"
         )
 
-    elif role == "Accountant":
+    if role == "Accountant":
+
         return render(
             request,
             "accountant/dashboard.html"

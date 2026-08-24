@@ -35,10 +35,6 @@
             {{ user.username }}
         </span>
 
-        <a href="{% url 'accounts:logout' %}">
-            Logout
-        </a>
-
     </div>
 
 </header>
@@ -49,6 +45,8 @@
     <aside class="sidebar">
 
         <nav>
+
+            <!-- MAIN NAVIGATION -->
 
             <a href="{% url 'dashboard:dashboard' %}">
                 Dashboard
@@ -86,9 +84,20 @@
                 Reports
             </a>
 
-            <a href="{% url 'accounts:change_password' %}">
-                Change Password
-            </a>
+
+            <!-- BOTTOM NAVIGATION -->
+
+            <div class="bottom-links">
+
+                <a href="{% url 'accounts:settings' %}">
+                    ⚙ Settings
+                </a>
+
+                <a href="{% url 'accounts:logout' %}">
+                    ⇥ Logout
+                </a>
+
+            </div>
 
         </nav>
 

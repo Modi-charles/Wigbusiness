@@ -1,182 +1,195 @@
-<!DOCTYPE html>
+{% extends "base.html" %}
 
-<html lang="en">
 
-<head>
-
-```
-<meta charset="UTF-8">
-
-<title>
+{% block title %}
     Return {{ sale.invoice_number }}
-</title>
-
-<style>
-
-    body {
-        font-family: Arial, sans-serif;
-        padding: 30px;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    th,
-    td {
-        padding: 10px;
-        border: 1px solid #ddd;
-    }
-
-    input {
-        width: 80px;
-        padding: 6px;
-    }
-
-    textarea {
-        width: 100%;
-        height: 100px;
-        margin-top: 10px;
-    }
-
-    button {
-        margin-top: 20px;
-        padding: 10px 20px;
-        cursor: pointer;
-    }
-
-    .error {
-        color: red;
-        margin-bottom: 20px;
-    }
-
-</style>
-```
-
-</head>
-
-<body>
-
-```
-<h1>
-    Return Sale
-</h1>
+{% endblock %}
 
 
-<p>
-    <strong>Invoice:</strong>
-    {{ sale.invoice_number }}
-</p>
+{% block content %}
+
+<div class="page-header">
+
+    <h1>
+        Return Sale
+    </h1>
+
+</div>
 
 
-<p>
-    <strong>Date:</strong>
-    {{ sale.sale_date|date:"d M Y H:i" }}
-</p>
+<div class="report-card">
+
+    <div class="detail-row">
+
+        <strong>
+            Invoice:
+        </strong>
+
+        <span>
+            {{ sale.invoice_number }}
+        </span>
+
+    </div>
+
+
+    <div class="detail-row">
+
+        <strong>
+            Date:
+        </strong>
+
+        <span>
+            {{ sale.sale_date|date:"d M Y H:i" }}
+        </span>
+
+    </div>
+
+</div>
+
+
+<br>
 
 
 {% if error %}
 
-    <div class="error">
+    <div class="alert error">
         {{ error }}
     </div>
 
 {% endif %}
 
 
-<form method="post">
+<div class="report-card">
 
-    {% csrf_token %}
-
-
-    <table>
-
-        <thead>
-
-            <tr>
-
-                <th>
-                    Product
-                </th>
-
-                <th>
-                    Sold
-                </th>
-
-                <th>
-                    Selling Price
-                </th>
-
-                <th>
-                    Return Quantity
-                </th>
-
-            </tr>
-
-        </thead>
+    <h2>
+        Select Items to Return
+    </h2>
 
 
-        <tbody>
+    <form method="post">
 
-            {% for item in sale.items.all %}
-
-                <tr>
-
-                    <td>
-                        {{ item.product.name }}
-                    </td>
-
-                    <td>
-                        {{ item.quantity }}
-                    </td>
-
-                    <td>
-                        {{ item.selling_price }}
-                    </td>
-
-                    <td>
-
-                        <input
-                            type="number"
-                            name="quantity_{{ item.id }}"
-                            min="0"
-                            max="{{ item.quantity }}"
-                            value="0"
-                        >
-
-                    </td>
-
-                </tr>
-
-            {% endfor %}
-
-        </tbody>
-
-    </table>
+        {% csrf_token %}
 
 
-    <h3>
-        Return Reason
-    </h3>
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Product
+                        </th>
+
+                        <th>
+                            Sold
+                        </th>
+
+                        <th>
+                            Selling Price
+                        </th>
+
+                        <th>
+                            Return Quantity
+                        </th>
+
+                    </tr>
+
+                </thead>
 
 
-    <textarea
-        name="reason"
-        placeholder="Enter reason for return..."
-    ></textarea>
+                <tbody>
+
+                    {% for item in sale.items.all %}
+
+                        <tr>
+
+                            <td>
+                                {{ item.product.name }}
+                            </td>
+
+                            <td>
+                                {{ item.quantity }}
+                            </td>
+
+                            <td>
+                                UGX {{ item.selling_price }}
+                            </td>
+
+                            <td>
+
+                                <input
+                                    type="number"
+                                    name="quantity_{{ item.id }}"
+                                    min="0"
+                                    max="{{ item.quantity }}"
+                                    value="0"
+                                >
+
+                            </td>
+
+                        </tr>
+
+                    {% empty %}
+
+                        <tr>
+
+                            <td colspan="4">
+                                No items found for this sale.
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
 
 
-    <br>
+        <br>
 
 
-    <button type="submit">
-        Complete Return
-    </button>
+        <div class="form-group">
 
-</form>
-```
+            <label for="reason">
 
-</body>
+                Return Reason
 
-</html>
+            </label>
+
+
+            <textarea
+                id="reason"
+                name="reason"
+                placeholder="Enter reason for return..."
+            ></textarea>
+
+        </div>
+
+
+        <br>
+
+
+        <div class="form-actions">
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+
+                Complete Return
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

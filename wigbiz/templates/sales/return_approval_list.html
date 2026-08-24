@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Review Return
+{% endblock %}
+
+
+{% block content %}
+
+<h1>
+    Review Return
+</h1>
+
+
+<div class="dashboard-card">
+
+    <h2>
+        Return {{ sale_return.return_number }}
+    </h2>
+
+
+    <p>
+        <strong>
+            Original Invoice:
+        </strong>
+
+        {{ sale_return.sale.invoice_number }}
+    </p>
+
+
+    <p>
+        <strong>
+            Requested By:
+        </strong>
+
+        {{ sale_return.created_by }}
+    </p>
+
+
+    <p>
+        <strong>
+            Date:
+        </strong>
+
+        {{ sale_return.created_at|date:"d M Y H:i" }}
+    </p>
+
+
+    <p>
+        <strong>
+            Reason:
+        </strong>
+
+        {{ sale_return.reason|default:"No reason provided." }}
+    </p>
+
+
+    <p>
+        <strong>
+            Refund Amount:
+        </strong>
+
+        UGX {{ sale_return.total_refund }}
+    </p>
+
+</div>
+
+
+<h2>
+    Returned Items
+</h2>
+
+
+<table>
+
+    <thead>
+
+        <tr>
+
+            <th>
+                Product
+            </th>
+
+            <th>
+                Quantity
+            </th>
+
+            <th>
+                Selling Price
+            </th>
+
+            <th>
+                Refund
+            </th>
+
+        </tr>
+
+    </thead>
+
+
+    <tbody>
+
+        {% for item in sale_return.items.all %}
+
+            <tr>
+
+                <td>
+                    {{ item.sale_item.product.name }}
+                </td>
+
+                <td>
+                    {{ item.quantity }}
+                </td>
+
+                <td>
+                    UGX {{ item.sale_item.selling_price }}
+                </td>
+
+                <td>
+                    UGX {{ item.refund_amount }}
+                </td>
+
+            </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+
+{% if sale_return.status == "PENDING" %}
+
+
+    <div class="dashboard-card">
+
+        <h2>
+            Manager Decision
+        </h2>
+
+
+        <form
+            method="post"
+            action="{% url 'sales:approve_return' sale_return.pk %}"
+        >
+
+            {% csrf_token %}
+
+            <button type="submit">
+
+                Approve Return
+
+            </button>
+
+        </form>
+
+
+        <br>
+
+
+        <form
+            method="post"
+            action="{% url 'sales:reject_return' sale_return.pk %}"
+        >
+
+            {% csrf_token %}
+
+
+            <label>
+                Rejection Reason
+            </label>
+
+
+            <textarea
+                name="rejection_reason"
+                required
+                placeholder="Explain why this return is being rejected..."
+            ></textarea>
+
+
+            <br><br>
+
+
+            <button type="submit">
+
+                Reject Return
+
+            </button>
+
+        </form>
+
+    </div>
+
+
+{% elif sale_return.status == "APPROVED" %}
+
+
+    <div class="alert success">
+
+        This return has been approved.
+
+        Approved by:
+        {{ sale_return.approved_by }}
+
+    </div>
+
+
+{% elif sale_return.status == "REJECTED" %}
+
+
+    <div class="alert error">
+
+        This return has been rejected.
+
+        <br>
+
+        Reason:
+        {{ sale_return.rejection_reason }}
+
+    </div>
+
+
+{% endif %}
+
+
+{% endblock %}

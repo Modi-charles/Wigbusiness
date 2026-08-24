@@ -1,108 +1,51 @@
 {% extends "base.html" %}
-
-{% block title %}
-Supplier Report
-{% endblock %}
-
+{% block title %}Supplier Report{% endblock %}
 {% block content %}
 
 <h1>Supplier Report</h1>
 
-<p>
-    <strong>Total Suppliers:</strong>
-    {{ total_suppliers }}
-</p>
-
-<p>
-    <strong>Active:</strong>
-    {{ active_suppliers }}
-</p>
-
-<p>
-    <strong>Inactive:</strong>
-    {{ inactive_suppliers }}
-</p>
-
-<p>
-    <strong>Total Outstanding:</strong>
-    UGX {{ total_outstanding }}
-</p>
+<p><strong>Total Suppliers:</strong> {{ total_suppliers }}</p>
+<p><strong>Active:</strong> {{ active_suppliers }}</p>
+<p><strong>Inactive:</strong> {{ inactive_suppliers }}</p>
+<p><strong>Total Outstanding:</strong> UGX {{ total_outstanding }}</p>
 
 <hr>
 
 <table border="1" cellpadding="8">
-
     <thead>
-
         <tr>
-            <th>Supplier</th>
-            <th>Company</th>
-            <th>Phone</th>
-            <th>Email</th>
-            <th>Balance</th>
-            <th>Status</th>
+            <th>Supplier</th><th>Company</th><th>Phone</th><th>Email</th><th>Balance</th><th>Status</th>
         </tr>
-
     </thead>
-
     <tbody>
-
         {% for supplier in suppliers %}
-
         <tr>
-
-            <td>
-                {{ supplier.name }}
-            </td>
-
-            <td>
-                {{ supplier.company_name|default:"-" }}
-            </td>
-
-            <td>
-                {{ supplier.phone }}
-            </td>
-
-            <td>
-                {{ supplier.email|default:"-" }}
-            </td>
-
-            <td>
-                UGX {{ supplier.balance }}
-            </td>
-
-            <td>
-
-                {% if supplier.is_active %}
-                    Active
-                {% else %}
-                    Inactive
-                {% endif %}
-
-            </td>
-
+            <td>{{ supplier.name }}</td>
+            <td>{{ supplier.company_name|default:"-" }}</td>
+            <td>{{ supplier.phone }}</td>
+            <td>{{ supplier.email|default:"-" }}</td>
+            <td>UGX {{ supplier.balance }}</td>
+            <td>{% if supplier.is_active %}Active{% else %}Inactive{% endif %}</td>
         </tr>
-
         {% empty %}
-
-        <tr>
-
-            <td colspan="6">
-                No suppliers found.
-            </td>
-
-        </tr>
-
+        <tr><td colspan="6">No suppliers found.</td></tr>
         {% endfor %}
-
     </tbody>
-
 </table>
 
-<br>
+{% if suppliers.has_other_pages %}
+<div>
+    {% if suppliers.has_previous %}
+        <a href="?{{ page_querystring }}&page={{ suppliers.previous_page_number }}">Previous</a>
+    {% endif %}
+    Page {{ suppliers.number }} of {{ suppliers.paginator.num_pages }}
+    {% if suppliers.has_next %}
+        <a href="?{{ page_querystring }}&page={{ suppliers.next_page_number }}">Next</a>
+    {% endif %}
+</div>
+{% endif %}
 
-<button onclick="window.print()">
-    Print
-</button>
+<br>
+<button onclick="window.print()">Print</button>
 
 {% endblock %}

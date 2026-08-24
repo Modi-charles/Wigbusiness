@@ -8,9 +8,13 @@ from products.models import Product
 from django.contrib.auth.decorators import login_required
 from .models import Sale,Refund
 from django.db.models import Q
-from datetime import datetime
+from django.db import transaction
 from django.core.paginator import Paginator
 from .returns import create_sale_return, create_refund, SaleReturn
+from django.contrib import messages
+from accounts.decorators import role_required
+from django.utils import timezone
+from core.utils import parse_date_or_none
 
 # Create your views here.
 @login_required
@@ -56,6 +60,7 @@ def create_sale_view(request):
             "item_formset": item_formset,
         },
     )
+@login_required
 def sale_detail(request, pk):
     sale = get_object_or_404(
         Sale.objects.prefetch_related(
@@ -72,6 +77,8 @@ def sale_detail(request, pk):
             "sale": sale,
         },
     )
+@login_required
+@require_GET
 def product_by_barcode(request):
     barcode = request.GET.get("barcode", "").strip()
 
@@ -114,112 +121,50 @@ def product_by_barcode(request):
     )
 def sales_history(request):
     sales = (
-        Sale.objects
-        .select_related(
-            "customer",
-            "created_by",
-        )
-        .order_by("-sale_date")
+        Sale.objects.select_related("customer","created_by",).order_by("-sale_date")
     )
 
     # Search
-    search = request.GET.get(
-        "search",
-        ""
-    ).strip()
-
+    search = request.GET.get("search","").strip()
     if search:
         sales = sales.filter(
-            Q(invoice_number__icontains=search)
-            |
-            Q(customer__name__icontains=search)
+            Q(invoice_number__icontains=search)|Q(customer__name__icontains=search)
         )
-
-
     # Status filter
-    status = request.GET.get(
-        "status",
-        ""
-    )
-
+    status = request.GET.get("status","")
     if status:
-        sales = sales.filter(
-            status=status
-        )
-
-
+        sales = sales.filter(status=status)
     # Payment method filter
-    payment_method = request.GET.get(
-        "payment_method",
-        ""
-    )
-
+    payment_method = request.GET.get("payment_method", "")
     if payment_method:
-        sales = sales.filter(
-            payment_method=payment_method
-        )
-
-
+        sales = sales.filter(payment_method=payment_method)
     # Date filters
-    date_from = request.GET.get(
-        "date_from",
-        ""
-    )
-
-    date_to = request.GET.get(
-        "date_to",
-        ""
-    )
-
+    date_from_raw = request.GET.get("date_from","")
+    date_to_raw = request.GET.get("date_to","")
+    date_from = parse_date_or_none(date_from_raw)
+    date_to = parse_date_or_none(date_to_raw)
     if date_from:
-        sales = sales.filter(
-            sale_date__date__gte=date_from
-        )
-
+        sales = sales.filter(sale_date__date__gte=date_from)
     if date_to:
-        sales = sales.filter(
-            sale_date__date__lte=date_to
-        )
-
+        sales = sales.filter(sale_date__date__lte=date_to)
 
     # Pagination
-    paginator = Paginator(
-        sales,
-        20
-    )
-
-    page_number = request.GET.get(
-        "page"
-    )
-
-    page_obj = paginator.get_page(
-        page_number
-    )
-
-
+    paginator = Paginator(sales,20)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
     return render(
         request,
         "sales/sales_history.html",
         {
             "sales": page_obj,
-
             "search": search,
-
             "selected_status": status,
-
-            "selected_payment_method":
-                payment_method,
-
-            "status_choices":
-                Sale.Status.choices,
-
-            "payment_choices":
-                Sale.PAYMENT_METHODS,
-
-            "date_from": date_from,
-
-            "date_to": date_to,
-        }
+            "selected_payment_method":payment_method,
+            "status_choices":Sale.Status.choices,
+            "payment_choices":Sale.PAYMENT_METHODS,
+            "date_from": date_from_raw,
+            "date_to": date_to_raw,
+        },
     )
 @login_required
 def create_return(request, pk):
@@ -504,4 +449,169 @@ def refund_history(request):
             "payment_choices": Sale.PAYMENT_METHODS,
             "status_choices": Refund.Status.choices,
         },
+    )
+
+@login_required
+@role_required("Manager")
+def return_approval_list(request):
+
+    returns = (
+        SaleReturn.objects
+        .select_related(
+            "sale",
+            "created_by",
+            "approved_by",
+        )
+        .filter(
+            status=SaleReturn.Status.PENDING
+        )
+        .order_by("-created_at")
+    )
+
+    return render(
+        request,
+        "sales/return_approval_list.html",
+        {
+            "returns": returns,
+        }
+    )
+@login_required
+@role_required("Manager")
+def return_approval_detail(request, pk):
+
+    sale_return = get_object_or_404(
+        SaleReturn.objects
+        .select_related(
+            "sale",
+            "created_by",
+            "approved_by",
+        )
+        .prefetch_related(
+            "items__sale_item__product"
+        ),
+        pk=pk
+    )
+
+    return render(
+        request,
+        "sales/return_approval_detail.html",
+        {
+            "sale_return": sale_return,
+        }
+    )
+@login_required
+@role_required("Manager")
+@transaction.atomic
+def approve_return(request, pk):
+
+    sale_return = get_object_or_404(
+        SaleReturn.objects.select_for_update(),
+        pk=pk
+    )
+
+    if request.method != "POST":
+
+        return redirect(
+            "sales:return_approval_detail",
+            sale_return.pk
+        )
+
+    if sale_return.status != SaleReturn.Status.PENDING:
+
+        messages.error(
+            request,
+            "This return is no longer pending approval."
+        )
+
+        return redirect(
+            "sales:return_approval_detail",
+            sale_return.pk
+        )
+
+    sale_return.status = SaleReturn.Status.APPROVED
+
+    sale_return.approved_by = request.user
+
+    sale_return.approved_at = timezone.now()
+
+    sale_return.save(
+        update_fields=[
+            "status",
+            "approved_by",
+            "approved_at",
+        ]
+    )
+
+    messages.success(
+        request,
+        f"Return {sale_return.return_number} has been approved."
+    )
+
+    return redirect(
+        "sales:return_approval_list"
+    )
+@login_required
+@role_required("Manager")
+@transaction.atomic
+def reject_return(request, pk):
+
+    sale_return = get_object_or_404(
+        SaleReturn.objects.select_for_update(),
+        pk=pk
+    )
+
+    if request.method != "POST":
+
+        return redirect(
+            "sales:return_approval_detail",
+            sale_return.pk
+        )
+
+    if sale_return.status != SaleReturn.Status.PENDING:
+
+        messages.error(
+            request,
+            "This return is no longer pending approval."
+        )
+
+        return redirect(
+            "sales:return_approval_detail",
+            sale_return.pk
+        )
+
+    rejection_reason = request.POST.get(
+        "rejection_reason",
+        ""
+    ).strip()
+
+    if not rejection_reason:
+
+        messages.error(
+            request,
+            "Please provide a reason for rejecting the return."
+        )
+
+        return redirect(
+            "sales:return_approval_detail",
+            sale_return.pk
+        )
+
+    sale_return.status = SaleReturn.Status.REJECTED
+
+    sale_return.rejection_reason = rejection_reason
+
+    sale_return.save(
+        update_fields=[
+            "status",
+            "rejection_reason",
+        ]
+    )
+
+    messages.success(
+        request,
+        f"Return {sale_return.return_number} has been rejected."
+    )
+
+    return redirect(
+        "sales:return_approval_list"
     )

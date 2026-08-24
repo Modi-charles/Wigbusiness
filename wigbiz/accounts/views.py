@@ -1,130 +1,80 @@
-from django.shortcuts import (
-    render,
-    redirect,
-    get_object_or_404,
-)
-
+from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib import messages
-
-from django.contrib.auth import (
-    authenticate,
-    login,
-    logout,
-    update_session_auth_hash,
-)
-
-from django.contrib.auth.decorators import (
-    login_required,
-)
-
-from django.contrib.auth.forms import (
-    PasswordChangeForm,
-)
-
+from django.contrib.auth import authenticate,login,logout,update_session_auth_hash
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
 from django.core.paginator import Paginator
-
 from .models import User, Role
 from .decorators import role_required
 
 
+# ============================================================
+# LOGIN
+# ============================================================
+
 def login_view(request):
 
+    # If the user is already logged in,
+    # send them to the central dashboard router.
     if request.user.is_authenticated:
-        return redirect_user_by_role(request.user)
 
-    if request.method == "POST":
-
-        username = request.POST.get(
-            "username",
-            ""
-        ).strip()
-
-        password = request.POST.get(
-            "password",
-            ""
+        return redirect_user_by_role(
+            request.user
         )
 
+    if request.method == "POST":
+        username = request.POST.get( "username","").strip()
+        password = request.POST.get("password","")
         user = authenticate(
             request,
             username=username,
             password=password,
         )
+# INVALID LOGIN
+    
+        if user is None:
+            messages.error(request,"Invalid username or password.")
+            return render(request,"accounts/login.html")
 
-        if user is not None:
+# DEACTIVATED ACCOUNT
+        
 
-            if not user.is_active:
+        if not user.is_active:
+            messages.error(request,"Your account has been deactivated.")
+            return redirect("accounts:login")
+# LOGIN USER
+        login(request,user)
+# SEND USER TO THEIR ROLE DASHBOARD
+        return redirect_user_by_role(user)
+    return render(request,"accounts/login.html")
 
-                messages.error(
-                    request,
-                    "Your account has been deactivated."
-                )
-
-                return redirect(
-                    "accounts:login"
-                )
-
-            login(
-                request,
-                user
-            )
-
-            return redirect_user_by_role(user)
-
-        messages.error(
-            request,
-            "Invalid username or password."
-        )
-
-    return render(
-        request,
-        "accounts/login.html"
-    )
-
+# ============================================================
+# ROLE-BASED DASHBOARD REDIRECT
+# ============================================================
 
 def redirect_user_by_role(user):
 
+    # User has no role
     if user.role is None:
 
         return redirect(
             "accounts:no_role"
         )
 
-    role = user.role.name.strip().lower()
-
-    if role == "administrator":
-
-        return redirect(
-            "dashboard:dashboard"
-        )
-
-    elif role == "manager":
-
-        return redirect(
-            "dashboard:dashboard"
-        )
-
-    elif role == "salesperson":
-
-        return redirect(
-            "sales:create_sale"
-        )
-
-    elif role == "inventory staff":
-
-        return redirect(
-            "inventory:view_inventory"
-        )
-
-    elif role == "accountant":
-
-        return redirect(
-            "reports:dashboard"
-        )
+    # All authenticated users go through
+    # the central dashboard router.
+    #
+    # dashboard/views.py then decides which
+    # dashboard belongs to the user's role.
 
     return redirect(
-        "accounts:no_role"
+        "dashboard:dashboard"
     )
 
+
+# ============================================================
+# LOGOUT
+# ============================================================
 
 def logout_view(request):
 
@@ -140,12 +90,23 @@ def logout_view(request):
     )
 
 
+# ============================================================
+# NO ROLE
+# ============================================================
+
 def no_role(request):
 
     return render(
         request,
         "accounts/no_role.html"
     )
+
+
+# ============================================================
+# USER LIST
+# ADMINISTRATOR ONLY
+# ============================================================
+
 @login_required
 @role_required("Administrator")
 def user_list(request):
@@ -161,6 +122,10 @@ def user_list(request):
         ""
     ).strip()
 
+    # --------------------------------------------------------
+    # SEARCH USERS
+    # --------------------------------------------------------
+
     if query:
 
         users = users.filter(
@@ -171,94 +136,54 @@ def user_list(request):
             last_name__icontains=query
         )
 
-    paginator = Paginator(
-        users,
-        20
-    )
+    # --------------------------------------------------------
+    # PAGINATION
+    # --------------------------------------------------------
 
-    page_number = request.GET.get(
-        "page"
-    )
+    paginator = Paginator(users,20)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    return render(request,"accounts/user_list.html",{"page_obj": page_obj,"query": query,})
 
-    page_obj = paginator.get_page(
-        page_number
-    )
+# CREATE USER
+# ADMINISTRATOR ONLY
+# ============================================================
 
-    return render(
-        request,
-        "accounts/user_list.html",
-        {
-            "page_obj": page_obj,
-            "query": query,
-        }
-    )
 @login_required
 @role_required("Administrator")
 def user_create(request):
-
     if request.method == "POST":
-
-        username = request.POST.get(
-            "username",
-            ""
-        ).strip()
-
-        first_name = request.POST.get(
-            "first_name",
-            ""
-        ).strip()
-
-        last_name = request.POST.get(
-            "last_name",
-            ""
-        ).strip()
-
-        email = request.POST.get(
-            "email",
-            ""
-        ).strip()
-
-        phone = request.POST.get(
-            "phone",
-            ""
-        ).strip()
-
-        password = request.POST.get(
-            "password",
-            ""
-        )
-
-        role_id = request.POST.get(
-            "role"
-        )
-
+        username = request.POST.get( "username","" ).strip()
+        first_name = request.POST.get("first_name","").strip()
+        last_name = request.POST.get("last_name","").strip()
+        email = request.POST.get("email","").strip()
+        phone = request.POST.get("phone","").strip()
+        password = request.POST.get("password","")
+        role_id = request.POST.get("role")
+        # ----------------------------------------------------
+        # REQUIRED FIELDS
+        # ----------------------------------------------------
         if not username or not password:
+            messages.error(request,"Username and password are required.")
+            return redirect("accounts:user_create")
+        # ----------------------------------------------------
+        # CHECK USERNAME
+        # ----------------------------------------------------
+        if User.objects.filter(username=username).exists():
+            messages.error(request,"That username already exists.")
+            return redirect("accounts:user_create")
 
-            messages.error(
-                request,
-                "Username and password are required."
-            )
+        # ----------------------------------------------------
+        # GET ROLE
+        # ----------------------------------------------------
 
-            return redirect(
-                "accounts:user_create"
-            )
-
-        if User.objects.filter(
-            username=username
-        ).exists():
-
-            messages.error(
-                request,
-                "That username already exists."
-            )
-
-            return redirect(
-                "accounts:user_create"
-            )
-
-        role = Role.objects.filter(
-            id=role_id
-        ).first()
+        role = Role.objects.filter(id=role_id).first()
+        if role is None:
+            messages.error(request,"Please select a valid role.")
+            return redirect("accounts:user_create")
+        # ----------------------------------------------------
+        # CREATE USER
+        # ----------------------------------------------------
 
         user = User.objects.create_user(
             username=username,
@@ -281,6 +206,10 @@ def user_create(request):
             "accounts:user_list"
         )
 
+    # --------------------------------------------------------
+    # GET ROLES
+    # --------------------------------------------------------
+
     roles = Role.objects.all().order_by(
         "name"
     )
@@ -292,6 +221,13 @@ def user_create(request):
             "roles": roles,
         }
     )
+
+
+# ============================================================
+# UPDATE USER
+# ADMINISTRATOR ONLY
+# ============================================================
+
 @login_required
 @role_required("Administrator")
 def user_update(request, pk):
@@ -302,108 +238,73 @@ def user_update(request, pk):
     )
 
     if request.method == "POST":
+        user.first_name = request.POST.get("first_name","").strip()
+        user.last_name = request.POST.get("last_name","").strip()
+        user.email = request.POST.get("email","").strip()
+        user.phone = request.POST.get("phone","").strip()
+        role_id = request.POST.get("role")
 
-        user.first_name = request.POST.get(
-            "first_name",
-            ""
-        ).strip()
+        # ----------------------------------------------------
+        # GET ROLE
+        # ----------------------------------------------------
 
-        user.last_name = request.POST.get(
-            "last_name",
-            ""
-        ).strip()
-
-        user.email = request.POST.get(
-            "email",
-            ""
-        ).strip()
-
-        user.phone = request.POST.get(
-            "phone",
-            ""
-        ).strip()
-
-        role_id = request.POST.get(
-            "role"
-        )
-
-        user.role = Role.objects.filter(
-            id=role_id
-        ).first()
-
+        role = Role.objects.filter(id=role_id).first()
+        if role is None:
+            messages.error(request,"Please select a valid role.")
+            return redirect("accounts:user_update",pk=user.pk)
+        user.role = role
         user.save()
+        messages.success(request,"User updated successfully.")
+        return redirect("accounts:user_list")
 
-        messages.success(
-            request,
-            "User updated successfully."
-        )
+    # --------------------------------------------------------
+    # GET ROLES
+    # --------------------------------------------------------
 
-        return redirect(
-            "accounts:user_list"
-        )
+    roles = Role.objects.all().order_by("name")
+    return render(request,"accounts/user_form.html",{"user_account": user,"roles": roles,})
 
-    roles = Role.objects.all().order_by(
-        "name"
-    )
 
-    return render(
-        request,
-        "accounts/user_form.html",
-        {
-            "user_account": user,
-            "roles": roles,
-        }
-    )
+# ============================================================
+# DEACTIVATE USER
+# ADMINISTRATOR ONLY
+# ============================================================
+
 @login_required
 @role_required("Administrator")
 def user_deactivate(request, pk):
-
-    user = get_object_or_404(
-        User,
-        pk=pk
-    )
+    user = get_object_or_404(User,pk=pk)
+    # --------------------------------------------------------
+    # PREVENT ADMIN FROM DEACTIVATING THEMSELVES
+    # --------------------------------------------------------
 
     if user == request.user:
+        messages.error(request,"You cannot deactivate your own account.")
+        return redirect("accounts:user_list")
 
-        messages.error(
-            request,
-            "You cannot deactivate your own account."
-        )
-
-        return redirect(
-            "accounts:user_list"
-        )
+    # --------------------------------------------------------
+    # DEACTIVATE
+    # --------------------------------------------------------
 
     user.is_active = False
+    user.save(update_fields=["is_active"])
+    messages.success(request,f"User {user.username} has been deactivated.")
+    return redirect("accounts:user_list")
+# ============================================================
+# CHANGE PASSWORD
+# ============================================================
 
-    user.save(
-        update_fields=[
-            "is_active"
-        ]
-    )
-
-    messages.success(
-        request,
-        f"User {user.username} has been deactivated."
-    )
-
-    return redirect(
-        "accounts:user_list"
-    )
 @login_required
 def change_password(request):
-
     if request.method == "POST":
-
         form = PasswordChangeForm(
             request.user,
             request.POST
         )
-
         if form.is_valid():
-
             user = form.save()
-
+            # Keep the user logged in after
+            # changing their password.
             update_session_auth_hash(
                 request,
                 user
@@ -414,20 +315,19 @@ def change_password(request):
                 "Your password has been changed successfully."
             )
 
-            return redirect(
-                "dashboard:dashboard"
-            )
-
+            # Send them back through the central
+            # role-based dashboard.
+            return redirect("dashboard:dashboard")
     else:
-
-        form = PasswordChangeForm(
-            request.user
-        )
+        form = PasswordChangeForm(request.user)
+    return render(request,"accounts/change_password.html",{"form": form})
+#-----------------------------------------------------
+#seetings
+#------------------------------------------------------
+@login_required
+def settings_view(request):
 
     return render(
         request,
-        "accounts/change_password.html",
-        {
-            "form": form
-        }
+        "accounts/settings.html"
     )

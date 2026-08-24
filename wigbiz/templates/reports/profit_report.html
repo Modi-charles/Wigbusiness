@@ -1,153 +1,96 @@
 {% extends "base.html" %}
-
-{% block title %}
-Profit Report
-{% endblock %}
-
+{% block title %}Profit Report{% endblock %}
 {% block content %}
 
 <h1>Profit Report</h1>
 
 <form method="GET">
-
     <label>From:</label>
-
-    <input
-        type="date"
-        name="date_from"
-        value="{{ date_from }}"
-    >
-
+    <input type="date" name="date_from" value="{{ date_from }}">
     <label>To:</label>
-
-    <input
-        type="date"
-        name="date_to"
-        value="{{ date_to }}"
-    >
-
-    <button type="submit">
-        Filter
-    </button>
-
+    <input type="date" name="date_to" value="{{ date_to }}">
+    <button type="submit">Filter</button>
 </form>
 
 <hr>
 
+<div><h3>Sales Revenue</h3><strong>UGX {{ revenue }}</strong></div>
+<div><h3>Cost of Goods Sold</h3><strong>UGX {{ cost }}</strong></div>
+<div><h3>Gross Profit</h3><strong>UGX {{ gross_profit }}</strong></div>
+<div><h3>Total Expenses</h3><strong>UGX {{ total_expenses }}</strong></div>
+<div><h3>Net Profit</h3><strong>UGX {{ net_profit }}</strong></div>
+
+<hr>
+
+<h3>Breakdown by Period</h3>
 <div>
-
-    <h3>
-        Sales Revenue
-    </h3>
-
-    <strong>
-        UGX {{ revenue }}
-    </strong>
-
+    <a href="?{{ querystring }}&period=daily">{% if period_type == "daily" %}<strong>Daily</strong>{% else %}Daily{% endif %}</a> |
+    <a href="?{{ querystring }}&period=weekly">{% if period_type == "weekly" %}<strong>Weekly</strong>{% else %}Weekly{% endif %}</a> |
+    <a href="?{{ querystring }}&period=monthly">{% if period_type == "monthly" %}<strong>Monthly</strong>{% else %}Monthly{% endif %}</a>
 </div>
 
-<div>
-
-    <h3>
-        Cost of Goods Sold
-    </h3>
-
-    <strong>
-        UGX {{ cost }}
-    </strong>
-
-</div>
-
-<div>
-
-    <h3>
-        Gross Profit
-    </h3>
-
-    <strong>
-        UGX {{ gross_profit }}
-    </strong>
-
-</div>
+<table border="1" cellpadding="8">
+    <thead>
+        <tr>
+            <th>Period</th><th>Revenue</th><th>COGS</th>
+            <th>Gross Profit</th><th>Expenses</th><th>Net Profit</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in profit_breakdown %}
+        <tr>
+            <td>{{ row.period }}</td>
+            <td>UGX {{ row.revenue|default:0 }}</td>
+            <td>UGX {{ row.cost|default:0 }}</td>
+            <td>UGX {{ row.gross_profit }}</td>
+            <td>UGX {{ row.expenses }}</td>
+            <td>UGX {{ row.net_profit }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6">No data for this period.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
 
 <hr>
 
 <table border="1" cellpadding="8">
-
     <thead>
-
         <tr>
-
-            <th>Product</th>
-            <th>Quantity</th>
-            <th>Selling Price</th>
-            <th>Cost Price</th>
-            <th>Revenue</th>
-            <th>Cost</th>
-            <th>Profit</th>
-
+            <th>Product</th><th>Quantity</th><th>Selling Price</th>
+            <th>Cost Price</th><th>Revenue</th><th>Cost</th><th>Profit</th>
         </tr>
-
     </thead>
-
     <tbody>
-
         {% for item in sale_items %}
-
         <tr>
-
-            <td>
-                {{ item.product.name }}
-            </td>
-
-            <td>
-                {{ item.quantity }}
-            </td>
-
-            <td>
-                UGX {{ item.unit_price }}
-            </td>
-
-            <td>
-                UGX {{ item.cost_price }}
-            </td>
-
-            <td>
-                UGX
-                {{ item.quantity|floatformat:2 }}
-            </td>
-
-            <td>
-                UGX
-                {{ item.cost_price }}
-            </td>
-
-            <td>
-                -
-            </td>
-
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>UGX {{ item.unit_price }}</td>
+            <td>UGX {{ item.product.cost_price }}</td>
+            <td>UGX {{ item.line_revenue }}</td>
+            <td>UGX {{ item.line_cost }}</td>
+            <td>UGX {{ item.line_profit }}</td>
         </tr>
-
         {% empty %}
-
-        <tr>
-
-            <td colspan="7">
-                No completed sales found.
-            </td>
-
-        </tr>
-
+        <tr><td colspan="7">No completed sales found.</td></tr>
         {% endfor %}
-
     </tbody>
-
 </table>
 
-<br>
+{% if sale_items.has_other_pages %}
+<div>
+    {% if sale_items.has_previous %}
+        <a href="?{{ page_querystring }}&page={{ sale_items.previous_page_number }}">Previous</a>
+    {% endif %}
+    Page {{ sale_items.number }} of {{ sale_items.paginator.num_pages }}
+    {% if sale_items.has_next %}
+        <a href="?{{ page_querystring }}&page={{ sale_items.next_page_number }}">Next</a>
+    {% endif %}
+</div>
+{% endif %}
 
-<button onclick="window.print()">
-    Print
-</button>
+<br>
+<button onclick="window.print()">Print</button>
 
 {% endblock %}

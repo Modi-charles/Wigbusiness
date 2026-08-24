@@ -1,180 +1,290 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
 
-    <meta charset="UTF-8">
+{% block title %}
+    Return History
+{% endblock %}
 
-    <title>
-        Return History
-    </title>
 
-</head>
+{% block content %}
 
-<body>
+<div class="page-header">
 
     <h1>
         Return History
     </h1>
 
+</div>
+
+
+<!-- ================================================== -->
+<!-- SEARCH AND FILTERS -->
+<!-- ================================================== -->
+
+<div class="report-card">
 
     <form method="get">
 
-        <input
-            type="text"
-            name="search"
-            placeholder="Return number or invoice..."
-            value="{{ search }}"
-        >
+        <div class="form-group">
+
+            <label for="search">
+                Search
+            </label>
+
+            <input
+                type="text"
+                id="search"
+                name="search"
+                placeholder="Return number or invoice..."
+                value="{{ search }}"
+            >
+
+        </div>
 
 
-        <select name="status">
-
-            <option value="">
-                All Statuses
-            </option>
+        <br>
 
 
-            {% for value, label in status_choices %}
+        <div class="form-group">
 
-                <option
-                    value="{{ value }}"
-                    {% if selected_status == value %}
-                        selected
-                    {% endif %}
-                >
-                    {{ label }}
+            <label for="status">
+                Status
+            </label>
+
+            <select
+                id="status"
+                name="status"
+            >
+
+                <option value="">
+                    All Statuses
                 </option>
 
-            {% endfor %}
 
-        </select>
+                {% for value, label in status_choices %}
+
+                    <option
+                        value="{{ value }}"
+                        {% if selected_status == value %}
+                            selected
+                        {% endif %}
+                    >
+
+                        {{ label }}
+
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
 
 
-        <button type="submit">
+        <br>
+
+
+        <button
+            type="submit"
+            class="btn btn-primary"
+        >
             Search
         </button>
 
+
+        <a
+            href="{% url 'sales:return_history' %}"
+            class="btn btn-secondary"
+        >
+            Clear
+        </a>
+
     </form>
 
-
-    <br>
-
-
-    <table border="1" cellpadding="10">
-
-        <thead>
-
-            <tr>
-
-                <th>
-                    Return Number
-                </th>
-
-                <th>
-                    Invoice
-                </th>
-
-                <th>
-                    Refund
-                </th>
-
-                <th>
-                    Status
-                </th>
-
-                <th>
-                    Created By
-                </th>
-
-                <th>
-                    Date
-                </th>
-
-                <th>
-                    Action
-                </th>
-
-            </tr>
-
-        </thead>
+</div>
 
 
-        <tbody>
+<br>
 
-            {% for return in returns %}
+
+<!-- ================================================== -->
+<!-- RETURN HISTORY TABLE -->
+<!-- ================================================== -->
+
+<div class="report-card">
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
 
                 <tr>
 
-                    <td>
-                        {{ return.return_number }}
-                    </td>
+                    <th>
+                        Return Number
+                    </th>
 
-                    <td>
-                        {{ return.sale.invoice_number }}
-                    </td>
+                    <th>
+                        Invoice
+                    </th>
 
-                    <td>
-                        {{ return.total_refund }}
-                    </td>
+                    <th>
+                        Refund
+                    </th>
 
-                    <td>
-                        {{ return.get_status_display }}
-                    </td>
+                    <th>
+                        Status
+                    </th>
 
-                    <td>
-                        {{ return.created_by }}
-                    </td>
+                    <th>
+                        Created By
+                    </th>
 
-                    <td>
-                        {{ return.created_at|date:"d M Y H:i" }}
-                    </td>
+                    <th>
+                        Date
+                    </th>
 
-                    <td>
-
-                        <a
-                            href="{% url 'sales:return_detail' return.pk %}"
-                        >
-                            View
-                        </a>
-
-                    </td>
+                    <th>
+                        Action
+                    </th>
 
                 </tr>
 
-            {% empty %}
-
-                <tr>
-
-                    <td colspan="7">
-                        No returns found.
-                    </td>
-
-                </tr>
-
-            {% endfor %}
-
-        </tbody>
-
-    </table>
+            </thead>
 
 
-    <br>
+            <tbody>
 
+                {% for return in returns %}
+
+                    <tr>
+
+                        <td>
+                            {{ return.return_number }}
+                        </td>
+
+
+                        <td>
+                            {{ return.sale.invoice_number }}
+                        </td>
+
+
+                        <td>
+                            UGX {{ return.total_refund }}
+                        </td>
+
+
+                        <td>
+
+                            {% if return.status == "COMPLETED" %}
+
+                                <span class="status-success">
+                                    {{ return.get_status_display }}
+                                </span>
+
+                            {% elif return.status == "CANCELLED" %}
+
+                                <span class="status-danger">
+                                    {{ return.get_status_display }}
+                                </span>
+
+                            {% else %}
+
+                                <span class="status-warning">
+                                    {{ return.get_status_display }}
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if return.created_by %}
+
+                                {{ return.created_by.get_full_name|default:return.created_by.username }}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+                            {{ return.created_at|date:"d M Y H:i" }}
+                        </td>
+
+
+                        <td>
+
+                            <a
+                                href="{% url 'sales:return_detail' return.pk %}"
+                                class="btn btn-secondary"
+                            >
+                                View
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+
+                {% empty %}
+
+                    <tr>
+
+                        <td colspan="7">
+
+                            No returns found.
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<br>
+
+
+<!-- ================================================== -->
+<!-- PAGINATION -->
+<!-- ================================================== -->
+
+<div class="pagination">
 
     {% if returns.has_previous %}
 
         <a
             href="?page={{ returns.previous_page_number }}&search={{ search }}&status={{ selected_status }}"
         >
-            Previous
+            ← Previous
         </a>
 
     {% endif %}
 
 
-    Page {{ returns.number }}
-    of {{ returns.paginator.num_pages }}
+    <span>
+
+        Page
+        {{ returns.number }}
+        of
+        {{ returns.paginator.num_pages }}
+
+    </span>
 
 
     {% if returns.has_next %}
@@ -182,11 +292,11 @@
         <a
             href="?page={{ returns.next_page_number }}&search={{ search }}&status={{ selected_status }}"
         >
-            Next
+            Next →
         </a>
 
     {% endif %}
 
-</body>
+</div>
 
-</html>
+{% endblock %}

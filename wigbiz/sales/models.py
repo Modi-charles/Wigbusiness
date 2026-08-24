@@ -50,15 +50,23 @@ class Sale(models.Model):
 class SaleItem(models.Model):
     sale = models.ForeignKey(Sale, on_delete=models.CASCADE, related_name="items")
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
-    quantity = models.IntegerField(
-        validators=[MinValueValidator(1)])
+    quantity = models.IntegerField(validators=[MinValueValidator(1)])
     selling_price = models.DecimalField(max_digits=12, decimal_places=2)
+
     @property
     def line_total(self):
         return self.quantity * self.selling_price
+
+    @property
+    def line_cost(self):
+        return self.quantity * self.product.cost_price
+
+    @property
+    def line_profit(self):
+        return self.line_total - self.line_cost
+
     def __str__(self):
         return f"{self.product}*{self.quantity}"
-
 
 
 class Payment(models.Model):
@@ -88,7 +96,11 @@ class SaleReturn(models.Model):
 
     class Status(models.TextChoices):
 
-        PENDING = "PENDING", "Pending"
+        PENDING = "PENDING", "Pending Approval"
+
+        APPROVED = "APPROVED", "Approved"
+
+        REJECTED = "REJECTED", "Rejected"
 
         COMPLETED = "COMPLETED", "Completed"
 
@@ -101,14 +113,17 @@ class SaleReturn(models.Model):
         related_name="returns",
     )
 
+
     return_number = models.CharField(
         max_length=50,
         unique=True,
     )
 
+
     reason = models.TextField(
         blank=True,
     )
+
 
     total_refund = models.DecimalField(
         max_digits=12,
@@ -116,11 +131,13 @@ class SaleReturn(models.Model):
         default=0,
     )
 
+
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
         default=Status.PENDING,
     )
+
 
     created_by = models.ForeignKey(
         User,
@@ -129,9 +146,31 @@ class SaleReturn(models.Model):
         related_name="created_returns",
     )
 
+
+    approved_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="approved_returns",
+    )
+
+
+    approval_note = models.TextField(
+        blank=True,
+    )
+
+
     created_at = models.DateTimeField(
         auto_now_add=True,
     )
+
+
+    approved_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+
 
     def __str__(self):
 
@@ -164,12 +203,15 @@ class SaleReturnItem(models.Model):
             f"{self.sale_return.return_number} - "
             f"{self.sale_item.product.name}"
         )
+    
 class Refund(models.Model):
 
     class Status(models.TextChoices):
 
         COMPLETED = "COMPLETED", "Completed"
+
         CANCELLED = "CANCELLED", "Cancelled"
+
 
     sale_return = models.OneToOneField(
         SaleReturn,
@@ -177,15 +219,18 @@ class Refund(models.Model):
         related_name="refund",
     )
 
+
     amount = models.DecimalField(
         max_digits=12,
         decimal_places=2,
     )
 
+
     payment_method = models.CharField(
         max_length=20,
         choices=Sale.PAYMENT_METHODS,
     )
+
 
     refunded_by = models.ForeignKey(
         User,
@@ -194,19 +239,22 @@ class Refund(models.Model):
         related_name="refunds_processed",
     )
 
+
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
         default=Status.COMPLETED,
     )
 
+
     created_at = models.DateTimeField(
         auto_now_add=True,
     )
+
 
     def __str__(self):
 
         return (
             f"Refund for "
             f"{self.sale_return.return_number}"
-        )    
+        )
