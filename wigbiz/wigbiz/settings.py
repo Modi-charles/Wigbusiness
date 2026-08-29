@@ -41,6 +41,27 @@ ALLOWED_HOSTS = [
     if host.strip()
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get(
+        "DJANGO_CSRF_TRUSTED_ORIGINS",
+        "",
+    ).split(",")
+    if origin.strip()
+]
+
+for domain_variable in ("REPLIT_DEV_DOMAIN", "REPLIT_DOMAINS"):
+    for domain in os.environ.get(domain_variable, "").split(","):
+        domain = domain.strip()
+        if domain:
+            origin = (
+                domain
+                if domain.startswith(("http://", "https://"))
+                else f"https://{domain}"
+            )
+            if origin not in CSRF_TRUSTED_ORIGINS:
+                CSRF_TRUSTED_ORIGINS.append(origin)
+
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_SSL_REDIRECT = True
