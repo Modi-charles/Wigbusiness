@@ -40,7 +40,6 @@ def view_inventory(request):
         "inventory": inventory,
         "search": search,
     }
-
     return render(request, "Inventory/view_inventory.html", context)
 
 def update_inventory(request, id):
@@ -50,7 +49,7 @@ def update_inventory(request, id):
         inventory.quantity_available=quantity
         inventory.save()
         messages.success(request,"Inventory Updated Succesfully.")
-        return redirect("view_inventory")
+        return redirect("inventory:view_inventory")
     return render(request, "Inventory/update_inventory.html",{"inventory":inventory})
 
 def delete_inventory(request):

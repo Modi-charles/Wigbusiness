@@ -13,16 +13,44 @@ Inventory Dashboard
 </p>
 
 
+<!-- CORE METRICS -->
+
+<div class="report-cards">
+
+    <div class="report-card">
+        <h3>Inventory Value</h3>
+        <p>UGX {{ inventory_value|floatformat:2|default:"0.00" }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Units on Hand</h3>
+        <p>{{ total_stock|default:"0" }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Inventory Turns ({{ trend_window_days }}d)</h3>
+        <p>{{ inventory_turns|default:"0" }}x</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Days of Supply</h3>
+        <p>
+            {% if days_of_supply %}
+                {{ days_of_supply }} days
+            {% else %}
+                N/A
+            {% endif %}
+        </p>
+    </div>
+
+</div>
+
+
 <div class="report-cards">
 
     <div class="report-card">
         <h3>Total Products</h3>
         <p>{{ total_products|default:"0" }}</p>
-    </div>
-
-    <div class="report-card">
-        <h3>Stock Units</h3>
-        <p>{{ total_stock|default:"0" }}</p>
     </div>
 
     <div class="report-card">
@@ -38,22 +66,218 @@ Inventory Dashboard
 </div>
 
 
+<!-- STOCK MOVEMENT TRENDS -->
+
+<div class="chart-card">
+
+    <div class="chart-header">
+        <div>
+            <h2>Stock Movement Trends</h2>
+            <p>Received vs. sold over the last {{ trend_window_days }} days</p>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="movementChart"></canvas>
+    </div>
+
+</div>
+
+
+<!-- STOCK HEALTH & REORDER STATUS -->
+
+<h2>Stock Health &amp; Reorder Status</h2>
+
+<div class="table-container">
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Available</th>
+                <th>Reorder Level</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for item in reorder_items %}
+
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity_available }}</td>
+                <td>{{ item.product.reorder_level }}</td>
+                <td>
+                    {% if item.quantity_available == 0 %}
+                        <span class="badge badge-danger">Out of Stock</span>
+                    {% else %}
+                        <span class="badge badge-warning">Low Stock</span>
+                    {% endif %}
+                </td>
+            </tr>
+
+            {% empty %}
+
+            <tr>
+                <td colspan="4">All stock levels are healthy.</td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+<!-- SLOW & AGED STOCK -->
+
+<h2>Slow &amp; Aged Stock</h2>
+
+<p class="report-card-description">
+    Products with stock on hand but no sale recorded in the last {{ slow_stock_days }} days.
+</p>
+
+<div class="table-container">
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity on Hand</th>
+                <th>Last Updated</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for item in slow_stock_items %}
+
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity_available }}</td>
+                <td>{{ item.updated_at|date:"Y-m-d" }}</td>
+            </tr>
+
+            {% empty %}
+
+            <tr>
+                <td colspan="3">No slow-moving stock detected.</td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
 <h2>Inventory Operations</h2>
 
-<a href="{% url 'inventory:view_inventory' %}">
-    Open Inventory
-</a>
+<div class="report-actions">
 
-<br>
+    <a href="{% url 'inventory:view_inventory' %}" class="report-action">
+        <div class="report-action-content">
+            <strong>Open Inventory</strong>
+            <small>View and update stock</small>
+        </div>
+    </a>
 
-<a href="{% url 'purchase:view_purchase' %}">
-    Purchases
-</a>
+    <a href="{% url 'inventory:inventory_history' %}" class="report-action">
+        <div class="report-action-content">
+            <strong>Inventory History</strong>
+            <small>All stock transactions</small>
+        </div>
+    </a>
 
-<br>
+    <a href="{% url 'purchase:view_purchase' %}" class="report-action">
+        <div class="report-action-content">
+            <strong>Purchases</strong>
+            <small>Incoming stock orders</small>
+        </div>
+    </a>
 
-<a href="{% url 'suppliers:supplier_list' %}">
-    Suppliers
-</a>
+    <a href="{% url 'suppliers:supplier_list' %}" class="report-action">
+        <div class="report-action-content">
+            <strong>Suppliers</strong>
+            <small>Supplier directory</small>
+        </div>
+    </a>
 
+</div>
+
+
+<!-- ====================================================== -->
+<!-- CHART.JS -->
+<!-- ====================================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+const movementChart = document.getElementById("movementChart");
+
+if (movementChart) {
+
+    const movementLabels = JSON.parse(
+        document.getElementById("movement-labels-data").textContent
+    );
+
+    const movementReceived = JSON.parse(
+        document.getElementById("movement-received-data").textContent
+    );
+
+    const movementSold = JSON.parse(
+        document.getElementById("movement-sold-data").textContent
+    );
+
+    new Chart(movementChart, {
+
+        type: "bar",
+
+        data: {
+
+            labels: movementLabels,
+
+            datasets: [
+                {
+                    label: "Received",
+                    data: movementReceived,
+                    borderWidth: 1
+                },
+                {
+                    label: "Sold",
+                    data: movementSold,
+                    borderWidth: 1
+                }
+            ]
+
+        },
+
+        options: {
+
+            responsive: true,
+            maintainAspectRatio: false,
+
+            plugins: {
+                legend: { display: true }
+            },
+
+            scales: {
+                y: { beginAtZero: true }
+            }
+
+        }
+
+    });
+
+}
+
+</script>
 {% endblock %}

@@ -8,416 +8,169 @@
 {% block content %}
 
 <div class="page-header">
-
-    <h1>
-        New Sale
-    </h1>
-
+    <h1>New Sale</h1>
 </div>
 
 
 <form method="post" id="sale-form">
-
     {% csrf_token %}
 
-
     {% if sale_form.non_field_errors %}
-
-        <div class="alert error">
-            {{ sale_form.non_field_errors }}
-        </div>
-
+        <div class="alert error">{{ sale_form.non_field_errors }}</div>
     {% endif %}
 
-
-    <!-- ================================================== -->
-    <!-- CUSTOMER -->
-    <!-- ================================================== -->
-
-    <div class="report-card">
-
-        <h2>
-            Customer
-        </h2>
-
-        <div class="form-group">
-
-            {{ sale_form.customer.label_tag }}
-
-            {{ sale_form.customer }}
-
-            {{ sale_form.customer.errors }}
-
+    <div class="sale-form-row">
+        <!-- CUSTOMER -->
+        <div class="report-card">
+            <h2>Customer</h2>
+            <div class="form-group">
+                {{ sale_form.customer.label_tag }}
+                {{ sale_form.customer }}
+                {{ sale_form.customer.errors }}
+            </div>
         </div>
 
-    </div>
-
-
-    <br>
-
-
-    <!-- ================================================== -->
-    <!-- BARCODE -->
-    <!-- ================================================== -->
-
-    <div class="report-card">
-
-        <h2>
-            Scan Product
-        </h2>
-
-        <div class="form-group">
-
-            <label for="barcode-input">
-                Scan Barcode
-            </label>
-
-            <input
-                type="text"
-                id="barcode-input"
-                placeholder="Scan barcode..."
-                autocomplete="off"
-                autofocus
-            >
-
-            <button
-                type="button"
-                id="scan-barcode"
-                class="btn btn-primary"
-            >
-                Scan
-            </button>
-
-            <p id="barcode-message"></p>
-
+        <!-- BARCODE -->
+        <div class="report-card">
+            <h2>Scan Product</h2>
+            <div class="form-group">
+                <label for="barcode-input">Scan Barcode</label>
+                <input type="text" id="barcode-input" placeholder="Scan barcode..." autocomplete="off" autofocus>
+                <button type="button" id="scan-barcode" class="btn btn-primary">Scan</button>
+                <p id="barcode-message"></p>
+            </div>
         </div>
-
     </div>
 
+    <div class="sale-form-row sale-form-row-wide">
+        <!-- PRODUCTS -->
+        <div class="report-card">
+            <h2>Products</h2>
 
-    <br>
+            {{ item_formset.management_form }}
 
-
-    <!-- ================================================== -->
-    <!-- PRODUCTS -->
-    <!-- ================================================== -->
-
-    <div class="report-card">
-
-        <h2>
-            Products
-        </h2>
-
-
-        {{ item_formset.management_form }}
-
-
-        <div class="table-container">
-
-            <table>
-
-                <thead>
-
-                    <tr>
-
-                        <th>
-                            Product
-                        </th>
-
-                        <th>
-                            Quantity
-                        </th>
-
-                        <th>
-                            Selling Price
-                        </th>
-
-                        <th>
-                            Total
-                        </th>
-
-                        <th>
-                            Action
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody id="item-rows">
-
-                    {% for form in item_formset %}
-
-                        <tr class="item-row">
-
-                            <td>
-
-                                {{ form.product }}
-
-                                {{ form.product.errors }}
-
-                            </td>
-
-
-                            <td>
-
-                                {{ form.quantity }}
-
-                                {{ form.quantity.errors }}
-
-                            </td>
-
-
-                            <td>
-
-                                <span class="selling-price">
-                                    0.00
-                                </span>
-
-                            </td>
-
-
-                            <td>
-
-                                <span class="line-total">
-                                    0.00
-                                </span>
-
-                            </td>
-
-
-                            <td>
-
-                                {% if form.DELETE %}
-
-                                    {{ form.DELETE.as_hidden }}
-
-                                {% endif %}
-
-
-                                <button
-                                    type="button"
-                                    class="delete-row"
-                                >
-                                    Remove
-                                </button>
-
-                            </td>
-
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Selling Price</th>
+                            <th>Total</th>
+                            <th>Action</th>
                         </tr>
+                    </thead>
+                    <tbody id="item-rows">
+                        {% for form in item_formset %}
+                            <tr class="item-row">
+                                <td>
+                                    {{ form.product }}
+                                    {{ form.product.errors }}
+                                </td>
+                                <td>
+                                    {{ form.quantity }}
+                                    {{ form.quantity.errors }}
+                                </td>
+                                <td>
+                                    <span class="selling-price">0.00</span>
+                                </td>
+                                <td>
+                                    <span class="line-total">0.00</span>
+                                </td>
+                                <td>
+                                    {% if form.DELETE %}
+                                        {{ form.DELETE.as_hidden }}
+                                    {% endif %}
+                                    <button type="button" class="delete-row">Remove</button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
-                    {% endfor %}
-
+            <!-- Hidden template row used by JS to add new products.
+                 Kept out of #item-rows so it's never counted or submitted. -->
+            <table style="display:none;">
+                <tbody>
+                    <tr class="item-row" id="empty-row-template">
+                        <td>{{ item_formset.empty_form.product }}</td>
+                        <td>{{ item_formset.empty_form.quantity }}</td>
+                        <td><span class="selling-price">0.00</span></td>
+                        <td><span class="line-total">0.00</span></td>
+                        <td>
+                            <button type="button" class="delete-row">Remove</button>
+                        </td>
+                    </tr>
                 </tbody>
-
             </table>
 
+            <br>
+
+            <button type="button" id="add-product" class="btn btn-secondary">+ Add Product</button>
         </div>
 
-
-        <br>
-
-
-        <button
-            type="button"
-            id="add-product"
-            class="btn btn-secondary"
-        >
-            + Add Product
-        </button>
-
+        <!-- PAYMENT -->
+        <div class="report-card">
+            <h2>Payment</h2>
+            <div class="form-group">
+                {{ sale_form.discount.label_tag }}
+                {{ sale_form.discount }}
+                {{ sale_form.discount.errors }}
+            </div>
+            <div class="form-group">
+                {{ sale_form.tax.label_tag }}
+                {{ sale_form.tax }}
+                {{ sale_form.tax.errors }}
+            </div>
+            <div class="form-group">
+                {{ sale_form.payment_method.label_tag }}
+                {{ sale_form.payment_method }}
+                {{ sale_form.payment_method.errors }}
+            </div>
+            <div class="form-group">
+                {{ sale_form.amount_paid.label_tag }}
+                {{ sale_form.amount_paid }}
+                {{ sale_form.amount_paid.errors }}
+            </div>
+        </div>
     </div>
 
-
-    <br>
-
-
-    <!-- ================================================== -->
-    <!-- PAYMENT -->
-    <!-- ================================================== -->
-
+    <!-- SALE SUMMARY -->
     <div class="report-card">
-
-        <h2>
-            Payment
-        </h2>
-
-
-        <div class="form-group">
-
-            {{ sale_form.discount.label_tag }}
-
-            {{ sale_form.discount }}
-
-            {{ sale_form.discount.errors }}
-
-        </div>
-
-
-        <br>
-
-
-        <div class="form-group">
-
-            {{ sale_form.tax.label_tag }}
-
-            {{ sale_form.tax }}
-
-            {{ sale_form.tax.errors }}
-
-        </div>
-
-
-        <br>
-
-
-        <div class="form-group">
-
-            {{ sale_form.payment_method.label_tag }}
-
-            {{ sale_form.payment_method }}
-
-            {{ sale_form.payment_method.errors }}
-
-        </div>
-
-
-        <br>
-
-
-        <div class="form-group">
-
-            {{ sale_form.amount_paid.label_tag }}
-
-            {{ sale_form.amount_paid }}
-
-            {{ sale_form.amount_paid.errors }}
-
-        </div>
-
-    </div>
-
-
-    <br>
-
-
-    <!-- ================================================== -->
-    <!-- TOTALS -->
-    <!-- ================================================== -->
-
-    <div class="report-card">
-
-        <h2>
-            Sale Summary
-        </h2>
-
-
+        <h2>Sale Summary</h2>
         <div class="totals">
-
             <p>
-                <strong>
-                    Subtotal:
-                </strong>
-
-                UGX
-                <span id="subtotal">
-                    0.00
-                </span>
+                <strong>Subtotal:</strong>
+                UGX <span id="subtotal">0.00</span>
             </p>
-
-
             <p>
-                <strong>
-                    Discount:
-                </strong>
-
-                UGX
-                <span id="discount-display">
-                    0.00
-                </span>
+                <strong>Discount:</strong>
+                UGX <span id="discount-display">0.00</span>
             </p>
-
-
             <p>
-                <strong>
-                    Tax:
-                </strong>
-
-                UGX
-                <span id="tax-display">
-                    0.00
-                </span>
+                <strong>Tax:</strong>
+                UGX <span id="tax-display">0.00</span>
             </p>
-
-
             <p>
-                <strong>
-                    Total:
-                </strong>
-
-                UGX
-                <span id="total">
-                    0.00
-                </span>
+                <strong>Total:</strong>
+                UGX <span id="total">0.00</span>
             </p>
-
-
             <p>
-                <strong>
-                    Amount Paid:
-                </strong>
-
-                UGX
-                <span id="paid-display">
-                    0.00
-                </span>
+                <strong>Amount Paid:</strong>
+                UGX <span id="paid-display">0.00</span>
             </p>
-
-
             <p>
-                <strong>
-                    Balance:
-                </strong>
-
-                UGX
-                <span id="balance">
-                    0.00
-                </span>
+                <strong>Balance:</strong>
+                UGX <span id="balance">0.00</span>
             </p>
-
         </div>
-
     </div>
-
-
-    <br>
-
-
-    <!-- ================================================== -->
-    <!-- ACTIONS -->
-    <!-- ================================================== -->
 
     <div class="form-actions">
-
-        <button
-            type="submit"
-            class="btn btn-primary"
-        >
-            Complete Sale
-        </button>
-
-
-        <a
-            href="{% url 'sales:sales_history' %}"
-            class="btn btn-secondary"
-        >
-            Sale History
-        </a>
-
+        <button type="submit" class="btn btn-primary">Complete Sale</button>
+        <a href="{% url 'sales:sales_history' %}" class="btn btn-secondary">Sale History</a>
     </div>
-
-
 </form>
 
 
@@ -427,31 +180,12 @@
 
 <script>
 
-const itemRows =
-    document.getElementById("item-rows");
-
-const addProductButton =
-    document.getElementById("add-product");
-
-const totalForms =
-    document.getElementById(
-        "id_form-TOTAL_FORMS"
-    );
-
-const discountInput =
-    document.getElementById(
-        "id_discount"
-    );
-
-const taxInput =
-    document.getElementById(
-        "id_tax"
-    );
-
-const amountPaidInput =
-    document.getElementById(
-        "id_amount_paid"
-    );
+const itemRows = document.getElementById("item-rows");
+const addProductButton = document.getElementById("add-product");
+const totalForms = document.getElementById("id_form-TOTAL_FORMS");
+const discountInput = document.getElementById("id_discount");
+const taxInput = document.getElementById("id_tax");
+const amountPaidInput = document.getElementById("id_amount_paid");
 
 
 // ==========================================================
@@ -459,8 +193,29 @@ const amountPaidInput =
 // ==========================================================
 
 function formatMoney(value) {
-
     return Number(value).toFixed(2);
+}
+
+
+// ==========================================================
+// CREATE A NEW ROW FROM DJANGO'S empty_form TEMPLATE
+// ==========================================================
+
+function createNewRow() {
+
+    const formCount = parseInt(totalForms.value);
+    const template = document.getElementById("empty-row-template");
+    const newRow = template.cloneNode(true);
+
+    newRow.removeAttribute("id");
+
+    // Django's empty_form uses the literal placeholder "__prefix__"
+    // in field names/ids, e.g. id_form-__prefix__-product
+    newRow.innerHTML = newRow.innerHTML.replace(/__prefix__/g, formCount);
+
+    totalForms.value = formCount + 1;
+
+    return newRow;
 
 }
 
@@ -471,76 +226,29 @@ function formatMoney(value) {
 
 function calculateRow(row) {
 
-    const productSelect =
-        row.querySelector(
-            "select[name$='product']"
-        );
-
-    const quantityInput =
-        row.querySelector(
-            "input[name$='quantity']"
-        );
-
-    const priceDisplay =
-        row.querySelector(
-            ".selling-price"
-        );
-
-    const totalDisplay =
-        row.querySelector(
-            ".line-total"
-        );
-
+    const productSelect = row.querySelector("select[name$='product']");
+    const quantityInput = row.querySelector("input[name$='quantity']");
+    const priceDisplay = row.querySelector(".selling-price");
+    const totalDisplay = row.querySelector(".line-total");
 
     if (!productSelect || !quantityInput) {
-
         return 0;
-
     }
 
-
-    const selectedOption =
-        productSelect.options[
-            productSelect.selectedIndex
-        ];
-
+    const selectedOption = productSelect.options[productSelect.selectedIndex];
 
     if (!selectedOption) {
-
-        priceDisplay.textContent =
-            "0.00";
-
-        totalDisplay.textContent =
-            "0.00";
-
+        priceDisplay.textContent = "0.00";
+        totalDisplay.textContent = "0.00";
         return 0;
-
     }
 
+    const price = parseFloat(selectedOption.dataset.price || 0);
+    const quantity = parseInt(quantityInput.value || 0);
+    const lineTotal = price * quantity;
 
-    const price =
-        parseFloat(
-            selectedOption.dataset.price || 0
-        );
-
-
-    const quantity =
-        parseInt(
-            quantityInput.value || 0
-        );
-
-
-    const lineTotal =
-        price * quantity;
-
-
-    priceDisplay.textContent =
-        formatMoney(price);
-
-
-    totalDisplay.textContent =
-        formatMoney(lineTotal);
-
+    priceDisplay.textContent = formatMoney(price);
+    totalDisplay.textContent = formatMoney(lineTotal);
 
     return lineTotal;
 
@@ -555,90 +263,30 @@ function calculateSale() {
 
     let subtotal = 0;
 
+    document.querySelectorAll(".item-row").forEach(function (row) {
 
-    document
-        .querySelectorAll(".item-row")
-        .forEach(function(row) {
+        if (row.style.display === "none") {
+            return;
+        }
 
-            if (
-                row.style.display === "none"
-            ) {
+        subtotal += calculateRow(row);
 
-                return;
+    });
 
-            }
+    const discount = parseFloat(discountInput.value || 0);
+    const tax = parseFloat(taxInput.value || 0);
+    const amountPaid = parseFloat(amountPaidInput.value || 0);
 
+    const taxableAmount = subtotal - discount;
+    const total = taxableAmount + tax;
+    const balance = total - amountPaid;
 
-            subtotal +=
-                calculateRow(row);
-
-        });
-
-
-    const discount =
-        parseFloat(
-            discountInput.value || 0
-        );
-
-
-    const tax =
-        parseFloat(
-            taxInput.value || 0
-        );
-
-
-    const amountPaid =
-        parseFloat(
-            amountPaidInput.value || 0
-        );
-
-
-    const taxableAmount =
-        subtotal - discount;
-
-
-    const total =
-        taxableAmount + tax;
-
-
-    const balance =
-        total - amountPaid;
-
-
-    document.getElementById(
-        "subtotal"
-    ).textContent =
-        formatMoney(subtotal);
-
-
-    document.getElementById(
-        "discount-display"
-    ).textContent =
-        formatMoney(discount);
-
-
-    document.getElementById(
-        "tax-display"
-    ).textContent =
-        formatMoney(tax);
-
-
-    document.getElementById(
-        "total"
-    ).textContent =
-        formatMoney(total);
-
-
-    document.getElementById(
-        "paid-display"
-    ).textContent =
-        formatMoney(amountPaid);
-
-
-    document.getElementById(
-        "balance"
-    ).textContent =
-        formatMoney(balance);
+    document.getElementById("subtotal").textContent = formatMoney(subtotal);
+    document.getElementById("discount-display").textContent = formatMoney(discount);
+    document.getElementById("tax-display").textContent = formatMoney(tax);
+    document.getElementById("total").textContent = formatMoney(total);
+    document.getElementById("paid-display").textContent = formatMoney(amountPaid);
+    document.getElementById("balance").textContent = formatMoney(balance);
 
 }
 
@@ -647,312 +295,119 @@ function calculateSale() {
 // PRODUCT CHANGED
 // ==========================================================
 
-itemRows.addEventListener(
-    "change",
-    function(event) {
+itemRows.addEventListener("change", function (event) {
 
-        if (
-            event.target.matches(
-                "select[name$='product']"
-            )
-        ) {
-
-            calculateSale();
-
-        }
-
+    if (event.target.matches("select[name$='product']")) {
+        calculateSale();
     }
-);
+
+});
 
 
 // ==========================================================
 // QUANTITY CHANGED
 // ==========================================================
 
-itemRows.addEventListener(
-    "input",
-    function(event) {
+itemRows.addEventListener("input", function (event) {
 
-        if (
-            event.target.matches(
-                "input[name$='quantity']"
-            )
-        ) {
-
-            calculateSale();
-
-        }
-
-    }
-);
-
-
-// ==========================================================
-// DISCOUNT
-// ==========================================================
-
-discountInput.addEventListener(
-    "input",
-    calculateSale
-);
-
-
-// ==========================================================
-// TAX
-// ==========================================================
-
-taxInput.addEventListener(
-    "input",
-    calculateSale
-);
-
-
-// ==========================================================
-// AMOUNT PAID
-// ==========================================================
-
-amountPaidInput.addEventListener(
-    "input",
-    calculateSale
-);
-
-
-// ==========================================================
-// ADD PRODUCT
-// ==========================================================
-
-addProductButton.addEventListener(
-    "click",
-    function() {
-
-        const formCount =
-            parseInt(
-                totalForms.value
-            );
-
-
-        const firstRow =
-            document.querySelector(
-                ".item-row"
-            );
-
-
-        const newRow =
-            firstRow.cloneNode(true);
-
-
-        newRow.innerHTML =
-            newRow.innerHTML.replace(
-                /form-\d+/g,
-                `form-${formCount}`
-            );
-
-
-        const productSelect =
-            newRow.querySelector(
-                "select[name$='product']"
-            );
-
-
-        const quantityInput =
-            newRow.querySelector(
-                "input[name$='quantity']"
-            );
-
-
-        if (productSelect) {
-
-            productSelect.selectedIndex =
-                0;
-
-        }
-
-
-        if (quantityInput) {
-
-            quantityInput.value =
-                1;
-
-        }
-
-
-        const priceDisplay =
-            newRow.querySelector(
-                ".selling-price"
-            );
-
-
-        const totalDisplay =
-            newRow.querySelector(
-                ".line-total"
-            );
-
-
-        priceDisplay.textContent =
-            "0.00";
-
-
-        totalDisplay.textContent =
-            "0.00";
-
-
-        itemRows.appendChild(
-            newRow
-        );
-
-
-        totalForms.value =
-            formCount + 1;
-
-
+    if (event.target.matches("input[name$='quantity']")) {
         calculateSale();
-
     }
-);
+
+});
+
+
+// ==========================================================
+// DISCOUNT / TAX / AMOUNT PAID
+// ==========================================================
+
+discountInput.addEventListener("input", calculateSale);
+taxInput.addEventListener("input", calculateSale);
+amountPaidInput.addEventListener("input", calculateSale);
+
+
+// ==========================================================
+// ADD PRODUCT (manual button)
+// ==========================================================
+
+addProductButton.addEventListener("click", function () {
+
+    const newRow = createNewRow();
+
+    itemRows.appendChild(newRow);
+
+    calculateSale();
+
+});
 
 
 // ==========================================================
 // REMOVE PRODUCT
 // ==========================================================
 
-itemRows.addEventListener(
-    "click",
-    function(event) {
+itemRows.addEventListener("click", function (event) {
 
-        if (
-            !event.target.classList.contains(
-                "delete-row"
-            )
-        ) {
-
-            return;
-
-        }
-
-
-        const row =
-            event.target.closest(
-                ".item-row"
-            );
-
-
-        const deleteInput =
-            row.querySelector(
-                "input[name$='DELETE']"
-            );
-
-
-        if (deleteInput) {
-
-            deleteInput.value =
-                "on";
-
-            row.style.display =
-                "none";
-
-        } else {
-
-            row.remove();
-
-        }
-
-
-        calculateSale();
-
+    if (!event.target.classList.contains("delete-row")) {
+        return;
     }
-);
+
+    const row = event.target.closest(".item-row");
+    const deleteInput = row.querySelector("input[name$='DELETE']");
+
+    if (deleteInput) {
+        deleteInput.value = "on";
+        row.style.display = "none";
+    } else {
+        row.remove();
+    }
+
+    calculateSale();
+
+});
 
 
 // ==========================================================
 // BARCODE SCANNING
 // ==========================================================
 
-const barcodeInput =
-    document.getElementById(
-        "barcode-input"
-    );
-
-
-const scanBarcodeButton =
-    document.getElementById(
-        "scan-barcode"
-    );
-
-
-const barcodeMessage =
-    document.getElementById(
-        "barcode-message"
-    );
+const barcodeInput = document.getElementById("barcode-input");
+const scanBarcodeButton = document.getElementById("scan-barcode");
+const barcodeMessage = document.getElementById("barcode-message");
 
 
 async function scanBarcode() {
 
-    const barcode =
-        barcodeInput.value.trim();
-
+    const barcode = barcodeInput.value.trim();
 
     if (!barcode) {
-
         return;
-
     }
 
-
-    barcodeMessage.textContent =
-        "Searching...";
-
+    barcodeMessage.textContent = "Searching...";
 
     try {
 
-        const response =
-            await fetch(
-                `/sales/product-by-barcode/?barcode=${encodeURIComponent(barcode)}`
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (
-            !response.ok ||
-            !data.success
-        ) {
-
-            barcodeMessage.textContent =
-                data.message ||
-                "Product not found.";
-
-            barcodeInput.select();
-
-            return;
-
-        }
-
-
-        addProductToCart(
-            data.product
+        const response = await fetch(
+            `/sales/product-by-barcode/?barcode=${encodeURIComponent(barcode)}`
         );
 
+        const data = await response.json();
 
-        barcodeInput.value =
-            "";
+        if (!response.ok || !data.success) {
+            barcodeMessage.textContent = data.message || "Product not found.";
+            barcodeInput.select();
+            return;
+        }
 
+        addProductToCart(data.product);
 
-        barcodeMessage.textContent =
-            `${data.product.name} added.`;
-
-
+        barcodeInput.value = "";
+        barcodeMessage.textContent = `${data.product.name} added.`;
         barcodeInput.focus();
 
-    }
+    } catch (error) {
 
-
-    catch (error) {
-
-        barcodeMessage.textContent =
-            "Unable to search for product.";
-
+        barcodeMessage.textContent = "Unable to search for product.";
         console.error(error);
 
     }
@@ -960,28 +415,16 @@ async function scanBarcode() {
 }
 
 
-scanBarcodeButton.addEventListener(
-    "click",
-    scanBarcode
-);
+scanBarcodeButton.addEventListener("click", scanBarcode);
 
+barcodeInput.addEventListener("keydown", function (event) {
 
-barcodeInput.addEventListener(
-    "keydown",
-    function(event) {
-
-        if (
-            event.key === "Enter"
-        ) {
-
-            event.preventDefault();
-
-            scanBarcode();
-
-        }
-
+    if (event.key === "Enter") {
+        event.preventDefault();
+        scanBarcode();
     }
-);
+
+});
 
 
 // ==========================================================
@@ -990,154 +433,51 @@ barcodeInput.addEventListener(
 
 function addProductToCart(product) {
 
-    const rows =
-        document.querySelectorAll(
-            ".item-row"
-        );
+    const rows = document.querySelectorAll(".item-row");
 
+    // Check if product already exists in an active row
+    for (const row of rows) {
 
-    // Check if product already exists
-
-    for (
-        const row of rows
-    ) {
-
-        if (
-            row.style.display === "none"
-        ) {
-
+        if (row.style.display === "none") {
             continue;
-
         }
 
+        const productSelect = row.querySelector("select[name$='product']");
+        const quantityInput = row.querySelector("input[name$='quantity']");
 
-        const productSelect =
-            row.querySelector(
-                "select[name$='product']"
-            );
-
-
-        const quantityInput =
-            row.querySelector(
-                "input[name$='quantity']"
-            );
-
-
-        if (
-            !productSelect ||
-            !quantityInput
-        ) {
-
+        if (!productSelect || !quantityInput) {
             continue;
-
         }
 
+        if (productSelect.value == product.id) {
 
-        if (
-            productSelect.value ==
-            product.id
-        ) {
-
-            let quantity =
-                parseInt(
-                    quantityInput.value || 0
-                );
-
-
+            let quantity = parseInt(quantityInput.value || 0);
             quantity += 1;
-
-
-            quantityInput.value =
-                quantity;
-
+            quantityInput.value = quantity;
 
             calculateSale();
-
             return;
 
         }
 
     }
 
+    // Product does not exist yet. Create a new formset row.
+    const newRow = createNewRow();
 
-    // Product does not exist.
-    // Create a new formset row.
+    const productSelect = newRow.querySelector("select[name$='product']");
+    const quantityInput = newRow.querySelector("input[name$='quantity']");
 
-    const formCount =
-        parseInt(
-            totalForms.value
-        );
+    productSelect.value = product.id;
+    quantityInput.value = 1;
 
+    const priceDisplay = newRow.querySelector(".selling-price");
+    const totalDisplay = newRow.querySelector(".line-total");
 
-    const firstRow =
-        document.querySelector(
-            ".item-row"
-        );
+    priceDisplay.textContent = formatMoney(product.selling_price);
+    totalDisplay.textContent = formatMoney(product.selling_price);
 
-
-    const newRow =
-        firstRow.cloneNode(true);
-
-
-    newRow.innerHTML =
-        newRow.innerHTML.replace(
-            /form-\d+/g,
-            `form-${formCount}`
-        );
-
-
-    const productSelect =
-        newRow.querySelector(
-            "select[name$='product']"
-        );
-
-
-    const quantityInput =
-        newRow.querySelector(
-            "input[name$='quantity']"
-        );
-
-
-    productSelect.value =
-        product.id;
-
-
-    quantityInput.value =
-        1;
-
-
-    const priceDisplay =
-        newRow.querySelector(
-            ".selling-price"
-        );
-
-
-    const totalDisplay =
-        newRow.querySelector(
-            ".line-total"
-        );
-
-
-    priceDisplay.textContent =
-        formatMoney(
-            product.selling_price
-        );
-
-
-    totalDisplay.textContent =
-        formatMoney(
-            product.selling_price
-        );
-
-
-    itemRows.appendChild(
-        newRow
-    );
-
-
-    totalForms.value =
-        formCount + 1;
-
+    itemRows.appendChild(newRow);
 
     calculateSale();
 

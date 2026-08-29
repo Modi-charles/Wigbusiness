@@ -6,43 +6,387 @@ Sales Dashboard
 
 {% block content %}
 
-<h1>Sales Dashboard</h1>
+<div class="dashboard-header">
 
-<p>
-    Welcome, {{ user.get_full_name|default:user.username }}
-</p>
+    <div>
+        <h1>Sales Dashboard</h1>
 
-
-<div class="report-cards">
-
-    <div class="report-card">
-        <h3>Today's Sales</h3>
-        <p>UGX {{ today_sales|default:"0" }}</p>
-    </div>
-
-    <div class="report-card">
-        <h3>Sales Count</h3>
-        <p>{{ sales_count|default:"0" }}</p>
-    </div>
-
-    <div class="report-card">
-        <h3>Customer Outstanding</h3>
-        <p>UGX {{ customer_outstanding|default:"0" }}</p>
+        <p>
+            Welcome,
+            {{ user.get_full_name|default:user.username }}
+        </p>
     </div>
 
 </div>
 
 
-<h2>Sales Operations</h2>
+<!-- DATE FILTER -->
 
-<a href="{% url 'sales:create_sale' %}">
-    Open Sales
-</a>
+<div class="filter-card">
 
-<br>
+    <form method="GET">
 
-<a href="{% url 'customers:customer_list' %}">
-    Customers
-</a>
+        <div class="filter-group">
+
+            <div>
+                <label for="date_from">
+                    From
+                </label>
+
+                <input
+                    type="date"
+                    id="date_from"
+                    name="date_from"
+                    value="{{ date_from }}"
+                >
+            </div>
+
+
+            <div>
+                <label for="date_to">
+                    To
+                </label>
+
+                <input
+                    type="date"
+                    id="date_to"
+                    name="date_to"
+                    value="{{ date_to }}"
+                >
+            </div>
+
+
+            <div>
+                <button type="submit">
+                    Filter
+                </button>
+            </div>
+
+
+            <div>
+                <a href="{% url 'dashboard:dashboard' %}">
+                    Clear
+                </a>
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- REPORT CARDS -->
+
+<div class="report-cards">
+
+
+    <!-- TODAY'S SALES -->
+
+    <div class="report-card">
+
+        <h3>
+            Today's Sales
+        </h3>
+
+        <p>
+            UGX {{ today_sales|default:"0" }}
+        </p>
+
+    </div>
+
+
+    <!-- SALES COUNT -->
+
+    <div class="report-card">
+
+        <h3>
+            Sales Count
+        </h3>
+
+        <p>
+            {{ sales_count|default:"0" }}
+        </p>
+
+    </div>
+
+
+    <!-- REVENUE -->
+
+    <div class="report-card">
+        <h3>Revenue</h3>
+        <p>UGX {{ revenue|default:"0" }}</p>
+
+    </div>
+
+
+    <!-- AVERAGE SALE -->
+
+    <div class="report-card">
+
+        <h3>
+            Average Sale
+        </h3>
+
+        <p>
+            UGX {{ average_sale|default:"0" }}
+        </p>
+
+    </div>
+
+
+    <!-- CUSTOMER OUTSTANDING -->
+
+    <div class="report-card">
+
+        <h3>
+            Customer Outstanding
+        </h3>
+
+        <p>
+            UGX {{ customer_outstanding|default:"0" }}
+        </p>
+
+    </div>
+
+
+    <!-- TARGET -->
+
+    <div class="report-card">
+
+        <h3>
+            Revenue vs Target
+        </h3>
+
+        <p>
+            {{ target_percentage|default:"0" }}%
+        </p>
+
+        <small>
+            Target:
+            UGX {{ monthly_target|default:"0" }}
+        </small>
+
+    </div>
+
+</div>
+
+
+<!-- REVENUE TARGET -->
+
+<section class="dashboard-section">
+
+    <h2>
+        Revenue vs Target
+    </h2>
+
+    <div class="progress-container">
+
+    <div class="progress-container">
+    <div class="progress-bar"></div>
+</div>
+
+<p>
+    {{ target_percentage }}% of target achieved
+</p>
+</div>
+
+    </div>
+
+    <p>
+        UGX {{ revenue|default:"0" }}
+        /
+        UGX {{ monthly_target|default:"0" }}
+    </p>
+
+</section>
+
+
+<!-- SALES TREND -->
+
+<section class="dashboard-section">
+
+    <h2>
+        Sales Trend
+    </h2>
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Date
+                    </th>
+
+                    <th>
+                        Sales
+                    </th>
+
+                    <th>
+                        Revenue
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for day in sales_trend %}
+
+                <tr>
+
+                    <td>
+                        {{ day.day }}
+                    </td>
+
+                    <td>
+                        {{ day.sales_count }}
+                    </td>
+
+                    <td>
+                        UGX {{ day.revenue }}
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="3">
+                        No sales found.
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- SALESPERSON LEADERBOARD -->
+
+<section class="dashboard-section">
+
+    <h2>
+        Top Salespeople
+    </h2>
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Rank
+                    </th>
+
+                    <th>
+                        Salesperson
+                    </th>
+
+                    <th>
+                        Sales
+                    </th>
+
+                    <th>
+                        Revenue
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for person in leaderboard %}
+
+                <tr>
+
+                    <td>
+                        {{ forloop.counter }}
+                    </td>
+
+                    <td>
+                        {{ person.created_by__username }}
+                    </td>
+
+                    <td>
+                        {{ person.sales_count }}
+                    </td>
+
+                    <td>
+                        UGX {{ person.revenue }}
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="4">
+                        No salesperson data available.
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- SALES OPERATIONS -->
+
+<section class="dashboard-section">
+
+    <h2>
+        Sales Operations
+    </h2>
+
+
+    <div class="operations">
+
+        <a
+            href="{% url 'sales:create_sale' %}"
+            class="btn-primary"
+        >
+            + New Sale
+        </a>
+
+
+        <a
+            href="{% url 'customers:customer_list' %}"
+            class="btn-secondary"
+        >
+            Customers
+        </a>
+
+    </div>
+
+</section>
+
 
 {% endblock %}

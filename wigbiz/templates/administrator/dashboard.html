@@ -7,71 +7,911 @@ Administrator Dashboard
 
 {% block content %}
 
-<h1>Administrator Dashboard</h1>
+<div class="dashboard-header">
 
-<p>
-    Welcome, {{ user.get_full_name|default:user.username }}
-</p>
+    <h1>Administrator Dashboard</h1>
 
-
-<div class="report-cards">
-
-    <div class="report-card">
-        <h3>Total Sales</h3>
-        <p>UGX {{ total_sales|default:"0" }}</p>
-    </div>
-
-    <div class="report-card">
-        <h3>Total Purchases</h3>
-        <p>UGX {{ total_purchases|default:"0" }}</p>
-    </div>
-
-    <div class="report-card">
-        <h3>Gross Profit</h3>
-        <p>UGX {{ gross_profit|default:"0" }}</p>
-    </div>
-
-    <div class="report-card">
-        <h3>Stock Value</h3>
-        <p>UGX {{ stock_value|default:"0" }}</p>
-    </div>
+    <p>
+        Welcome,
+        {{ user.get_full_name|default:user.username }}
+    </p>
 
 </div>
 
 
-<h2>Administration</h2>
+<!-- =====================================================
+     1. USER & IDENTITY MANAGEMENT
+====================================================== -->
 
-<div class="report-links">
+<section class="dashboard-section">
+    <div class="section-header">
+        <h2>User & Identity Management</h2>
+    </div>
+    <div class="report-cards">
 
-    <div>
-        <h3>Users</h3>
-        <p>Manage system users and roles.</p>
+        <!-- TOTAL USERS -->
+        <div class="report-card">
+            <h3>Total Users</h3>
+            <p>
+                {{ total_users|default:"0" }}
+            </p>
+        </div>
 
-        <a href="{% url 'accounts:user_list' %}">
-            Manage Users
-        </a>
+
+        <!-- ACTIVE USERS -->
+        <div class="report-card">
+            <h3>Active Users</h3>
+            <p>
+                {{ active_users|default:"0" }}
+            </p>
+            <small>
+                Active within the last 30 days
+            </small>
+        </div>
+
+        <!-- PENDING APPROVALS -->
+        <div class="report-card">
+            <h3>Pending Approvals</h3>
+            <p>
+                {{ pending_approvals_count|default:"0" }}
+            </p>
+        </div>
     </div>
 
 
-    <div>
-        <h3>Employees</h3>
-        <p>Manage employees.</p>
+    <!-- SIGNUP CHART -->
 
-        <a href="{% url 'employees:employee_list' %}">
-            Manage Employees
-        </a>
+    <div class="dashboard-card">
+
+        <div class="card-header">
+
+            <h3>New Sign-ups</h3>
+
+            <span>
+                Last 30 days
+            </span>
+
+        </div>
+
+        <div
+            style="
+                position: relative;
+                height: 320px;
+                width: 100%;
+            "
+        >
+
+            <canvas id="signupChart"></canvas>
+
+        </div>
+
     </div>
 
 
-    <div>
-        <h3>Reports</h3>
-        <p>View business and financial reports.</p>
+    <!-- ROLE BREAKDOWN -->
 
-        <a href="{% url 'reports:dashboard' %}">
-            View Reports
-        </a>
+    <div class="dashboard-card">
+
+        <div class="card-header">
+
+            <h3>User Roles Breakdown</h3>
+
+        </div>
+
+        <div
+            style="
+                position: relative;
+                height: 320px;
+                width: 100%;
+            "
+        >
+
+            <canvas id="roleChart"></canvas>
+
+        </div>
+
     </div>
 
-</div>
+
+    <!-- PENDING APPROVALS -->
+
+    <div class="dashboard-card">
+
+        <div class="card-header">
+
+            <h3>Pending Approvals</h3>
+
+            <span>
+                {{ pending_approvals_count }}
+            </span>
+
+        </div>
+
+
+        {% if pending_users %}
+
+            <div class="table-responsive">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Username</th>
+
+                            <th>Email</th>
+
+                            <th>Date Joined</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for pending_user in pending_users %}
+
+                            <tr>
+
+                                <td>
+                                    {{ pending_user.username }}
+                                </td>
+
+                                <td>
+                                    {{ pending_user.email }}
+                                </td>
+
+                                <td>
+                                    {{ pending_user.date_joined|date:"d M Y H:i" }}
+                                </td>
+
+                                <td>
+
+                                    <a
+                                        href="{% url 'accounts:user_list' %}"
+                                    >
+                                        Review
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <p>
+                No pending approvals.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     2. SYSTEM HEALTH & PERFORMANCE
+====================================================== -->
+
+<section class="dashboard-section">
+
+    <div class="section-header">
+
+        <h2>System Health & Performance</h2>
+
+    </div>
+
+
+    <div class="report-cards">
+
+        <!-- SERVER UPTIME -->
+
+        <div class="report-card">
+
+            <h3>Server Uptime</h3>
+
+            {% if server_uptime != None %}
+
+                <p>
+                    {{ server_uptime }}%
+                </p>
+
+            {% else %}
+
+                <p>—</p>
+
+                <small>
+                    Monitoring not configured
+                </small>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- API RESPONSE -->
+
+        <div class="report-card">
+
+            <h3>API Response Time</h3>
+
+            {% if api_response_time != None %}
+
+                <p>
+                    {{ api_response_time }} ms
+                </p>
+
+            {% else %}
+
+                <p>—</p>
+
+                <small>
+                    Monitoring not configured
+                </small>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- STORAGE -->
+
+        <div class="report-card">
+
+            <h3>Storage Usage</h3>
+
+            {% if storage_percentage != None %}
+
+                <p>
+                    {{ storage_percentage }}%
+                </p>
+
+            {% else %}
+
+                <p>—</p>
+
+                <small>
+                    Monitoring not configured
+                </small>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- ERRORS -->
+
+        <div class="report-card">
+
+            <h3>Error Rate</h3>
+
+            {% if error_rate != None %}
+
+                <p>
+                    {{ error_rate }}
+                </p>
+
+            {% else %}
+
+                <p>—</p>
+
+                <small>
+                    Error monitoring not configured
+                </small>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     3. SECURITY & AUDIT
+====================================================== -->
+
+<section class="dashboard-section">
+
+    <div class="section-header">
+
+        <h2>Security & Audit</h2>
+
+    </div>
+
+
+    <div class="report-cards">
+
+        <!-- FAILED LOGINS -->
+
+        <div class="report-card">
+
+            <h3>Failed Login Attempts</h3>
+
+            <p>
+                {{ failed_login_attempts|default:"0" }}
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ADMIN ACTIONS -->
+
+    <div class="dashboard-card">
+
+        <div class="card-header">
+
+            <h3>Recent Admin Actions</h3>
+
+        </div>
+
+
+        {% if recent_admin_actions %}
+
+            <div class="table-responsive">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>User</th>
+
+                            <th>Action</th>
+
+                            <th>Date</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for action in recent_admin_actions %}
+
+                            <tr>
+
+                                <td>
+                                    {{ action.user }}
+                                </td>
+
+                                <td>
+                                    {{ action.action }}
+                                </td>
+
+                                <td>
+                                    {{ action.created_at }}
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <p>
+                No audit activity available yet.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- LOGIN LOCATIONS -->
+
+    <div class="dashboard-card">
+
+        <div class="card-header">
+
+            <h3>IP / Location Tracking</h3>
+
+        </div>
+
+        {% if login_locations %}
+
+            <div id="loginMap"></div>
+
+        {% else %}
+
+            <p>
+                Login location tracking is not configured yet.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     4. BUSINESS & USAGE OVERVIEW
+====================================================== -->
+
+<section class="dashboard-section">
+
+    <div class="section-header">
+
+        <h2>Business & Usage Overview</h2>
+
+    </div>
+
+
+    <!-- FEATURE ADOPTION -->
+
+    <div class="dashboard-card">
+
+        <div class="card-header">
+
+            <h3>Feature Adoption</h3>
+
+        </div>
+
+
+        {% if feature_adoption %}
+
+            <div class="table-responsive">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Feature</th>
+
+                            <th>Usage</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for feature in feature_adoption %}
+
+                            <tr>
+
+                                <td>
+                                    {{ feature.name }}
+                                </td>
+
+                                <td>
+                                    {{ feature.usage }}
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <p>
+                Feature usage tracking is not configured yet.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- SUBSCRIPTIONS -->
+
+    <div class="dashboard-card">
+
+        <div class="card-header">
+
+            <h3>Subscription / Revenue Status</h3>
+
+        </div>
+
+
+        {% if subscription_status %}
+
+            <p>
+                {{ subscription_status }}
+            </p>
+
+        {% else %}
+
+            <p>
+                Subscription management is not configured yet.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- NOTIFICATIONS -->
+
+    <div class="dashboard-card">
+
+        <div class="card-header">
+
+            <h3>Notification Center</h3>
+
+        </div>
+
+
+        <p>
+            Send system-wide announcements,
+            maintenance messages and important alerts.
+        </p>
+
+
+        <button
+            type="button"
+            onclick="alert('Notification system will be connected here.')"
+        >
+            Create System Notification
+        </button>
+
+    </div>
+
+</section>
+
+<!-- =====================================================
+     ADMINISTRATION
+====================================================== -->
+
+<section class="admin-section">
+
+    <div class="section-heading">
+        <h2>Administration</h2>
+        <p>
+            Manage users, employees, reports and system operations.
+        </p>
+    </div>
+
+
+    <div class="admin-grid">
+
+        <!-- USERS -->
+
+        <div class="admin-card">
+
+            <div class="admin-card-icon">
+            </div>
+
+            <div class="admin-card-content">
+
+                <h3>Users</h3>
+
+                <p>
+                    Manage system users, accounts and roles.
+                </p>
+
+                <a
+                    href="{% url 'accounts:user_list' %}"
+                    class="admin-card-link"
+                >
+                    Manage Users
+                <span>→</span>
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- EMPLOYEES -->
+
+        <div class="admin-card">
+
+            <div class="admin-card-icon">
+        
+            </div>
+
+            <div class="admin-card-content">
+
+                <h3>Employees</h3>
+
+                <p>
+                    Manage employees and their information.
+                </p>
+
+                <a
+                    href="{% url 'employees:employee_list' %}"
+                    class="admin-card-link"
+                >
+                    Manage Employees
+                    <span>→</span>
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- REPORTS -->
+
+        <div class="admin-card">
+
+            <div class="admin-card-icon">
+    
+            </div>
+
+            <div class="admin-card-content">
+
+                <h3>Reports</h3>
+
+                <p>
+                    View business, financial and operational reports.
+                </p>
+
+                <a
+                    href="{% url 'reports:dashboard' %}"
+                    class="admin-card-link"
+                >
+                    View Reports
+                    <span>→</span>
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+
+<!-- =====================================================
+     CHART.JS
+====================================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{{ signup_labels|json_script:"signup-labels-data" }}
+{{ signup_counts|json_script:"signup-counts-data" }}
+
+{{ role_labels|json_script:"role-labels-data" }}
+{{ role_counts|json_script:"role-counts-data" }}
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        // =====================================================
+        // GET DATA FROM DJANGO
+        // =====================================================
+
+        const signupLabels = JSON.parse(
+            document.getElementById("signup-labels-data").textContent
+        );
+
+        const signupCounts = JSON.parse(
+            document.getElementById("signup-counts-data").textContent
+        );
+
+        const roleLabels = JSON.parse(
+            document.getElementById("role-labels-data").textContent
+        );
+
+        const roleCounts = JSON.parse(
+            document.getElementById("role-counts-data").textContent
+        );
+
+
+        // =====================================================
+        // NEW SIGNUPS CHART
+        // =====================================================
+
+        const signupCanvas = document.getElementById(
+            "signupChart"
+        );
+
+
+        if (signupCanvas) {
+
+            new Chart(
+                signupCanvas,
+                {
+                    type: "line",
+
+                    data: {
+
+                        labels: signupLabels,
+
+                        datasets: [
+                            {
+                                label: "New Sign-ups",
+
+                                data: signupCounts,
+
+                                borderWidth: 2,
+
+                                fill: false,
+
+                                tension: 0.3,
+
+                                pointRadius: 4,
+
+                                pointHoverRadius: 6
+                            }
+                        ]
+                    },
+
+                    options: {
+
+                        responsive: true,
+
+                        maintainAspectRatio: false,
+
+                        interaction: {
+                            intersect: false,
+                            mode: "index"
+                        },
+
+                        plugins: {
+
+                            legend: {
+                                display: true
+                            }
+
+                        },
+
+                        scales: {
+
+                            x: {
+
+                                title: {
+                                    display: true,
+                                    text: "Date"
+                                }
+
+                            },
+
+                            y: {
+
+                                beginAtZero: true,
+
+                                title: {
+                                    display: true,
+                                    text: "New Users"
+                                },
+
+                                ticks: {
+
+                                    precision: 0
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+                }
+            );
+
+        }
+
+
+        // =====================================================
+        // USER ROLES CHART
+        // =====================================================
+
+        const roleCanvas = document.getElementById(
+            "roleChart"
+        );
+
+
+        if (roleCanvas) {
+
+            new Chart(
+                roleCanvas,
+                {
+                    type: "doughnut",
+
+                    data: {
+
+                        labels: roleLabels,
+
+                        datasets: [
+
+                            {
+                                label: "Users",
+
+                                data: roleCounts,
+
+                                borderWidth: 1
+                            }
+
+                        ]
+
+                    },
+
+                    options: {
+
+                        responsive: true,
+
+                        maintainAspectRatio: false,
+
+                        cutout: "60%",
+
+                        plugins: {
+
+                            legend: {
+
+                                position: "right"
+
+                            },
+
+                            tooltip: {
+
+                                callbacks: {
+
+                                    label: function (context) {
+
+                                        const label =
+                                            context.label || "";
+
+                                        const value =
+                                            context.raw || 0;
+
+                                        return (
+                                            label +
+                                            ": " +
+                                            value +
+                                            " users"
+                                        );
+
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+            );
+
+        }
+
+    });
+
+</script>
 
 {% endblock %}

@@ -85,6 +85,8 @@ class PurchasePayment(models.Model):
     reference = models.CharField(max_length=100,blank=True)
     created_by = models.ForeignKey(User,on_delete=models.SET_NULL,null=True)
     def clean(self):
+        if self.amount is None:
+            return
         if self.amount <= 0:
             raise ValidationError(
                 "Payment amount must be greater than zero."
@@ -92,9 +94,7 @@ class PurchasePayment(models.Model):
         if self.purchase:
             existing_paid = sum(
                 payment.amount
-                for payment in self.purchase.payments.exclude(
-                    pk=self.pk
-                )
+                for payment in self.purchase.payments.exclude(pk=self.pk)
             )
             if existing_paid + self.amount > self.purchase.total_amount:
                 raise ValidationError(

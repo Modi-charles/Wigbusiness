@@ -807,3 +807,773 @@ a:hover {
 hr {
     display: none;
 }
+/* =================================
+   INVENTORY ACTION BUTTONS
+================================= */
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+
+/* VIEW - BLUE */
+
+.action-btn.action-view {
+    display: inline-block;
+    padding: 7px 14px;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    border-radius: 6px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition: background 0.2s ease;
+}
+
+.action-btn.action-view:hover {
+    background: #1d4ed8;
+    color: #ffffff;
+}
+
+
+/* UPDATE - GREEN */
+
+.action-btn.action-update {
+    display: inline-block;
+    padding: 7px 14px;
+
+    background: #16a34a;
+    color: #ffffff;
+
+    border-radius: 6px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition: background 0.2s ease;
+}
+
+.action-btn.action-update:hover {
+    background: #15803d;
+    color: #ffffff;
+}
+/* =========================================================
+   REPORT DASHBOARD
+========================================================= */
+
+.reports-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-lg);
+}
+
+.reports-header h1 {
+    margin: 0;
+}
+
+.reports-header p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   REPORT CARD ENHANCEMENT
+========================================================= */
+
+.report-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.report-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+}
+
+.report-card-icon {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: var(--radius-md);
+
+    background: var(--primary-light);
+    color: var(--primary);
+
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.report-card-value {
+    margin-top: 10px;
+
+    font-size: 25px;
+    font-weight: 700;
+
+    color: var(--text);
+}
+
+.report-card-description {
+    margin-top: 5px;
+
+    color: var(--muted);
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   CHART CONTAINER
+========================================================= */
+
+.chart-card {
+    background: var(--card);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-lg);
+
+    padding: var(--space-lg);
+
+    box-shadow: var(--shadow);
+
+    min-height: 350px;
+}
+
+.chart-header {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: var(--space-lg);
+}
+
+.chart-header h2 {
+    margin: 0;
+
+    font-size: 18px;
+}
+
+.chart-header p {
+    margin: 4px 0 0;
+
+    color: var(--muted);
+
+    font-size: 13px;
+}
+
+.chart-container {
+    width: 100%;
+    height: 280px;
+}
+
+
+/* =========================================================
+   REPORT GRID
+========================================================= */
+
+.report-grid {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 2fr)
+        minmax(300px, 1fr);
+
+    gap: var(--space-lg);
+
+    margin-top: var(--space-lg);
+}
+
+
+/* =========================================================
+   QUICK REPORT ACTIONS
+========================================================= */
+
+.report-actions {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: var(--space-sm);
+}
+
+.report-action {
+    display: flex;
+
+    align-items: center;
+
+    gap: var(--space-sm);
+
+    padding: 13px;
+
+    background: var(--card);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-md);
+
+    color: var(--text);
+
+    text-decoration: none;
+
+    transition:
+        background var(--transition),
+        transform var(--transition),
+        box-shadow var(--transition);
+}
+
+.report-action:hover {
+    background: var(--primary-light);
+
+    transform: translateY(-2px);
+
+    box-shadow: var(--shadow);
+
+    text-decoration: none;
+}
+
+.report-action-icon {
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: var(--radius-sm);
+
+    background: var(--primary-light);
+
+    color: var(--primary);
+
+    font-weight: 700;
+}
+
+.report-action-content strong {
+    display: block;
+
+    font-size: 14px;
+}
+
+.report-action-content small {
+    display: block;
+
+    margin-top: 2px;
+
+    color: var(--muted);
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   REPORT FILTER BAR
+========================================================= */
+
+.report-filter {
+    display: flex;
+
+    align-items: flex-end;
+
+    gap: var(--space-md);
+
+    padding: var(--space-md);
+
+    margin-bottom: var(--space-lg);
+
+    background: var(--card);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-lg);
+
+    box-shadow: var(--shadow);
+}
+
+.report-filter .filter-field {
+    flex: 1;
+}
+
+.report-filter .filter-field label {
+    margin-bottom: 5px;
+}
+
+.report-filter button {
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   REPORT SUMMARY
+========================================================= */
+
+.report-summary {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: var(--space-md);
+
+    margin-bottom: var(--space-lg);
+}
+
+.summary-item {
+    background: var(--card);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-md);
+
+    padding: var(--space-md);
+}
+
+.summary-item-label {
+    display: block;
+
+    color: var(--muted);
+
+    font-size: 12px;
+
+    margin-bottom: 5px;
+}
+
+.summary-item-value {
+    display: block;
+
+    color: var(--text);
+
+    font-size: 20px;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   REPORT PERIOD BUTTONS
+========================================================= */
+
+.period-buttons {
+    display: flex;
+
+    gap: var(--space-xs);
+
+    margin-bottom: var(--space-lg);
+}
+
+.period-buttons a {
+    padding: 7px 13px;
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-sm);
+
+    background: var(--card);
+
+    color: var(--text);
+
+    font-size: 13px;
+
+    text-decoration: none;
+}
+
+.period-buttons a:hover {
+    background: var(--primary-light);
+
+    color: var(--primary);
+
+    text-decoration: none;
+}
+
+.period-buttons a.active {
+    background: var(--primary);
+
+    border-color: var(--primary);
+
+    color: white;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   REPORT ACTION BUTTONS
+========================================================= */
+
+.report-btn-view {
+    background: #2563eb;
+}
+
+.report-btn-view:hover {
+    background: #1d4ed8;
+}
+
+.report-btn-update {
+    background: var(--success);
+}
+
+.report-btn-update:hover {
+    background: #2f7665;
+}
+
+.report-btn-delete {
+    background: var(--danger);
+}
+
+.report-btn-delete:hover {
+    background: #a34834;
+}
+
+
+/* =========================================================
+   FINANCIAL COLORS
+========================================================= */
+
+.amount-positive {
+    color: var(--success);
+    font-weight: 700;
+}
+
+.amount-negative {
+    color: var(--danger);
+    font-weight: 700;
+}
+
+.amount-neutral {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   MOBILE REPORTS
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .report-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .report-summary {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .report-filter {
+        flex-wrap: wrap;
+    }
+
+    .report-filter .filter-field {
+        min-width: 200px;
+    }
+}
+
+
+@media (max-width: 600px) {
+
+    .reports-header {
+        display: block;
+    }
+
+    .report-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .report-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .report-filter {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    .report-filter .filter-field {
+        width: 100%;
+    }
+
+    .period-buttons {
+        overflow-x: auto;
+    }
+
+    .chart-card {
+        padding: var(--space-md);
+    }
+}
+/* =========================================================
+   SALE FORM LAYOUT (New Sale page)
+========================================================= */
+
+#sale-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    align-items: stretch;
+    box-shadow: none;
+    background: transparent;
+    padding: 0;
+}
+
+.sale-form-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-lg);
+    align-items: start;
+}
+
+.sale-form-row.sale-form-row-wide {
+    grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
+}
+
+.form-actions {
+    display: flex;
+    gap: var(--space-md);
+}
+
+@media (max-width: 900px) {
+    .sale-form-row,
+    .sale-form-row.sale-form-row-wide {
+        grid-template-columns: 1fr;
+    }
+}
+.progress-container {
+    width: 100%;
+    height: 20px;
+    background: #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 50%;
+    border-radius: 10px;
+}
+/* =====================================================
+   ADMINISTRATION SECTION
+===================================================== */
+
+.admin-section {
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+
+/* -----------------------------------------------------
+   SECTION HEADING
+----------------------------------------------------- */
+
+.section-heading {
+    margin-bottom: 22px;
+}
+
+.section-heading h2 {
+    margin: 0 0 6px;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.section-heading p {
+    margin: 0;
+    font-size: 14px;
+    color: #64748b;
+}
+
+
+/* -----------------------------------------------------
+   ADMIN GRID
+----------------------------------------------------- */
+
+.admin-grid {
+    display: grid;
+
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(250px, 1fr)
+    );
+
+    gap: 20px;
+}
+
+
+/* -----------------------------------------------------
+   ADMIN CARD
+----------------------------------------------------- */
+
+.admin-card {
+    display: flex;
+
+    gap: 18px;
+
+    padding: 24px;
+
+    background: #ffffff;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 14px;
+
+    box-shadow:
+        0 2px 6px rgba(15, 23, 42, 0.05);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+/* -----------------------------------------------------
+   CARD HOVER
+----------------------------------------------------- */
+
+.admin-card:hover {
+    transform: translateY(-3px);
+
+    border-color: #cbd5e1;
+
+    box-shadow:
+        0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+
+/* -----------------------------------------------------
+   ICON
+----------------------------------------------------- */
+
+.admin-card-icon {
+    width: 48px;
+    height: 48px;
+
+    min-width: 48px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #f1f5f9;
+
+    border-radius: 12px;
+
+    font-size: 23px;
+}
+
+
+/* -----------------------------------------------------
+   CARD CONTENT
+----------------------------------------------------- */
+
+.admin-card-content {
+    flex: 1;
+}
+
+
+.admin-card-content h3 {
+    margin: 0 0 8px;
+
+    font-size: 18px;
+
+    font-weight: 700;
+
+    color: #0f172a;
+}
+
+
+.admin-card-content p {
+    margin: 0 0 18px;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+
+    color: #64748b;
+}
+
+
+/* -----------------------------------------------------
+   CARD LINK
+----------------------------------------------------- */
+
+.admin-card-link {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    color: #0f766e;
+
+    text-decoration: none;
+
+    transition:
+        color 0.2s ease,
+        gap 0.2s ease;
+}
+
+
+.admin-card-link span {
+    font-size: 18px;
+
+    line-height: 1;
+
+    transition:
+        transform 0.2s ease;
+}
+
+
+.admin-card-link:hover {
+    color: #115e59;
+
+    gap: 11px;
+}
+
+
+.admin-card-link:hover span {
+    transform: translateX(3px);
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 768px) {
+
+    .admin-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-card {
+        padding: 20px;
+    }
+
+}

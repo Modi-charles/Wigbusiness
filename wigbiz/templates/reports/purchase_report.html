@@ -59,13 +59,6 @@
         {% endfor %}
     </tbody>
 </table>
-
-<div>
-    <a href="{% url 'reports:purchase_report_pdf' %}?{{ querystring }}&period={{ period_type }}">Export PDF</a>
-    |
-    <a href="{% url 'reports:purchase_report_excel' %}?{{ querystring }}&period={{ period_type }}">Export Excel</a>
-</div>
-
 <hr>
 
 <table border="1" cellpadding="8">

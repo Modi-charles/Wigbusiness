@@ -74,10 +74,17 @@
                 Reports
             </a>
 
-            <a href="{% url 'accounts:change_password' %}">
-                Change Password
-            </a>
+            <div class="bottom-links">
 
+                <a href="{% url 'accounts:settings' %}">
+                    ⚙ Settings
+                </a>
+
+                <a href="{% url 'accounts:logout' %}">
+                    ⇥ Logout
+                </a>
+
+            </div>
         </nav>
 
     </aside>

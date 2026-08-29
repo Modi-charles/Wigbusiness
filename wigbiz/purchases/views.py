@@ -53,7 +53,7 @@ def add_purchase(request):
                     ]
                 )
             return redirect(
-                "purchase_details",
+                "purchase:purchase_details",
                 purchase.id
             )
     else:
@@ -61,7 +61,7 @@ def add_purchase(request):
         formset = PurchaseItemFormSet()
     return render(
         request,
-        "purchase/add_purchase.html",
+        "purchase/add_purchase_payment.html",
         {
             "purchase_form": purchase_form,
             "formset": formset,

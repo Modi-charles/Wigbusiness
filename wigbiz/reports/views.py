@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Count, F, DecimalField, ExpressionWrapper
 from django.core.paginator import Paginator
 from django.shortcuts import render
-
+from django.db.models.functions import TruncDay, TruncWeek, TruncMonth
 from sales.models import Sale, SaleItem
 from purchases.models import Purchase, PurchaseItem
 from inventory.models import Inventory
@@ -146,6 +146,7 @@ def sales_report(request):
 def purchase_report(request):
     purchases = Purchase.objects.select_related("supplier", "created_by").all()
 
+    # filters
     date_from_raw = request.GET.get("date_from", "").strip()
     date_to_raw = request.GET.get("date_to", "").strip()
     status = request.GET.get("status", "").strip()
@@ -155,9 +156,9 @@ def purchase_report(request):
     date_to = parse_date_or_none(date_to_raw)
 
     if date_from:
-        purchases = purchases.filter(purchase_date__date__gte=date_from)
+        purchases = purchases.filter(purchase_date__gte=date_from)
     if date_to:
-        purchases = purchases.filter(purchase_date__date__lte=date_to)
+        purchases = purchases.filter(purchase_date__lte=date_to)
     if status:
         purchases = purchases.filter(status=status)
     if payment_status:
@@ -165,9 +166,27 @@ def purchase_report(request):
 
     purchases = purchases.order_by("-purchase_date", "-id")
 
+    # choose truncation function
     period_type = get_period_type(request)
-    breakdown = get_purchases_breakdown(purchases, period_type)
+    if period_type == "daily":
+        trunc = TruncDay("purchase_date")
+    elif period_type == "weekly":
+        trunc = TruncWeek("purchase_date")
+    else:
+        trunc = TruncMonth("purchase_date")
 
+    breakdown = (
+        purchases.annotate(period=trunc)
+        .values("period")
+        .annotate(
+            total_amount=Sum("total_amount"),
+            total_paid=Sum("paid_amount"),
+            num_purchases=Count("id"),
+        )
+        .order_by("period")
+    )
+
+    # summary totals
     summary = purchases.aggregate(
         total_purchases=Count("id"),
         total_amount=Sum("total_amount"),

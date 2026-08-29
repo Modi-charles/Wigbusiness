@@ -153,7 +153,7 @@
 
 {% if purchase.status == "PENDING" %}
 
-    <a href="{% url 'receive_purchase' purchase.id %}">
+    <a href="{% url 'purchase:receive_purchase' purchase.id %}">
         Receive Purchase
     </a>
 
@@ -177,7 +177,7 @@
 <br><br>
 {% if purchase.payment_status != "PAID" %}
 
-    <a href="{% url 'add_purchase_payment' purchase.id %}">
+    <a href="{% url 'purchase:add_purchase_payment' purchase.id %}">
         Add Payment
     </a>
 
@@ -189,10 +189,10 @@
 <br><br>
 
 {% endif %}
-<a href="{% url 'purchase_invoice' purchase.id %}">
+<a href="{% url 'purchase:purchase_invoice' purchase.id %}">
     View Invoice
 </a>
-<a href="{% url 'view_purchase' %}">
+<a href="{% url 'purchase:view_purchase' %}">
     Back to Purchases
 </a>
 

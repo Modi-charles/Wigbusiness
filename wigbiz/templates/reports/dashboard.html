@@ -1,334 +1,327 @@
 {% extends "base.html" %}
-{% load static %}
 
-{% block title %}
-Reports Dashboard
-{% endblock %}
-
+{% block title %}Reports Dashboard{% endblock %}
 
 {% block content %}
+<div class="reports-container">
 
-<h1>Reports Dashboard</h1>
+    {# ================= HEADER ================= #}
+    <div class="reports-header">
+        <div>
+            <h1>Business Dashboard</h1>
+            <p>Overview of your sales, purchases, inventory and profitability</p>
+        </div>
+        <button type="button" onclick="window.print()" class="btn btn-primary">
+            Print Dashboard
+        </button>
+    </div>
 
-<p>
-    Business overview
-</p>
+    {# ================= FINANCIAL CARDS ================= #}
+    <div class="report-cards">
 
+        <div class="report-card">
+            <div class="report-card-top">
+                <div>
+                    <h3>Revenue</h3>
+                    <div class="report-card-value">UGX {{ revenue|floatformat:2 }}</div>
+                    <div class="report-card-description">Completed sales</div>
+                </div>
+                <div class="report-card-icon">R</div>
+            </div>
+        </div>
 
-<hr>
+        <div class="report-card">
+            <div class="report-card-top">
+                <div>
+                    <h3>Gross Profit</h3>
+                    <div class="report-card-value">UGX {{ gross_profit|floatformat:2 }}</div>
+                    <div class="report-card-description">Revenue minus COGS</div>
+                </div>
+                <div class="report-card-icon">GP</div>
+            </div>
+        </div>
 
+        <div class="report-card">
+            <div class="report-card-top">
+                <div>
+                    <h3>Expenses</h3>
+                    <div class="report-card-value">UGX {{ total_expenses|floatformat:2 }}</div>
+                    <div class="report-card-description">Recorded business expenses</div>
+                </div>
+                <div class="report-card-icon">E</div>
+            </div>
+        </div>
 
-<!-- ========================= -->
-<!-- FINANCIAL CARDS -->
-<!-- ========================= -->
-
-<h2>Financial Overview</h2>
-
-
-<div class="report-cards">
-
-
-    <!-- TOTAL SALES -->
-
-    <div class="report-card">
-
-        <h3>
-            Total Sales
-        </h3>
-
-        <p>
-            UGX {{ total_sales }}
-        </p>
-
-        <small>
-            Completed sales
-        </small>
+        <div class="report-card">
+            <div class="report-card-top">
+                <div>
+                    <h3>Net Profit</h3>
+                    <div class="report-card-value {% if net_profit < 0 %}amount-negative{% else %}amount-positive{% endif %}">
+                        UGX {{ net_profit|floatformat:2 }}
+                    </div>
+                    <div class="report-card-description">Profit after expenses</div>
+                </div>
+                <div class="report-card-icon">NP</div>
+            </div>
+        </div>
 
     </div>
 
+    {# ================= SALES / PURCHASE CARDS ================= #}
+    <div class="report-cards">
 
-    <!-- TOTAL PURCHASES -->
+        <div class="report-card">
+            <div class="report-card-top">
+                <div>
+                    <h3>Total Sales</h3>
+                    <div class="report-card-value">UGX {{ total_sales|floatformat:2 }}</div>
+                    <div class="report-card-description">Completed sales</div>
+                </div>
+                <div class="report-card-icon">S</div>
+            </div>
+        </div>
 
-    <div class="report-card">
+        <div class="report-card">
+            <div class="report-card-top">
+                <div>
+                    <h3>Total Purchases</h3>
+                    <div class="report-card-value">UGX {{ total_purchases|floatformat:2 }}</div>
+                    <div class="report-card-description">Received purchases</div>
+                </div>
+                <div class="report-card-icon">P</div>
+            </div>
+        </div>
 
-        <h3>
-            Total Purchases
-        </h3>
+        <div class="report-card">
+            <div class="report-card-top">
+                <div>
+                    <h3>Stock Value</h3>
+                    <div class="report-card-value">UGX {{ stock_value|floatformat:2 }}</div>
+                    <div class="report-card-description">Current inventory value</div>
+                </div>
+                <div class="report-card-icon">I</div>
+            </div>
+        </div>
 
-        <p>
-            UGX {{ total_purchases }}
-        </p>
-
-        <small>
-            Received purchases
-        </small>
-
-    </div>
-
-
-    <!-- GROSS PROFIT -->
-
-    <div class="report-card">
-
-        <h3>
-            Gross Profit
-        </h3>
-
-        <p>
-            UGX {{ gross_profit }}
-        </p>
-
-        <small>
-            Sales revenue - COGS
-        </small>
-
-    </div>
-
-
-    <!-- CUSTOMER OUTSTANDING -->
-
-    <div class="report-card">
-
-        <h3>
-            Customer Outstanding
-        </h3>
-
-        <p>
-            UGX {{ customer_outstanding }}
-        </p>
-
-        <small>
-            Money customers owe
-        </small>
+        <div class="report-card">
+            <div class="report-card-top">
+                <div>
+                    <h3>Customers</h3>
+                    <div class="report-card-value">{{ total_customers }}</div>
+                    <div class="report-card-description">Active customers</div>
+                </div>
+                <div class="report-card-icon">C</div>
+            </div>
+        </div>
 
     </div>
 
+    {# ================= CHARTS ================= #}
+    <div class="report-grid">
 
-    <!-- SUPPLIER OUTSTANDING -->
+        {# --- Profit Chart --- #}
+        <div class="chart-card">
+            <div class="chart-header">
+                <div>
+                    <h2>Financial Overview</h2>
+                    <p>Revenue, costs, expenses and profit</p>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="financialChart"></canvas>
+            </div>
+        </div>
 
-    <div class="report-card">
+        {# --- Business Summary --- #}
+        <div class="chart-card">
+            <div class="chart-header">
+                <div>
+                    <h2>Business Summary</h2>
+                    <p>Current business position</p>
+                </div>
+            </div>
 
-        <h3>
-            Supplier Outstanding
-        </h3>
-
-        <p>
-            UGX {{ supplier_outstanding }}
-        </p>
-
-        <small>
-            Money owed to suppliers
-        </small>
+            <div class="report-section">
+                <div class="summary-item">
+                    <span class="summary-item-label">Cost of Goods Sold</span>
+                    <span class="summary-item-value">UGX {{ cost_of_goods_sold|floatformat:2 }}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-item-label">Customer Outstanding</span>
+                    <span class="summary-item-value">UGX {{ customer_outstanding|floatformat:2 }}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-item-label">Supplier Outstanding</span>
+                    <span class="summary-item-value">UGX {{ supplier_outstanding|floatformat:2 }}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-item-label">Available Stock</span>
+                    <span class="summary-item-value">{{ total_stock }}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-item-label">Products</span>
+                    <span class="summary-item-value">{{ total_products }}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-item-label">Suppliers</span>
+                    <span class="summary-item-value">{{ total_suppliers }}</span>
+                </div>
+            </div>
+        </div>
 
     </div>
 
+    {# ================= QUICK REPORTS ================= #}
+    <div class="report-section">
+        <div class="report-section-header">
+            <div>
+                <h2>Reports</h2>
+                <p>Open detailed business reports</p>
+            </div>
+        </div>
 
-    <!-- STOCK VALUE -->
+        <div class="report-actions">
 
-    <div class="report-card">
+            <a href="{% url 'reports:sales_report' %}" class="report-action">
+                <div class="report-action-icon">S</div>
+                <div class="report-action-content">
+                    <strong>Sales Report</strong>
+                    <small>Sales and revenue</small>
+                </div>
+            </a>
 
-        <h3>
-            Stock Value
-        </h3>
+            <a href="{% url 'reports:purchase_report' %}" class="report-action">
+                <div class="report-action-icon">P</div>
+                <div class="report-action-content">
+                    <strong>Purchase Report</strong>
+                    <small>Purchases and suppliers</small>
+                </div>
+            </a>
 
-        <p>
-            UGX {{ stock_value }}
-        </p>
+            <a href="{% url 'reports:inventory_report' %}" class="report-action">
+                <div class="report-action-icon">I</div>
+                <div class="report-action-content">
+                    <strong>Inventory Report</strong>
+                    <small>Stock levels</small>
+                </div>
+            </a>
 
-        <small>
-            Current stock at cost
-        </small>
+            <a href="{% url 'reports:supplier_report' %}" class="report-action">
+                <div class="report-action-icon">SP</div>
+                <div class="report-action-content">
+                    <strong>Supplier Report</strong>
+                    <small>Supplier balances</small>
+                </div>
+            </a>
 
+            <a href="{% url 'reports:customer_report' %}" class="report-action">
+                <div class="report-action-icon">C</div>
+                <div class="report-action-content">
+                    <strong>Customer Report</strong>
+                    <small>Customer balances</small>
+                </div>
+            </a>
+
+            <a href="{% url 'reports:profit_report' %}" class="report-action">
+                <div class="report-action-icon">GP</div>
+                <div class="report-action-content">
+                    <strong>Profit Report</strong>
+                    <small>Gross and net profit</small>
+                </div>
+            </a>
+
+            <a href="{% url 'reports:financial_summary' %}" class="report-action">
+                <div class="report-action-icon">F</div>
+                <div class="report-action-content">
+                    <strong>Financial Summary</strong>
+                    <small>Overall financial position</small>
+                </div>
+            </a>
+
+        </div>
     </div>
-
 
 </div>
 
+{# ================= CHART.JS ================= #}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<hr>
+<script>
+    const financialChart =
+        document.getElementById("financialChart");
 
+    if (financialChart) {
 
-<!-- ========================= -->
-<!-- BUSINESS STATISTICS -->
-<!-- ========================= -->
+        new Chart(financialChart, {
 
-<h2>Business Statistics</h2>
+            type: "bar",
 
+            data: {
 
-<div class="report-cards">
+                labels: [
+                    "Revenue",
+                    "COGS",
+                    "Expenses",
+                    "Gross Profit",
+                    "Net Profit"
+                ],
 
+                datasets: [
+                    {
+                        label: "Amount (UGX)",
 
-    <div class="report-card">
+                        data: [
+                            Number("{{ revenue|default:'0' }}"),
+                            Number("{{ cost_of_goods_sold|default:'0' }}"),
+                            Number("{{ total_expenses|default:'0' }}"),
+                            Number("{{ gross_profit|default:'0' }}"),
+                            Number("{{ net_profit|default:'0' }}")
+                        ],
 
-        <h3>
-            Products
-        </h3>
+                        borderWidth: 1
+                    }
+                ]
+            },
 
-        <p>
-            {{ total_products }}
-        </p>
+            options: {
 
-    </div>
+                responsive: true,
 
+                maintainAspectRatio: false,
 
-    <div class="report-card">
+                plugins: {
 
-        <h3>
-            Stock Units
-        </h3>
+                    legend: {
+                        display: false
+                    }
 
-        <p>
-            {{ total_stock }}
-        </p>
+                },
 
-    </div>
+                scales: {
 
+                    y: {
 
-    <div class="report-card">
+                        beginAtZero: true,
 
-        <h3>
-            Customers
-        </h3>
+                        ticks: {
 
-        <p>
-            {{ total_customers }}
-        </p>
+                            callback: function(value) {
 
-    </div>
+                                return "UGX " +
+                                    Number(value).toLocaleString();
 
+                            }
 
-    <div class="report-card">
+                        }
 
-        <h3>
-            Suppliers
-        </h3>
+                    }
 
-        <p>
-            {{ total_suppliers }}
-        </p>
+                }
 
-    </div>
+            }
 
+        });
 
-</div>
-
-
-<hr>
-
-
-<!-- ========================= -->
-<!-- DETAILED REPORTS -->
-<!-- ========================= -->
-
-<h2>Detailed Reports</h2>
-
-
-<div class="report-links">
-
-
-    <div>
-
-        <h3>
-            Sales
-        </h3>
-
-        <p>
-            View sales, payments and outstanding balances.
-        </p>
-
-        <a href="{% url 'reports:sales_report' %}">
-            Open Sales Report
-        </a>
-
-    </div>
-
-
-    <div>
-
-        <h3>
-            Purchases
-        </h3>
-
-        <p>
-            View purchases, suppliers and payment status.
-        </p>
-
-        <a href="{% url 'reports:purchase_report' %}">
-            Open Purchase Report
-        </a>
-
-    </div>
-
-
-    <div>
-
-        <h3>
-            Inventory
-        </h3>
-
-        <p>
-            View stock levels, received stock and sold stock.
-        </p>
-
-        <a href="{% url 'reports:inventory_report' %}">
-            Open Inventory Report
-        </a>
-
-    </div>
-
-
-    <div>
-
-        <h3>
-            Customers
-        </h3>
-
-        <p>
-            View customer balances and customer information.
-        </p>
-
-        <a href="{% url 'reports:customer_report' %}">
-            Open Customer Report
-        </a>
-
-    </div>
-
-
-    <div>
-
-        <h3>
-            Suppliers
-        </h3>
-
-        <p>
-            View supplier balances and supplier information.
-        </p>
-
-        <a href="{% url 'reports:supplier_report' %}">
-            Open Supplier Report
-        </a>
-
-    </div>
-
-
-    <div>
-
-        <h3>
-            Profit
-        </h3>
-
-        <p>
-            Analyze revenue, cost of goods sold and gross profit.
-        </p>
-
-        <a href="{% url 'reports:profit_report' %}">
-            Open Profit Report
-        </a>
-
-    </div>
-
-
-</div>
-
-
+    }
+</script>
 {% endblock %}

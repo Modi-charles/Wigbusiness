@@ -12,6 +12,7 @@ Accountant Dashboard
     Welcome, {{ user.get_full_name|default:user.username }}
 </p>
 
+<h2>Core Financial Metrics</h2>
 
 <div class="report-cards">
 
@@ -21,8 +22,13 @@ Accountant Dashboard
     </div>
 
     <div class="report-card">
-        <h3>Total Purchases</h3>
-        <p>UGX {{ total_purchases|default:"0" }}</p>
+        <h3>Cost of Goods Sold</h3>
+        <p>UGX {{ total_cogs|default:"0" }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Operating Expenses</h3>
+        <p>UGX {{ total_operating_expenses|default:"0" }}</p>
     </div>
 
     <div class="report-card">
@@ -31,17 +37,147 @@ Accountant Dashboard
     </div>
 
     <div class="report-card">
-        <h3>Customer Outstanding</h3>
-        <p>UGX {{ customer_outstanding|default:"0" }}</p>
-    </div>
-
-    <div class="report-card">
-        <h3>Supplier Outstanding</h3>
-        <p>UGX {{ supplier_outstanding|default:"0" }}</p>
+        <h3>Net Income</h3>
+        <p>UGX {{ net_income|default:"0" }}</p>
     </div>
 
 </div>
 
+<h2>Cash Flow Overview</h2>
+
+<div class="report-cards">
+
+    <div class="report-card report-card-pending">
+        <h3>Cash In (Period)</h3>
+        {% if cash_in is not None %}
+            <p>UGX {{ cash_in }}</p>
+        {% else %}
+            <p class="report-card-sub">Coming soon</p>
+        {% endif %}
+    </div>
+
+    <div class="report-card report-card-pending">
+        <h3>Cash Out (Period)</h3>
+        {% if cash_out is not None %}
+            <p>UGX {{ cash_out }}</p>
+        {% else %}
+            <p class="report-card-sub">Coming soon</p>
+        {% endif %}
+    </div>
+
+    <div class="report-card report-card-pending">
+        <h3>Operating Cash Flow</h3>
+        {% if operating_cash_flow is not None %}
+            <p>UGX {{ operating_cash_flow }}</p>
+        {% else %}
+            <p class="report-card-sub">Coming soon</p>
+        {% endif %}
+    </div>
+
+    <div class="report-card report-card-pending">
+        <h3>Liquidity (Cash on Hand)</h3>
+        {% if cash_on_hand is not None %}
+            <p>UGX {{ cash_on_hand }}</p>
+        {% else %}
+            <p class="report-card-sub">Coming soon</p>
+        {% endif %}
+    </div>
+
+</div>
+
+<h2>Balance Sheet Highlights</h2>
+
+<div class="report-cards">
+
+    <div class="report-card report-card-pending">
+        <h3>Total Assets</h3>
+        {% if total_assets is not None %}
+            <p>UGX {{ total_assets }}</p>
+        {% else %}
+            <p class="report-card-sub">Coming soon</p>
+        {% endif %}
+    </div>
+
+    <div class="report-card report-card-pending">
+        <h3>Total Liabilities</h3>
+        {% if total_liabilities is not None %}
+            <p>UGX {{ total_liabilities }}</p>
+        {% else %}
+            <p class="report-card-sub">Coming soon</p>
+        {% endif %}
+    </div>
+
+    <div class="report-card report-card-pending">
+        <h3>Owner's Equity</h3>
+        {% if owners_equity is not None %}
+            <p>UGX {{ owners_equity }}</p>
+        {% else %}
+            <p class="report-card-sub">Coming soon</p>
+        {% endif %}
+    </div>
+
+</div>
+
+<h2>Receivables &amp; Payables</h2>
+
+<div class="report-cards">
+
+    <div class="report-card">
+        <h3>Accounts Receivable</h3>
+        <p>UGX {{ customer_outstanding|default:"0" }}</p>
+        {% if days_sales_outstanding is not None %}
+            <p class="report-card-sub">DSO: {{ days_sales_outstanding }} days</p>
+        {% else %}
+            <p class="report-card-sub">DSO: coming soon</p>
+        {% endif %}
+    </div>
+
+    <div class="report-card">
+        <h3>Accounts Payable</h3>
+        <p>UGX {{ supplier_outstanding|default:"0" }}</p>
+        {% if payables_due_soon is not None %}
+            <p class="report-card-sub">Due soon: UGX {{ payables_due_soon }}</p>
+        {% else %}
+            <p class="report-card-sub">Due soon: coming soon</p>
+        {% endif %}
+    </div>
+
+</div>
+
+<h2>Budgeting &amp; Analysis</h2>
+
+<div class="report-cards">
+
+    <div class="report-card report-card-pending">
+        <h3>Budget vs Actual</h3>
+        {% if budgeted_amount is not None %}
+            <p>Budgeted: UGX {{ budgeted_amount }}</p>
+            <p>Actual: UGX {{ actual_amount }}</p>
+        {% else %}
+            <p class="report-card-sub">Coming soon</p>
+        {% endif %}
+    </div>
+
+    <div class="report-card">
+        <h3>Gross Profit Margin</h3>
+        <p>{{ gross_profit_margin|default:"0" }}%</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Net Profit Margin</h3>
+        <p>{{ net_profit_margin|default:"0" }}%</p>
+    </div>
+
+    <div class="report-card report-card-pending">
+        <h3>Current Ratio</h3>
+        {% if current_ratio is not None %}
+            <p>{{ current_ratio }}</p>
+        {% else %}
+            <p class="report-card-sub">Coming soon</p>
+        {% endif %}
+    </div>
+
+</div>
 
 <h2>Financial Reports</h2>
 

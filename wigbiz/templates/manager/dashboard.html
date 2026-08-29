@@ -13,27 +13,303 @@ Manager Dashboard
 </p>
 
 
+<!-- REPORT PERIOD -->
+
+<div class="report-filter">
+
+    <form method="get">
+
+        <div class="filter-field">
+
+            <label for="period">
+                Report Period
+            </label>
+
+            <select name="period" id="period">
+
+                <option value="daily" {% if period == "daily" %}selected{% endif %}>
+                    Daily
+                </option>
+
+                <option value="weekly" {% if period == "weekly" %}selected{% endif %}>
+                    Weekly
+                </option>
+
+                <option value="monthly" {% if period == "monthly" or not period %}selected{% endif %}>
+                    Monthly
+                </option>
+
+            </select>
+
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Apply
+        </button>
+
+    </form>
+
+</div>
+
+
+<!-- SALES & REVENUE -->
+
+<h2>Sales &amp; Revenue</h2>
+
 <div class="report-cards">
 
     <div class="report-card">
-        <h3>Total Sales</h3>
-        <p>UGX {{ total_sales|default:"0" }}</p>
+        <h3>Total Revenue</h3>
+        <p>UGX {{ total_sales|floatformat:2|default:"0.00" }}</p>
     </div>
 
     <div class="report-card">
+        <h3>Transactions</h3>
+        <p>{{ transaction_count|default:"0" }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Average Transaction</h3>
+        <p>
+            UGX {{ average_transaction|floatformat:2|default:"0.00" }}
+        </p>
+    </div>
+
+    <div class="report-card">
+        <h3>Profit Margin</h3>
+        <p>
+            {{ profit_margin|floatformat:2|default:"0.00" }}%
+        </p>
+    </div>
+
+</div>
+
+
+<!-- SALES TARGET -->
+
+<h2>Sales Target</h2>
+
+<div class="report-cards">
+
+    <div class="report-card target-card">
+
+        <div class="target-header">
+
+            <span class="target-current">
+                UGX {{ total_sales|floatformat:2|default:"0.00" }}
+            </span>
+
+            <span class="target-goal">
+                of UGX {{ sales_target|floatformat:2|default:"0.00" }} target
+            </span>
+
+        </div>
+
+        <div class="target-bar-track">
+
+            <div
+                class="target-bar-fill
+                    {% if target_percentage < 40 %}
+                        target-critical
+                    {% elif target_percentage < 75 %}
+                        target-behind
+                    {% endif %}
+                "
+                data-percent="{{ target_percentage|default:'0' }}"
+            ></div>
+
+        </div>
+
+        <div class="target-percent-label">
+            {{ target_percentage|floatformat:2|default:"0.00" }}% achieved
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+document.querySelectorAll(".target-bar-fill[data-percent]").forEach(function (el) {
+    el.style.width = el.dataset.percent + "%";
+});
+
+</script>
+
+
+<!-- INVENTORY -->
+
+<h2>Inventory Management</h2>
+
+<div class="report-cards">
+
+    <div class="report-card">
+        <h3>Total Products</h3>
+        <p>{{ total_products|default:"0" }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Stock Available</h3>
+        <p>{{ total_stock|default:"0" }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Low Stock</h3>
+        <p>{{ low_stock_count|default:"0" }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Out of Stock</h3>
+        <p>{{ out_of_stock_count|default:"0" }}</p>
+    </div>
+
+</div>
+
+
+<!-- FINANCIAL HEALTH -->
+
+<h2>Financial Health</h2>
+
+<div class="report-cards">
+
+    <div class="report-card">
         <h3>Total Purchases</h3>
-        <p>UGX {{ total_purchases|default:"0" }}</p>
+        <p>
+            UGX {{ total_purchases|floatformat:2|default:"0.00" }}
+        </p>
+    </div>
+
+    <div class="report-card">
+        <h3>Total Expenses</h3>
+        <p>
+            UGX {{ total_expenses|floatformat:2|default:"0.00" }}
+        </p>
     </div>
 
     <div class="report-card">
         <h3>Gross Profit</h3>
-        <p>UGX {{ gross_profit|default:"0" }}</p>
+        <p>
+            UGX {{ gross_profit|floatformat:2|default:"0.00" }}
+        </p>
+    </div>
+
+    <div class="report-card">
+        <h3>Net Profit</h3>
+        <p class="{% if net_profit < 0 %}amount-negative{% else %}amount-positive{% endif %}">
+            UGX {{ net_profit|floatformat:2|default:"0.00" }}
+        </p>
     </div>
 
     <div class="report-card">
         <h3>Customer Outstanding</h3>
-        <p>UGX {{ customer_outstanding|default:"0" }}</p>
+        <p>
+            UGX {{ customer_outstanding|floatformat:2|default:"0.00" }}
+        </p>
     </div>
+
+</div>
+
+
+<!-- TOP SELLING PRODUCTS -->
+
+<h2>Top Selling Products</h2>
+
+<div class="table-container">
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity Sold</th>
+                <th>Revenue</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for product in top_products %}
+
+            <tr>
+                <td>
+                    {{ product.product__name }}
+                </td>
+
+                <td>
+                    {{ product.total_quantity }}
+                </td>
+
+                <td>
+                    UGX {{ product.total_revenue|floatformat:2 }}
+                </td>
+            </tr>
+
+            {% empty %}
+
+            <tr>
+                <td colspan="3">
+                    No sales data available.
+                </td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+<!-- EMPLOYEE PERFORMANCE -->
+
+<h2>Employee Performance</h2>
+
+<div class="table-container">
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>Employee</th>
+                <th>Transactions</th>
+                <th>Total Sales</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for employee in employee_sales %}
+
+            <tr>
+
+                <td>
+                    {{ employee.created_by__username }}
+                </td>
+
+                <td>
+                    {{ employee.transaction_count }}
+                </td>
+
+                <td>
+                    UGX {{ employee.total_sales|floatformat:2 }}
+                </td>
+
+            </tr>
+
+            {% empty %}
+
+            <tr>
+                <td colspan="3">
+                    No employee sales data available.
+                </td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
 
 </div>
 
@@ -43,5 +319,65 @@ Manager Dashboard
 <p>
     Monitor sales, inventory, employees and business performance.
 </p>
+
+<div class="report-actions">
+
+    <a href="{% url 'sales:sales_history' %}" class="report-action">
+        <div class="report-action-content">
+            <strong>Sales History</strong>
+            <small>All past transactions</small>
+        </div>
+    </a>
+
+    <a href="{% url 'sales:return_history' %}" class="report-action">
+        <div class="report-action-content">
+            <strong>Return History</strong>
+            <small>Product returns</small>
+        </div>
+    </a>
+
+    <a href="{% url 'sales:refund_history' %}" class="report-action">
+        <div class="report-action-content">
+            <strong>Refund History</strong>
+            <small>Refunds issued to customers</small>
+        </div>
+    </a>
+
+    <a href="{% url 'purchase:purchase_reports' %}" class="report-action">
+        <div class="report-action-content">
+            <strong>Purchase History</strong>
+            <small>Supplier orders and payments</small>
+        </div>
+    </a>
+
+    <a href="{% url 'inventory:inventory_history' %}" class="report-action">
+        <div class="report-action-content">
+            <strong>Inventory History</strong>
+            <small>Stock levels and reorder alerts</small>
+        </div>
+    </a>
+
+    <a href="{% url 'suppliers:supplier_list' %}" class="report-action">
+        <div class="report-action-content">
+            <strong>Supplier History</strong>
+            <small>Supplier balances</small>
+        </div>
+    </a>
+
+    <a href="{% url 'customers:customer_list' %}" class="report-action">
+        <div class="report-action-content">
+            <strong>Customer History</strong>
+            <small>Customer accounts and balances</small>
+        </div>
+    </a>
+
+    <a href="{% url 'reports:dashboard' %}" class="report-action">
+        <div class="report-action-content">
+            <strong>Full Reports</strong>
+            <small>Business-wide financial overview</small>
+        </div>
+    </a>
+
+</div>
 
 {% endblock %}
