@@ -30,8 +30,9 @@ class Sale(models.Model):
         related_name="sales"
         )
     invoice_number = models.CharField(max_length=50, unique=True)
-    # Changed from DateTimeField to DateField for consistency with Purchase.purchase_date
+    # Changed from DateTimeField to DateField for consistency
     sale_date = models.DateField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     subtotal = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -43,13 +44,12 @@ class Sale(models.Model):
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS, default="CASH")
 
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="sales_created")
-    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.invoice_number
     
     def recalculate_balance(self):
-        """Recalculate balance based on all payments made."""
+        """Recalculate balance based on all completed payments."""
         from decimal import Decimal
         total_paid = sum(
             payment.amount for payment in self.payments.filter(status=Payment.Status.COMPLETED)
@@ -57,6 +57,10 @@ class Sale(models.Model):
         self.paid_amount = total_paid
         self.balance = max(Decimal('0'), self.total_amount - total_paid)
         self.save(update_fields=['paid_amount', 'balance'])
+        
+        # Update customer balance if customer exists
+        if self.customer:
+            self.customer.sync_balance()
 
 
 class SaleItem(models.Model):
@@ -100,7 +104,7 @@ class Payment(models.Model):
     )
     
     def save(self, *args, **kwargs):
-        """Override save to recalculate sale balance when payment is created."""
+        """Override save to recalculate sale balance when payment status changes."""
         super().save(*args, **kwargs)
         # Recalculate sale balance whenever payment is saved
         self.sale.recalculate_balance()
@@ -114,17 +118,11 @@ class InvoiceSequence(models.Model):
 class SaleReturn(models.Model):
 
     class Status(models.TextChoices):
-
         PENDING = "PENDING", "Pending Approval"
-
         APPROVED = "APPROVED", "Approved"
-
         REJECTED = "REJECTED", "Rejected"
-
         COMPLETED = "COMPLETED", "Completed"
-
         CANCELLED = "CANCELLED", "Cancelled"
-
 
     sale = models.ForeignKey(
         Sale,
@@ -132,17 +130,14 @@ class SaleReturn(models.Model):
         related_name="returns",
     )
 
-
     return_number = models.CharField(
         max_length=50,
         unique=True,
     )
 
-
     reason = models.TextField(
         blank=True,
     )
-
 
     total_refund = models.DecimalField(
         max_digits=12,
@@ -150,13 +145,11 @@ class SaleReturn(models.Model):
         default=0,
     )
 
-
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
         default=Status.PENDING,
     )
-
 
     created_by = models.ForeignKey(
         User,
@@ -164,7 +157,6 @@ class SaleReturn(models.Model):
         null=True,
         related_name="created_returns",
     )
-
 
     approved_by = models.ForeignKey(
         User,
@@ -174,30 +166,25 @@ class SaleReturn(models.Model):
         related_name="approved_returns",
     )
 
-
     approval_note = models.TextField(
         blank=True,
     )
     
-    # FIX: Add missing rejection_reason field
+    # FIXED: Add missing rejection_reason field
     rejection_reason = models.TextField(
         blank=True,
     )
 
-
     created_at = models.DateTimeField(
         auto_now_add=True,
     )
-
 
     approved_at = models.DateTimeField(
         null=True,
         blank=True,
     )
 
-
     def __str__(self):
-
         return self.return_number
 
 class SaleReturnItem(models.Model):
@@ -223,7 +210,6 @@ class SaleReturnItem(models.Model):
     )
 
     def __str__(self):
-
         return (
             f"{self.sale_return.return_number} - "
             f"{self.sale_item.product.name}"
@@ -232,11 +218,8 @@ class SaleReturnItem(models.Model):
 class Refund(models.Model):
 
     class Status(models.TextChoices):
-
         COMPLETED = "COMPLETED", "Completed"
-
         CANCELLED = "CANCELLED", "Cancelled"
-
 
     sale_return = models.OneToOneField(
         SaleReturn,
@@ -244,18 +227,15 @@ class Refund(models.Model):
         related_name="refund",
     )
 
-
     amount = models.DecimalField(
         max_digits=12,
         decimal_places=2,
     )
 
-
     payment_method = models.CharField(
         max_length=20,
         choices=Sale.PAYMENT_METHODS,
     )
-
 
     refunded_by = models.ForeignKey(
         User,
@@ -264,21 +244,17 @@ class Refund(models.Model):
         related_name="refunds_processed",
     )
 
-
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
         default=Status.COMPLETED,
     )
 
-
     created_at = models.DateTimeField(
         auto_now_add=True,
     )
 
-
     def __str__(self):
-
         return (
             f"Refund for "
             f"{self.sale_return.return_number}"

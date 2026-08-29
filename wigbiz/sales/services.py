@@ -153,5 +153,9 @@ def create_sale(
                 "status",
             ]
         )
+        
+        # FIXED: Sync customer balance after sale is created
+        if sale.customer:
+            sale.customer.sync_balance()
+        
         return sale
-    

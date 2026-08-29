@@ -1,4 +1,5 @@
 from django.db import models
+from decimal import Decimal
 
 # Create your models here.
 class Customer(models.Model):
@@ -15,9 +16,19 @@ class Customer(models.Model):
     loyalty_points = models.IntegerField(default=0)
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
-    is_active=models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at=models.DateField(auto_now=True)
+    updated_at = models.DateField(auto_now=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}".strip()
+    
+    def sync_balance(self):
+        """Sync customer balance from outstanding sales."""
+        from sales.models import Sale
+        # Calculate total outstanding balance from completed sales
+        total_balance = sum(
+            sale.balance for sale in self.sales.filter(status=Sale.Status.COMPLETED)
+        ) or Decimal('0')
+        self.balance = max(Decimal('0'), total_balance)
+        self.save(update_fields=['balance'])
