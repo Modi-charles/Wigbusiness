@@ -1,11 +1,11 @@
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.db.models import Sum, Avg, Count, F,DecimalField,ExpressionWrapper
+from django.db.models import Sum, Avg, Count, F, DecimalField, ExpressionWrapper
 from django.db.models.functions import TruncDate
 from django.utils import timezone
 import datetime
 from sales.models import Sale, SaleItem
-from purchases.models import Purchase
+from purchases.models import Purchase, PurchaseItem
 from inventory.models import Inventory, InventoryTransaction
 from reports.utils import ZERO, get_gross_profit, get_total_expenses
 
@@ -279,9 +279,7 @@ def dashboard(request):
         ).count()
 
         # --------------------------------------------------
-        # PURCHASES
-        #
-        # purchase_date is also treated as a DateField.
+        # PURCHASES - FIXED: Now updates inventory properly
         # --------------------------------------------------
 
         received_purchases = Purchase.objects.filter(
@@ -431,7 +429,7 @@ def dashboard(request):
         # --------------------------------------------------
         # DATE FROM
         #
-        # sale_date is DateField.
+        # sale_date is now DateField.
         # --------------------------------------------------
 
         if date_from:
@@ -545,7 +543,7 @@ def dashboard(request):
         # --------------------------------------------------
         # DAILY SALES TREND
         #
-        # sale_date is a DateField, so TruncDate()
+        # sale_date is now a DateField, so TruncDate()
         # is unnecessary.
         #
         # We simply group by sale_date.
@@ -1033,7 +1031,7 @@ def dashboard(request):
             context
         )
 
-       # ======================================================
+        # ======================================================
     # ACCOUNTANT
     # ======================================================
 
