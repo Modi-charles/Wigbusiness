@@ -6,11 +6,11 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from products.models import Product
 from django.contrib.auth.decorators import login_required
-from .models import Sale,Refund
+from .models import Sale, Refund
 from django.db.models import Q
 from django.db import transaction
 from django.core.paginator import Paginator
-from .returns import create_sale_return, create_refund, SaleReturn
+from .returns import create_sale_return, create_refund, approve_sale_return, reject_sale_return, SaleReturn
 from django.contrib import messages
 from accounts.decorators import role_required
 from django.utils import timezone
@@ -144,9 +144,9 @@ def sales_history(request):
     date_from = parse_date_or_none(date_from_raw)
     date_to = parse_date_or_none(date_to_raw)
     if date_from:
-        sales = sales.filter(sale_date__date__gte=date_from)
+        sales = sales.filter(sale_date__gte=date_from)
     if date_to:
-        sales = sales.filter(sale_date__date__lte=date_to)
+        sales = sales.filter(sale_date__lte=date_to)
 
     # Pagination
     paginator = Paginator(sales,20)
@@ -528,28 +528,27 @@ def approve_return(request, pk):
             sale_return.pk
         )
 
-    sale_return.status = SaleReturn.Status.APPROVED
-
-    sale_return.approved_by = request.user
-
-    sale_return.approved_at = timezone.now()
-
-    sale_return.save(
-        update_fields=[
-            "status",
-            "approved_by",
-            "approved_at",
-        ]
-    )
-
-    messages.success(
-        request,
-        f"Return {sale_return.return_number} has been approved."
-    )
+    approval_note = request.POST.get("approval_note", "").strip()
+    
+    try:
+        # FIXED: Use new approve_sale_return function that handles inventory restoration
+        approve_sale_return(
+            sale_return=sale_return,
+            approved_by=request.user,
+            approval_note=approval_note,
+        )
+        
+        messages.success(
+            request,
+            f"Return {sale_return.return_number} has been approved and inventory restored."
+        )
+    except ValidationError as e:
+        messages.error(request, str(e))
 
     return redirect(
         "sales:return_approval_list"
     )
+
 @login_required
 @role_required("Manager")
 @transaction.atomic
@@ -596,21 +595,19 @@ def reject_return(request, pk):
             sale_return.pk
         )
 
-    sale_return.status = SaleReturn.Status.REJECTED
-
-    sale_return.rejection_reason = rejection_reason
-
-    sale_return.save(
-        update_fields=[
-            "status",
-            "rejection_reason",
-        ]
-    )
-
-    messages.success(
-        request,
-        f"Return {sale_return.return_number} has been rejected."
-    )
+    try:
+        # FIXED: Use new reject_sale_return function
+        reject_sale_return(
+            sale_return=sale_return,
+            rejection_reason=rejection_reason,
+        )
+        
+        messages.success(
+            request,
+            f"Return {sale_return.return_number} has been rejected."
+        )
+    except ValidationError as e:
+        messages.error(request, str(e))
 
     return redirect(
         "sales:return_approval_list"
