@@ -30,7 +30,8 @@ class Sale(models.Model):
         related_name="sales"
         )
     invoice_number = models.CharField(max_length=50, unique=True)
-    sale_date = models.DateTimeField(auto_now_add=True)
+    # Changed from DateTimeField to DateField for consistency with Purchase.purchase_date
+    sale_date = models.DateField(auto_now_add=True)
 
     subtotal = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -42,9 +43,20 @@ class Sale(models.Model):
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS, default="CASH")
 
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="sales_created")
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.invoice_number
+    
+    def recalculate_balance(self):
+        """Recalculate balance based on all payments made."""
+        from decimal import Decimal
+        total_paid = sum(
+            payment.amount for payment in self.payments.filter(status=Payment.Status.COMPLETED)
+        ) or Decimal('0')
+        self.paid_amount = total_paid
+        self.balance = max(Decimal('0'), self.total_amount - total_paid)
+        self.save(update_fields=['paid_amount', 'balance'])
 
 
 class SaleItem(models.Model):
@@ -86,6 +98,13 @@ class Payment(models.Model):
         choices=Status.choices,
         default=Status.PENDING,
     )
+    
+    def save(self, *args, **kwargs):
+        """Override save to recalculate sale balance when payment is created."""
+        super().save(*args, **kwargs)
+        # Recalculate sale balance whenever payment is saved
+        self.sale.recalculate_balance()
+
 class InvoiceSequence(models.Model):
     name = models.CharField(max_length=50, unique=True)
     last_number = models.PositiveIntegerField(default=0)
@@ -159,6 +178,11 @@ class SaleReturn(models.Model):
     approval_note = models.TextField(
         blank=True,
     )
+    
+    # FIX: Add missing rejection_reason field
+    rejection_reason = models.TextField(
+        blank=True,
+    )
 
 
     created_at = models.DateTimeField(
@@ -175,6 +199,7 @@ class SaleReturn(models.Model):
     def __str__(self):
 
         return self.return_number
+
 class SaleReturnItem(models.Model):
 
     sale_return = models.ForeignKey(
