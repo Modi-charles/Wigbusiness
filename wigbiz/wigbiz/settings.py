@@ -25,7 +25,9 @@ SECRET_KEY = 'django-insecure-e*@pog6k029ut7mqfy_uoi(ahd47aaxq(q51&=obzqqg56_@ha
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# Replit's preview is served through a proxied hostname that is not known
+# ahead of time. This app runs with DEBUG enabled for local development.
+ALLOWED_HOSTS = ["*"]
 LOGIN_URL="/accounts/login"
 LOGIN_REDIRECT_URL="/"
 LOGOUT_REDIRECT_URL="/accounts/login"
