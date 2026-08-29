@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,15 +25,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-e*@pog6k029ut7mqfy_uoi(ahd47aaxq(q51&=obzqqg56_@ha'
+# FIXED: Load SECRET_KEY from environment variable
+SECRET_KEY = os.getenv(
+    'DJANGO_SECRET_KEY',
+    'django-insecure-change-me-in-production'
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# FIXED: Load DEBUG from environment variable
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = []
+# FIXED: Load ALLOWED_HOSTS from environment variable
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+
 LOGIN_URL="/accounts/login"
 LOGIN_REDIRECT_URL="/"
-LOGOUT_REDIRECT_URL="/accounts/login"
+LOGUT_REDIRECT_URL="/accounts/login"
 
 # Application definition
 AUTH_USER_MODEL = "accounts.User"
@@ -132,3 +144,16 @@ STATICFILES_DIRS=[BASE_DIR/"static"]
 
 MEDIA_URL='media/'
 MEDIA_ROOT=[BASE_DIR/"media"]
+
+# FIXED: Add security settings for production
+if not DEBUG:
+    # Security headers
+    SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'False') == 'True'
+    SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False') == 'True'
+    CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE', 'False') == 'True'
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_SECURITY_POLICY = {
+        'default-src': ("'self'",),
+        'script-src': ("'self'", "'unsafe-inline'"),
+        'style-src': ("'self'", "'unsafe-inline'"),
+    }
