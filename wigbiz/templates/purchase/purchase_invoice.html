@@ -1,81 +1,6 @@
 {% extends "dashboard/home.html" %}
 
 {% block content %}
-<style>
-    .purchase-invoice {
-        max-width: 900px;
-        margin: 30px auto;
-        padding: 30px;
-        background: white;
-    }
-
-    .invoice-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-    }
-
-    .invoice-title {
-        text-align: right;
-    }
-
-    .invoice-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 15px;
-    }
-
-    .invoice-table th,
-    .invoice-table td {
-        border: 1px solid #ccc;
-        padding: 10px;
-        text-align: left;
-    }
-
-    .invoice-table th {
-        font-weight: bold;
-    }
-
-    .summary-table {
-        margin-left: auto;
-        margin-top: 20px;
-        min-width: 300px;
-    }
-
-    .summary-table td,
-    .summary-table th {
-        padding: 8px;
-    }
-
-    .invoice-actions {
-        margin-top: 30px;
-    }
-
-    @media print {
-
-        body {
-            margin: 0;
-            background: white;
-        }
-
-        .purchase-invoice {
-            max-width: none;
-            margin: 0;
-            padding: 10px;
-        }
-
-        .invoice-actions {
-            display: none;
-        }
-
-        nav,
-        aside,
-        header,
-        footer {
-            display: none !important;
-        }
-    }
-</style>
 
 <div class="purchase-invoice">
 
@@ -294,7 +219,7 @@
 
     <button
         type="button"
-        onclick="window.print()">
+        data-print>
         Print Invoice
     </button>
 

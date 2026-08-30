@@ -92,7 +92,7 @@
 
         <button
             type="button"
-            onclick="setTheme('light')"
+            data-theme-choice="light"
         >
             Use Light Theme
         </button>
@@ -112,7 +112,7 @@
 
         <button
             type="button"
-            onclick="setTheme('dark')"
+            data-theme-choice="dark"
         >
             Use Dark Theme
         </button>
@@ -121,36 +121,5 @@
 
 </div>
 
-
-<script>
-
-function setTheme(theme) {
-
-    document.documentElement.setAttribute(
-        "data-theme",
-        theme
-    );
-
-    localStorage.setItem(
-        "wigbiz-theme",
-        theme
-    );
-
-}
-
-const savedTheme = localStorage.getItem(
-    "wigbiz-theme"
-);
-
-if (savedTheme) {
-
-    document.documentElement.setAttribute(
-        "data-theme",
-        savedTheme
-    );
-
-}
-
-</script>
 
 {% endblock %}

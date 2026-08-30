@@ -11,7 +11,7 @@
             <h1>Business Dashboard</h1>
             <p>Overview of your sales, purchases, inventory and profitability</p>
         </div>
-        <button type="button" onclick="window.print()" class="btn btn-primary">
+        <button type="button" data-print class="btn btn-primary">
             Print Dashboard
         </button>
     </div>
@@ -246,82 +246,9 @@
 {# ================= CHART.JS ================= #}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<script>
-    const financialChart =
-        document.getElementById("financialChart");
-
-    if (financialChart) {
-
-        new Chart(financialChart, {
-
-            type: "bar",
-
-            data: {
-
-                labels: [
-                    "Revenue",
-                    "COGS",
-                    "Expenses",
-                    "Gross Profit",
-                    "Net Profit"
-                ],
-
-                datasets: [
-                    {
-                        label: "Amount (UGX)",
-
-                        data: [
-                            Number("{{ revenue|default:'0' }}"),
-                            Number("{{ cost_of_goods_sold|default:'0' }}"),
-                            Number("{{ total_expenses|default:'0' }}"),
-                            Number("{{ gross_profit|default:'0' }}"),
-                            Number("{{ net_profit|default:'0' }}")
-                        ],
-
-                        borderWidth: 1
-                    }
-                ]
-            },
-
-            options: {
-
-                responsive: true,
-
-                maintainAspectRatio: false,
-
-                plugins: {
-
-                    legend: {
-                        display: false
-                    }
-
-                },
-
-                scales: {
-
-                    y: {
-
-                        beginAtZero: true,
-
-                        ticks: {
-
-                            callback: function(value) {
-
-                                return "UGX " +
-                                    Number(value).toLocaleString();
-
-                            }
-
-                        }
-
-                    }
-
-                }
-
-            }
-
-        });
-
-    }
-</script>
+{{ revenue|default:'0'|json_script:"financial-revenue-data" }}
+{{ cost_of_goods_sold|default:'0'|json_script:"financial-cogs-data" }}
+{{ total_expenses|default:'0'|json_script:"financial-expenses-data" }}
+{{ gross_profit|default:'0'|json_script:"financial-gross-profit-data" }}
+{{ net_profit|default:'0'|json_script:"financial-net-profit-data" }}
 {% endblock %}

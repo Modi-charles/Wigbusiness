@@ -7,134 +7,6 @@
 
 {% block content %}
 
-<style>
-
-    .receipt-page {
-        display: flex;
-        justify-content: center;
-        padding: 30px;
-    }
-
-    .receipt {
-        width: 380px;
-        background: white;
-        padding: 25px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    }
-
-    .receipt .center {
-        text-align: center;
-    }
-
-    .business-name {
-        font-size: 24px;
-        font-weight: bold;
-    }
-
-    .receipt-info {
-        font-size: 14px;
-        margin-top: 15px;
-    }
-
-    .receipt table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-
-    .receipt th,
-    .receipt td {
-        padding: 7px 3px;
-        border-bottom: 1px dashed #aaa;
-        font-size: 13px;
-    }
-
-    .receipt th {
-        text-align: left;
-    }
-
-    .receipt .number {
-        text-align: right;
-    }
-
-    .totals {
-        margin-top: 20px;
-    }
-
-    .total-row {
-        display: flex;
-        justify-content: space-between;
-        margin: 7px 0;
-    }
-
-    .grand-total {
-        font-size: 20px;
-        font-weight: bold;
-        border-top: 2px solid black;
-        padding-top: 10px;
-    }
-
-    .receipt-buttons {
-        text-align: center;
-        margin-top: 25px;
-    }
-
-    .receipt-buttons button,
-    .receipt-buttons a {
-        padding: 10px 18px;
-        margin: 5px;
-        border: none;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-    .print-button {
-        background: black;
-        color: white;
-    }
-
-    .new-sale {
-        background: #ddd;
-        color: black;
-    }
-
-    @media print {
-
-        body {
-            background: white;
-        }
-
-        .navbar,
-        .sidebar,
-        .footer {
-            display: none !important;
-        }
-
-        .main-content {
-            margin: 0;
-            padding: 0;
-        }
-
-        .receipt-page {
-            padding: 0;
-        }
-
-        .receipt {
-            width: 100%;
-            padding: 0;
-            box-shadow: none;
-        }
-
-        .receipt-buttons {
-            display: none;
-        }
-
-    }
-
-</style>
-
-
 <div class="receipt-page">
 
     <div class="receipt">
@@ -394,7 +266,7 @@
             <button
                 type="button"
                 class="print-button"
-                onclick="window.print()"
+                data-print
             >
                 Print Receipt
             </button>
