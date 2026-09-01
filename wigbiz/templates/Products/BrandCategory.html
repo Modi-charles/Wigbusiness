@@ -1,0 +1,22 @@
+{% extends "base.html"%}
+</style>
+{% block title%}
+ Category and Brand
+{% endblock%}
+{% block content%}
+
+<div class="dashboard-panel">
+    <form method="POST">
+    {% csrf_token %}
+    <p id="input-field">{{ form.category_name.label_tag }} {{ form.category_name }}</p>
+    <p id="description">{{ form.category_description.label_tag }} {{ form.category_description }}</p>
+    
+    <h3>Brand Details</h3>
+    <p>{{ form.brand_name.label_tag }} {{ form.brand_name }}</p>
+    <p>{{ form.brand_description.label_tag }} {{ form.brand_description }}</p>
+    
+    <button type="submit">Save</button>
+</form>
+</div>
+
+{% endblock %}

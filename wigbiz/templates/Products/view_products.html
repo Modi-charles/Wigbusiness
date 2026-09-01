@@ -2,7 +2,7 @@
 
 
 {% block title %}
-Products | WigBiz ERP
+Product Lists | WigBiz ERP
 {% endblock %}
 
 
@@ -14,7 +14,9 @@ Products | WigBiz ERP
     <h1>
         Products
     </h1>
-
+    <a href="{% url 'BrandCategory'%}" class="btn-primary">
+        + Add Category and  Brand
+    </a>
 
     <a href="{% url 'add_product' %}" class="btn-primary">
         + Add Product

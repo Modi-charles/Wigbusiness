@@ -92,7 +92,7 @@ def customer_list(request):
     )
 
 @login_required
-def customer_detail(request, pk):
+def customer_details(request, pk):
 
     customer = get_object_or_404(
         Customer,

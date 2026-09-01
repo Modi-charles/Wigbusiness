@@ -61,7 +61,7 @@ def add_purchase(request):
         formset = PurchaseItemFormSet()
     return render(
         request,
-        "purchase/add_purchase_payment.html",
+        "purchase/add_purchase.html",
         {
             "purchase_form": purchase_form,
             "formset": formset,

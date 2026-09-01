@@ -627,17 +627,12 @@ def dashboard(request):
     # ======================================================
 
     if role == "Inventory Staff":
-
         TREND_WINDOW_DAYS = 30
-
         SLOW_STOCK_DAYS = 60
-
         today = timezone.localdate()
-
         # --------------------------------------------------
         # DATE WINDOWS
         # --------------------------------------------------
-
         window_start = (
             today
             - datetime.timedelta(
@@ -656,9 +651,7 @@ def dashboard(request):
         # INVENTORY QUERY
         # --------------------------------------------------
 
-        inventory = Inventory.objects.select_related(
-            "product"
-        )
+        inventory = Inventory.objects.select_related("product")
 
         # --------------------------------------------------
         # CORE KPIs

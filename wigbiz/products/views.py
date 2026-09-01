@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from .models import Product
 from inventory.models import Inventory
-from .forms import ProductForm
+from .forms import ProductForm, CategoryAndBrandForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -10,6 +10,7 @@ from django.contrib import messages
 @login_required
 def dashboard_home(request):
     return render(request, "dashboard/home.html")
+@login_required
 def add_product(request):
     if request.method == "POST":
 
@@ -38,7 +39,7 @@ def add_product(request):
         form = ProductForm()
 
     return render(request, "Products/add_products.html",{"form":form})
-     
+@login_required     
 def view_product(request):
     query = request.GET.get("search")
     products=Product.objects.all().order_by("-created_at")
@@ -51,7 +52,7 @@ def view_product(request):
         "search": query
         }
     return render(request, "Products/view_products.html",context)
-
+@login_required
 def delete_product(request, id):
     product=get_object_or_404(Product, id=id)
     if request.method =='POST':
@@ -59,11 +60,11 @@ def delete_product(request, id):
         messages.success(request,"Product Deleted Succesfully") 
         return redirect("view_products")
     return render(request,"Products/delete_product.html",{"product":product})
-
+@login_required
 def product_detail(request,id):
     product = get_object_or_404(Product,id=id)
     return render(request,"products/product_detail.html",{"product":product})
-
+@login_required
 def edit_product(request, id):
     product = get_object_or_404(Product,id=id)
 
@@ -101,3 +102,14 @@ def edit_product(request, id):
             "product": product
         }
     )
+@login_required
+def BrandCategory(request):
+    if request.method == 'POST':
+        form = CategoryAndBrandForm(request.POST)
+        if form.is_valid():
+            category, brand = form.save() 
+            return redirect('view_product') 
+    else:
+        form = CategoryAndBrandForm()
+        
+    return render(request, 'Products/BrandCategory.html', {'form': form})

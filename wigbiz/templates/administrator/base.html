@@ -24,28 +24,19 @@
 <body>
 
 <header class="navbar">
-
     <div class="brand">
         WigBiz ERP
     </div>
-
     <div class="navbar-right">
-
-        <span>
-            {{ user.username }}
-        </span>
-
+        <span>{{ user.username }}</span>
+        <button id="sidebarToggle">☰</button>
     </div>
-
 </header>
 
 
 <div class="layout">
-
-    <aside class="sidebar">
-
+    <aside class="sidebar"  id="sidebar">
         <nav>
-
             <!-- MAIN NAVIGATION -->
 
             <a href="{% url 'dashboard:dashboard' %}">
@@ -96,32 +87,21 @@
                 <a href="{% url 'accounts:logout' %}">
                     ⇥ Logout
                 </a>
-
             </div>
-
         </nav>
-
     </aside>
 
 
     <main class="main-content">
-
         {% if messages %}
-
             {% for message in messages %}
-
                 <div class="alert {{ message.tags }}">
                     {{ message }}
                 </div>
-
             {% endfor %}
-
         {% endif %}
-
-
         {% block content %}
         {% endblock %}
-
     </main>
 
 </div>
