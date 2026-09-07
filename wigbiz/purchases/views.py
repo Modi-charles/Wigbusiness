@@ -168,11 +168,6 @@ def receive_purchase(request, id):
     if request.method == "POST":
 
         with transaction.atomic():
-
-            # Lock the purchase row.
-            # This protects against two requests
-            # receiving the same purchase at once.
-
             purchase = Purchase.objects.select_for_update().select_related(
                 "supplier"
             ).get(
@@ -232,20 +227,14 @@ def receive_purchase(request, id):
                 # --------------------------------
 
                 InventoryTransaction.objects.create(
-
                     product=item.product,
-
                     transaction_type="PURCHASE",
-
                     quantity=item.quantity,
-
                     reference_id=purchase.id,
-
                     description=(
                         f"Purchase "
                         f"{purchase.invoice_number}"
                     ),
-
                     created_by=request.user,
                 )
 
@@ -254,15 +243,10 @@ def receive_purchase(request, id):
             # --------------------------------
 
             record_supplier_purchase(
-
                 supplier=purchase.supplier,
-
                 amount=purchase.total_amount,
-
                 purchase_id=purchase.id,
-
                 created_by=request.user,
-
                 description=(
                     f"Purchase "
                     f"{purchase.invoice_number}"

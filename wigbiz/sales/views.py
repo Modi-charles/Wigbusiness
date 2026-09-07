@@ -41,7 +41,6 @@ def create_sale_view(request):
                     payment_method=sale_form.cleaned_data["payment_method"],
                     amount_paid=sale_form.cleaned_data["amount_paid"] or 0,
                 )
-
                 return redirect(
                     "sales:sale_detail",
                     pk=sale.pk,
