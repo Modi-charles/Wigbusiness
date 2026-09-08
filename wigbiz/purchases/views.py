@@ -10,6 +10,9 @@ from django.db import models
 from django.core.paginator import Paginator
 from django.db.models import Sum, Count
 from suppliers.services import record_supplier_purchase
+from django.contrib.auth.decorators import user_passes_test
+from decimal import Decimal
+from django.utils import timezone
 
 # Create your views here.
 @login_required
@@ -26,6 +29,8 @@ def purchase_details(request, id):
         }
                   )
 
+
+@login_required
 def add_purchase(request):
     if request.method == "POST":
         purchase_form = PurchaseForm(request.POST)
@@ -37,19 +42,22 @@ def add_purchase(request):
                 )
                 purchase.created_by = request.user
                 purchase.total_amount = 0
+                purchase.balance = 0
                 purchase.save()
                 items = formset.save(
                     commit=False
                 )
-                total = 0
+                total = Decimal('0.00')
                 for item in items:
                     item.purchase = purchase
                     item.save()
-                    total += item.quantity * item.cost_price
+                    total += (Decimal(item.quantity) * Decimal(item.cost_price))
                 purchase.total_amount = total
+                purchase.balance = total
                 purchase.save(
                     update_fields=[
-                        "total_amount"
+                        "total_amount",
+                        "balance",
                     ]
                 )
             return redirect(
@@ -68,6 +76,8 @@ def add_purchase(request):
         }
     )
 
+
+@login_required
 def view_purchase(request):
 
     purchases = Purchase.objects.select_related(
@@ -129,7 +139,7 @@ def view_purchase(request):
         request,
         "purchase/view_purchase.html",
         {
-            "purchases": purchases,
+            "purchases": page_obj,
             "search": search,
             "payment_status": payment_status,
             "purchase_status": purchase_status,
@@ -138,163 +148,151 @@ def view_purchase(request):
         },
     )
 
-def receive_purchase(request, id):
 
-    purchase = get_object_or_404(
-        Purchase.objects.select_related("supplier"),
-        id=id
+def is_inventory_staff(user):
+    # adjust to your project's logic for inventory staff
+    return user.is_authenticated and (user.is_staff or user.groups.filter(name='inventory').exists())
+
+
+def _mark_purchase_received(purchase, user):
+    """
+    Move the logic that actually applies the receive operation into a helper so
+    we can call it from the confirmation POST-handling.
+    """
+    from inventory.models import Inventory, InventoryTransaction
+    from suppliers.services import record_supplier_purchase
+
+    # Get items
+    items = purchase.items.select_related(
+        "product"
+    )
+
+    # Update inventory and create transactions
+    for item in items:
+
+        inventory, created = Inventory.objects.get_or_create(
+            product=item.product
+        )
+
+        # Increase available stock
+
+        inventory.quantity_available += item.quantity
+
+        # Increase total received stock
+
+        inventory.quantity_received += item.quantity
+
+        inventory.save(
+            update_fields=[
+                "quantity_available",
+                "quantity_received",
+                "updated_at",
+            ]
+        )
+
+        # --------------------------------
+        # Create inventory history
+        # --------------------------------
+
+        InventoryTransaction.objects.create(
+            product=item.product,
+            transaction_type="PURCHASE",
+            quantity=item.quantity,
+            reference_id=purchase.id,
+            description=(
+                f"Purchase "
+                f"{purchase.invoice_number}"
+            ),
+            created_by=user,
+        )
+
+    # --------------------------------
+    # Update supplier balance
+    # --------------------------------
+
+    record_supplier_purchase(
+        supplier=purchase.supplier,
+        amount=purchase.total_amount,
+        purchase_id=purchase.id,
+        created_by=user,
+        description=(
+            f"Purchase "
+            f"{purchase.invoice_number}"
+        ),
     )
 
     # --------------------------------
-    # Prevent duplicate receiving
+    # Mark purchase as received
     # --------------------------------
 
+    purchase.status = Purchase.Status.RECEIVED
+
+    purchase.save(
+        update_fields=[
+            "status"
+        ]
+    )
+
+
+@login_required
+def receive_purchase(request, id):
+    # redirect to confirmation page (so the inventory staff sees the confirm screen)
+    return redirect("purchase:confirm_receive", id)
+
+
+@user_passes_test(is_inventory_staff)
+def confirm_receive(request, id):
+    """
+    New confirmation page:
+    - GET: show confirmation form (Received? yes/no) and amount (prefilled with purchase.total_amount)
+    - POST: if received=yes, call _mark_purchase_received(); if received=no, leave status unchanged
+    """
+    purchase = get_object_or_404(Purchase.objects.select_related("supplier"), id=id)
+
+    # Prevent confirming if already received
     if purchase.status == Purchase.Status.RECEIVED:
+        messages.warning(request, "This purchase has already been received.")
+        return redirect("purchase:purchase_details", purchase.id)
 
-        messages.warning(
-            request,
-            "This purchase has already been received."
-        )
-
-        return redirect(
-            "purchase_details",
-            purchase.id
-        )
-
-    # --------------------------------
-    # Receive purchase
-    # --------------------------------
+    default_amount = purchase.total_amount or Decimal("0.00")
 
     if request.method == "POST":
+        received_val = request.POST.get('received', 'yes')
+        received = True if received_val == 'yes' else False
+        amount_str = request.POST.get('amount', '') or str(default_amount)
 
-        with transaction.atomic():
-            purchase = Purchase.objects.select_for_update().select_related(
-                "supplier"
-            ).get(
-                id=id
-            )
+        try:
+            amount = Decimal(amount_str)
+        except Exception:
+            amount = default_amount
 
-            # Check again after locking.
+        # If staff confirms received -> run the same logic as previous receive_purchase
+        if received:
+            with transaction.atomic():
+                # lock and re-fetch
+                purchase = Purchase.objects.select_for_update().select_related("supplier").get(id=id)
 
-            if purchase.status == Purchase.Status.RECEIVED:
+                if purchase.status == Purchase.Status.RECEIVED:
+                    messages.warning(request, "This purchase has already been received.")
+                    return redirect("purchase:purchase_details", purchase.id)
 
-                messages.warning(
-                    request,
-                    "This purchase has already been received."
-                )
+                _mark_purchase_received(purchase, request.user)
 
-                return redirect(
-                    "purchase_details",
-                    purchase.id
-                )
+            messages.success(request, f"Purchase {purchase.invoice_number} received successfully (amount: {amount}).")
+        else:
+            # Staff confirmed NOT RECEIVED; you can record a message or take other actions here
+            messages.info(request, f"Purchase {purchase.invoice_number} marked as NOT received (amount: {amount}).")
 
-            # --------------------------------
-            # Get purchase items
-            # --------------------------------
+        return redirect("purchase:purchase_details", purchase.id)
 
-            items = purchase.items.select_related(
-                "product"
-            )
+    # GET -> render the confirm page
+    return render(request, "purchase/confirm_receive.html", {
+        "purchase": purchase,
+        "default_amount": default_amount,
+    })
 
-            # --------------------------------
-            # Update inventory
-            # --------------------------------
 
-            for item in items:
-
-                inventory, created = Inventory.objects.get_or_create(
-                    product=item.product
-                )
-
-                # Increase available stock
-
-                inventory.quantity_available += item.quantity
-
-                # Increase total received stock
-
-                inventory.quantity_received += item.quantity
-
-                inventory.save(
-                    update_fields=[
-                        "quantity_available",
-                        "quantity_received",
-                        "updated_at",
-                    ]
-                )
-
-                # --------------------------------
-                # Create inventory history
-                # --------------------------------
-
-                InventoryTransaction.objects.create(
-                    product=item.product,
-                    transaction_type="PURCHASE",
-                    quantity=item.quantity,
-                    reference_id=purchase.id,
-                    description=(
-                        f"Purchase "
-                        f"{purchase.invoice_number}"
-                    ),
-                    created_by=request.user,
-                )
-
-            # --------------------------------
-            # Update supplier balance
-            # --------------------------------
-
-            record_supplier_purchase(
-                supplier=purchase.supplier,
-                amount=purchase.total_amount,
-                purchase_id=purchase.id,
-                created_by=request.user,
-                description=(
-                    f"Purchase "
-                    f"{purchase.invoice_number}"
-                ),
-            )
-
-            # --------------------------------
-            # Mark purchase as received
-            # --------------------------------
-
-            purchase.status = Purchase.Status.RECEIVED
-
-            purchase.save(
-                update_fields=[
-                    "status"
-                ]
-            )
-
-        # --------------------------------
-        # Success message
-        # --------------------------------
-
-        messages.success(
-            request,
-            (
-                f"Purchase "
-                f"{purchase.invoice_number} "
-                f"received successfully."
-            )
-        )
-
-        return redirect(
-            "purchase_details",
-            purchase.id
-        )
-
-    # --------------------------------
-    # Receive purchase page
-    # --------------------------------
-
-    return render(
-        request,
-        "purchase/receive_purchase.html",
-        {
-            "purchase": purchase,
-        }
-    )
-
+@login_required
 def add_purchase_payment(request, id):
     purchase = get_object_or_404(
         Purchase,
@@ -303,13 +301,13 @@ def add_purchase_payment(request, id):
     if purchase.status == Purchase.Status.CANCELLED:
         messages.error(request,"You cannot make a payment for a cancelled purchase.")
         return redirect(
-            "purchase_details",
+            "purchase:purchase_details",
             purchase.id
         )
     if purchase.payment_status == "PAID":
         messages.warning(request,"This purchase has already been fully paid.")
         return redirect(
-            "purchase_details",
+            "purchase:purchase_details",
             purchase.id
         )
     if request.method == "POST":
@@ -325,7 +323,7 @@ def add_purchase_payment(request, id):
                 payment.save()
                 purchase.update_payment_status()
             messages.success(request,"Payment recorded successfully.")
-            return redirect("purchase_details",
+            return redirect("purchase:purchase_details",
                 purchase.id
             )
     else:
@@ -338,6 +336,7 @@ def add_purchase_payment(request, id):
             "purchase": purchase,
         }
     )
+
 def purchase_invoice(request, id):
     purchase = get_object_or_404(
         Purchase.objects.select_related(
@@ -361,6 +360,9 @@ def purchase_invoice(request, id):
             "payments": payments,
         },
     )
+
+
+@login_required
 def purchase_reports(request):
 
     total_purchases = Purchase.objects.count()
@@ -430,5 +432,6 @@ def purchase_reports(request):
         "purchase/purchase_reports.html",
         context,
     )
+
 def delete_purchase(request):
-    return render(request, "Purchase/view_purchase.html")
+    return render(request, "purchase/view_purchase.html")
