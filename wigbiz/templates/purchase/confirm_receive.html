@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Confirm receipt for Purchase #{{ purchase.invoice_number }}</title>
+  <link rel="stylesheet" href="/static/css/main.css">{# optional, keep look consistent #}
+</head>
+<body>
+  <div class="container">
+    <h1>Confirm receipt for Purchase {{ purchase.invoice_number }}</h1>
+
+    <div class="card">
+      <div class="card-body">
+        <p><strong>Supplier:</strong> {{ purchase.supplier.name }}</p>
+        <p><strong>Purchase date:</strong> {{ purchase.purchase_date }}</p>
+        <p><strong>Expected amount:</strong> {{ default_amount }}</p>
+
+        <form method="post" class="form-inline">
+          {% csrf_token %}
+
+          <div class="form-group">
+            <label>
+              <input type="radio" name="received" value="yes" checked>
+              Received
+            </label>
+            &nbsp;&nbsp;
+            <label>
+              <input type="radio" name="received" value="no">
+              Not received
+            </label>
+          </div>
+
+          <div class="form-group" style="margin-left:20px;">
+            <label>Amount:
+              <input type="text" name="amount" value="{{ default_amount }}" class="form-control">
+            </label>
+          </div>
+
+          <div class="form-group" style="margin-left:20px;">
+            <button type="submit" class="btn btn-primary">Confirm</button>
+            <a href="{% url 'purchase:purchase_details' purchase.id %}" class="btn btn-link">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
