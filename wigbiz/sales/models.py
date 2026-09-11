@@ -160,6 +160,10 @@ class SaleReturn(models.Model):
         blank=True,
     )
 
+    rejection_reason = models.TextField(
+        blank=True,
+    )
+
 
     created_at = models.DateTimeField(
         auto_now_add=True,

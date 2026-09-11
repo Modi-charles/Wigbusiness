@@ -10,7 +10,12 @@ from .models import Sale,Refund
 from django.db.models import Q
 from django.db import transaction
 from django.core.paginator import Paginator
-from .returns import create_sale_return, create_refund, SaleReturn
+from .returns import (
+    create_sale_return,
+    create_refund,
+    complete_sale_return,
+    SaleReturn,
+)
 from django.contrib import messages
 from accounts.decorators import role_required
 from django.utils import timezone
@@ -247,6 +252,8 @@ def create_return(request, pk):
             "sale": sale,
         },
     )
+@login_required
+@role_required("Manager")
 def create_refund_view(request, pk):
 
     sale_return = get_object_or_404(
@@ -540,6 +547,14 @@ def approve_return(request, pk):
             "approved_at",
         ]
     )
+
+    try:
+        complete_sale_return(sale_return, request.user)
+    except ValidationError as e:
+        sale_return.status = SaleReturn.Status.PENDING
+        sale_return.save(update_fields=["status"])
+        messages.error(request, e.message)
+        return redirect("sales:return_approval_detail", sale_return.pk)
 
     messages.success(
         request,

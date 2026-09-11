@@ -73,7 +73,11 @@ def create_sale_return(
             SaleReturnItem.objects
             .filter(
                 sale_item=sale_item,
-                sale_return__status=SaleReturn.Status.COMPLETED,
+                sale_return__status__in=[
+                    SaleReturn.Status.PENDING,
+                    SaleReturn.Status.APPROVED,
+                    SaleReturn.Status.COMPLETED,
+                ],
             )
             .aggregate(total=Sum("quantity"))["total"]
             or 0
@@ -101,45 +105,48 @@ def create_sale_return(
 
         total_refund += refund_amount
 
-        inventory = (
-            Inventory.objects
-            .select_for_update()
-            .get(product=sale_item.product)
-        )
-
-        inventory.quantity_available += quantity
-        inventory.quantity_sold -= quantity
-
-        inventory.save(
-            update_fields=[
-                "quantity_available",
-                "quantity_sold",
-                "updated_at",
-            ]
-        )
-
-        InventoryTransaction.objects.create(
-            product=sale_item.product,
-            transaction_type="RETURN",
-            quantity=quantity,
-            reference_id=sale_return.id,
-            description=(
-                f"Returned {quantity} "
-                f"unit(s) of "
-                f"{sale_item.product.name}"
-            ),
-            created_by=created_by,
-        )
-
     sale_return.total_refund = total_refund
-    sale_return.status = SaleReturn.Status.COMPLETED
     sale_return.save(
         update_fields=[
             "total_refund",
-            "status",
         ]
     )
 
+    return sale_return
+
+
+@transaction.atomic
+def complete_sale_return(sale_return, processed_by):
+    """Apply the inventory movement after a manager has approved the return."""
+    if sale_return.status != SaleReturn.Status.APPROVED:
+        raise ValidationError("Only approved returns can be completed.")
+
+    for return_item in sale_return.items.select_related("sale_item__product"):
+        inventory = (
+            Inventory.objects.select_for_update()
+            .get(product=return_item.sale_item.product)
+        )
+        inventory.quantity_available += return_item.quantity
+        inventory.quantity_sold = max(
+            0, inventory.quantity_sold - return_item.quantity
+        )
+        inventory.save(update_fields=[
+            "quantity_available", "quantity_sold", "updated_at"
+        ])
+        InventoryTransaction.objects.create(
+            product=return_item.sale_item.product,
+            transaction_type="RETURN",
+            quantity=return_item.quantity,
+            reference_id=sale_return.id,
+            description=(
+                f"Returned {return_item.quantity} unit(s) of "
+                f"{return_item.sale_item.product.name}"
+            ),
+            created_by=processed_by,
+        )
+
+    sale_return.status = SaleReturn.Status.COMPLETED
+    sale_return.save(update_fields=["status"])
     return sale_return
 @transaction.atomic
 def create_refund(

@@ -10,6 +10,7 @@ class SaleForm(forms.Form):
     customer = forms.ModelChoiceField(
         queryset=Customer.objects.all(),
         required=False,
+        empty_label="Walk-in customer (no customer record)",
     )
 
     discount = forms.DecimalField(
@@ -69,9 +70,8 @@ class ProductSelect(forms.Select):
                     pk=value.value
                 )
 
-                option["attrs"]["data-price"] = str(
-                    product.selling_price
-                )
+                option["attrs"]["data-price"] = str(product.selling_price)
+                option["attrs"]["data-barcode"] = product.barcode or ""
 
             except Product.DoesNotExist:
                 pass

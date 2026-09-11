@@ -54,6 +54,7 @@
                     <thead>
                         <tr>
                             <th>Product</th>
+                            <th>Barcode</th>
                             <th>Quantity</th>
                             <th>Selling Price</th>
                             <th>Total</th>
@@ -66,6 +67,9 @@
                                 <td>
                                     {{ form.product }}
                                     {{ form.product.errors }}
+                                </td>
+                                <td>
+                                    <input type="text" class="product-barcode" placeholder="Barcode" autocomplete="off">
                                 </td>
                                 <td>
                                     {{ form.quantity }}
@@ -95,6 +99,7 @@
                 <tbody>
                     <tr class="item-row" id="empty-row-template">
                         <td>{{ item_formset.empty_form.product }}</td>
+                        <td><input type="text" class="product-barcode" placeholder="Barcode" autocomplete="off"></td>
                         <td>{{ item_formset.empty_form.quantity }}</td>
                         <td><span class="selling-price">0.00</span></td>
                         <td><span class="line-total">0.00</span></td>
@@ -237,13 +242,17 @@ function calculateRow(row) {
 
     const selectedOption = productSelect.options[productSelect.selectedIndex];
 
+    const barcodeInput = row.querySelector(".product-barcode");
+
     if (!selectedOption) {
+        if (barcodeInput) barcodeInput.value = "";
         priceDisplay.textContent = "0.00";
         totalDisplay.textContent = "0.00";
         return 0;
     }
 
     const price = parseFloat(selectedOption.dataset.price || 0);
+    if (barcodeInput) barcodeInput.value = selectedOption.dataset.barcode || "";
     const quantity = parseInt(quantityInput.value || 0);
     const lineTotal = price * quantity;
 
@@ -301,6 +310,45 @@ itemRows.addEventListener("change", function (event) {
         calculateSale();
     }
 
+});
+
+// A barcode entered in a line resolves the product name and price.
+async function resolveBarcode(row, input) {
+    const barcode = input.value.trim();
+    if (!barcode) return;
+    try {
+        const response = await fetch(
+            `/sales/product-by-barcode/?barcode=${encodeURIComponent(barcode)}`
+        );
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+            input.setCustomValidity(data.message || "Product not found.");
+            input.reportValidity();
+            return;
+        }
+        const productSelect = row.querySelector("select[name$='product']");
+        productSelect.value = String(data.product.id);
+        input.value = data.product.barcode || barcode;
+        input.setCustomValidity("");
+        calculateSale();
+    } catch (error) {
+        input.setCustomValidity("Unable to search for product.");
+        input.reportValidity();
+    }
+}
+
+itemRows.addEventListener("keydown", function (event) {
+    if (!event.target.matches(".product-barcode") || event.key !== "Enter") {
+        return;
+    }
+    event.preventDefault();
+    resolveBarcode(event.target.closest(".item-row"), event.target);
+});
+
+itemRows.addEventListener("change", function (event) {
+    if (event.target.matches(".product-barcode")) {
+        resolveBarcode(event.target.closest(".item-row"), event.target);
+    }
 });
 
 

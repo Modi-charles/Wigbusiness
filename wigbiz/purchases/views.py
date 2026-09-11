@@ -61,7 +61,7 @@ def add_purchase(request):
                     ]
                 )
             return redirect(
-                "purchase:purchase_details",
+                "purchase:add_purchase_payment",
                 purchase.id
             )
     else:

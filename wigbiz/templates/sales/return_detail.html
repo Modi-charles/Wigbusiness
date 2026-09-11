@@ -205,6 +205,15 @@
 
         {% endif %}
 
+    {% elif sale_return.status == "PENDING" %}
+        <p class="status-warning">
+            This return is waiting for manager approval. Inventory and refund have not been changed.
+        </p>
+    {% elif sale_return.status == "REJECTED" %}
+        <p class="status-danger">
+            This return was rejected.
+            {% if sale_return.rejection_reason %}{{ sale_return.rejection_reason }}{% endif %}
+        </p>
     {% endif %}
 
 </div>
