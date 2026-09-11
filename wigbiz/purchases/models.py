@@ -91,7 +91,7 @@ class PurchasePayment(models.Model):
             raise ValidationError(
                 "Payment amount must be greater than zero."
             )
-        if self.purchase:
+        if self.purchase_id:
             existing_paid = sum(
                 payment.amount
                 for payment in self.purchase.payments.exclude(pk=self.pk)
