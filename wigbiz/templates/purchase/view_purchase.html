@@ -91,6 +91,7 @@
 <a href="{% url 'purchase:add_purchase' %}">
         +Add Purchase
     </a>
+    
 <table border="1" cellpadding="8" cellspacing="0">
     <thead>
         <tr>
@@ -156,7 +157,11 @@
                 </a>
 
             </td>
-
+            <td>
+                <a href="{% url 'purchase:confirm_receive' id=purchase.id %}">
+                Confirm Received
+            </a>
+        </td>
         </tr>
 
         {% empty %}

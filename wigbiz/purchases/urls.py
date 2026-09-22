@@ -12,4 +12,6 @@ urlpatterns = [
     path("<int:id>/payment/add/",views.add_purchase_payment,name="add_purchase_payment"),
     path("<int:id>/invoice/",views.purchase_invoice,name="purchase_invoice",),
     path("reports/",views.purchase_reports,name="purchase_reports",),
+    path("<int:id>/confirm_receive/", views.confirm_receive, name="confirm_receive"),
+
 ]

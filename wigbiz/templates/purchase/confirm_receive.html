@@ -15,7 +15,7 @@
         <p><strong>Purchase date:</strong> {{ purchase.purchase_date }}</p>
         <p><strong>Expected amount:</strong> {{ default_amount }}</p>
 
-        <form method="post" class="form-inline">
+        <form method="post" action="{% url 'purchase:confirm_receive' purchase.id %}" class="form-inline">
           {% csrf_token %}
 
           <div class="form-group">

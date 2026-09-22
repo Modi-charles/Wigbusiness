@@ -233,20 +233,15 @@ def _mark_purchase_received(purchase, user):
         ]
     )
 
-
 @login_required
 def receive_purchase(request, id):
     # redirect to confirmation page (so the inventory staff sees the confirm screen)
     return redirect("purchase:confirm_receive", id)
 
 
-@user_passes_test(is_inventory_staff)
+#S@user_passes_test(is_inventory_staff)
 def confirm_receive(request, id):
-    """
-    New confirmation page:
-    - GET: show confirmation form (Received? yes/no) and amount (prefilled with purchase.total_amount)
-    - POST: if received=yes, call _mark_purchase_received(); if received=no, leave status unchanged
-    """
+
     purchase = get_object_or_404(Purchase.objects.select_related("supplier"), id=id)
 
     # Prevent confirming if already received
