@@ -36,6 +36,7 @@ DEBUG = os.environ.get("DJANGO_DEBUG", "true").lower() in {
 
 configured_hosts = os.environ.get("DJANGO_ALLOWED_HOSTS", "*")
 ALLOWED_HOSTS = [
+    'wigbusiness.onrender.com', '127.0.0.1', 'localhost',
     host.strip()
     for host in configured_hosts.split(",")
     if host.strip()
