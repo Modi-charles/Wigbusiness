@@ -36,7 +36,6 @@ DEBUG = os.environ.get("DJANGO_DEBUG", "true").lower() in {
 
 configured_hosts = os.environ.get("DJANGO_ALLOWED_HOSTS", "*")
 ALLOWED_HOSTS = [
-    '.vercel.app',
     host.strip()
     for host in configured_hosts.split(",")
     if host.strip()
