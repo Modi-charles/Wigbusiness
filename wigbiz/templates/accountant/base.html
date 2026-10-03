@@ -24,7 +24,9 @@
 <body>
 
 <header class="navbar">
-
+ {% if user.is_authenticated %}
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+    {% endif %}
     <div class="brand">
         WigBiz ERP
     </div>
