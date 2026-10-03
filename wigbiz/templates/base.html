@@ -35,7 +35,9 @@
 <header class="navbar">
 
     <div class="navbar-left">
-
+         {% if user.is_authenticated %}
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+         {% endif %}
         <span class="brand">
             WigBiz ERP
         </span>
