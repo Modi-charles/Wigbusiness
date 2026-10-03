@@ -1786,3 +1786,105 @@ hr {
         padding: 10px;
     }
 }
+/* =========================================================
+   TABLET ADDITIONS
+   Paste this at the VERY END of your CSS file, below the
+   previous responsive block.
+   ========================================================= */
+
+/* ---------- Tablets in landscape (901px - 1100px):
+   sidebar stays visible but slimmer, so content gets more room ---------- */
+@media (min-width: 901px) and (max-width: 1100px) {
+
+    :root {
+        --sidebar-width: 220px;
+    }
+
+    .main-content {
+        padding: var(--space-lg);
+    }
+
+    .footer {
+        padding: 16px var(--space-lg);
+    }
+}
+
+
+/* ---------- Tablets in portrait (601px - 900px):
+   slide-in menu from the earlier block, with roomier spacing ---------- */
+@media (min-width: 601px) and (max-width: 900px) {
+
+    .main-content {
+        padding: var(--space-lg);
+    }
+
+    .footer {
+        padding: 16px var(--space-lg);
+    }
+
+    .navbar {
+        padding: 0 var(--space-lg);
+    }
+
+    .report-cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+
+/* ---------- Tablet tables (769px - 900px):
+   the earlier block covered phones up to 768px, this extends
+   sideways scrolling to portrait tablets ---------- */
+@media (min-width: 769px) and (max-width: 900px) {
+
+    .main-content table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+    }
+
+    .receipt table {
+        display: table;
+        white-space: normal;
+    }
+}
+
+
+/* ---------- Any touch screen (phones AND tablets, any size) ---------- */
+@media (hover: none) and (pointer: coarse) {
+
+    /* iPads also zoom into small fields, so use 16px text */
+    input,
+    select,
+    textarea {
+        font-size: 16px;
+    }
+
+    /* Comfortable finger-sized targets */
+    button,
+    .btn,
+    .period-buttons a,
+    .pagination a {
+        min-height: 44px;
+    }
+
+    .action-btn.action-view,
+    .action-btn.action-update {
+        display: inline-flex;
+        align-items: center;
+        min-height: 40px;
+    }
+
+    th,
+    td {
+        padding: 12px;
+    }
+
+    /* Hover lift effects get "stuck" after tapping on touch screens */
+    .report-card:hover,
+    .report-action:hover,
+    .admin-card:hover {
+        transform: none;
+    }
+}
