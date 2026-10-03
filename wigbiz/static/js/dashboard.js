@@ -1,12 +1,52 @@
 function initSidebar() {
-    const button = document.getElementById("menuToggle");
     const sidebar = document.querySelector(".sidebar");
-    const overlay = document.getElementById("sidebarOverlay");
+    const navbar = document.querySelector(".navbar");
 
-    if (!button || !sidebar || !overlay) {
+    if (!sidebar || !navbar) {
         return;
     }
 
+    // ---- Menu button: create it if the template does not have one ----
+    let button = document.getElementById("menuToggle");
+
+    if (!button) {
+        button = document.createElement("button");
+        button.type = "button";
+        button.id = "menuToggle";
+        button.className = "menu-toggle";
+        button.setAttribute("aria-label", "Toggle menu");
+        button.setAttribute("aria-expanded", "false");
+        button.textContent = "\u2630";
+
+        let left = navbar.querySelector(".navbar-left");
+
+        if (!left) {
+            // Wrap the brand so the button sits next to it
+            left = document.createElement("div");
+            left.className = "navbar-left";
+            navbar.insertBefore(left, navbar.firstChild);
+
+            const brand = navbar.querySelector(".brand");
+
+            if (brand) {
+                left.appendChild(brand);
+            }
+        }
+
+        left.insertBefore(button, left.firstChild);
+    }
+
+    // ---- Dark overlay: create it if the template does not have one ----
+    let overlay = document.getElementById("sidebarOverlay");
+
+    if (!overlay) {
+        overlay = document.createElement("div");
+        overlay.id = "sidebarOverlay";
+        overlay.className = "sidebar-overlay";
+        sidebar.insertAdjacentElement("afterend", overlay);
+    }
+
+    // ---- Open / close behaviour ----
     function setOpen(open) {
         sidebar.classList.toggle("open", open);
         overlay.classList.toggle("show", open);
