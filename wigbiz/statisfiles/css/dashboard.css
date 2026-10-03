@@ -1,0 +1,1788 @@
+/* =========================================================
+   WIGBIZ ERP - DESIGN SYSTEM
+   ========================================================= */
+
+:root {
+    /* Brand colors */
+    --primary: #1f5f78;
+    --primary-dark: #16465a;
+    --primary-light: #e8f3f7;
+
+    --background: #f4f8fa;
+    --card: #ffffff;
+
+    --text: #263238;
+    --muted: #718096;
+
+    --border: #dce6ea;
+
+    --success: #3b8d78;
+    --success-light: #e6f3ef;
+    --warning: #d69e2e;
+    --warning-light: #fbf3e0;
+    --danger: #c05640;
+    --danger-light: #fbeae6;
+
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    --shadow-hover: 0 5px 18px rgba(0, 0, 0, 0.08);
+
+    /* Spacing scale */
+    --space-xs: 6px;
+    --space-sm: 10px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+
+    /* Radius scale */
+    --radius-sm: 6px;
+    --radius-md: 9px;
+    --radius-lg: 12px;
+
+    /* Layout */
+    --sidebar-width: 245px;
+    --navbar-height: 70px;
+
+    --transition: 0.2s ease;
+}
+
+
+/* =========================================================
+   RESET / BASE
+   ========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, "Segoe UI", Arial, Helvetica, sans-serif;
+    background: var(--background);
+    color: var(--text);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Consistent, visible keyboard focus everywhere — accessibility baseline */
+a:focus-visible,
+button:focus-visible,
+.btn:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+
+/* =========================================================
+   NAVBAR
+   ========================================================= */
+
+.navbar {
+    height: var(--navbar-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--space-lg);
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.brand {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+}
+
+.navbar-right span {
+    font-weight: 600;
+}
+
+.navbar-right a {
+    color: var(--primary);
+}
+
+
+/* =========================================================
+   LAYOUT
+   ========================================================= */
+
+.layout {
+    display: flex;
+    min-height: calc(100vh - var(--navbar-height));
+}
+
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
+.sidebar {
+    width: var(--sidebar-width);
+    position: fixed;
+    top: var(--navbar-height);
+    left: 0;
+    bottom: 0;
+    height: calc(100vh - var(--navbar-height));
+    background: var(--primary);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-lg) var(--space-sm);
+    overflow: hidden;
+    z-index: 900;
+}
+
+.sidebar-top {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) 12px var(--space-lg);
+    color: white;
+}
+
+.brand-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: white;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.sidebar-brand strong {
+    display: block;
+    font-size: 16px;
+}
+
+.sidebar-brand small {
+    display: block;
+    margin-top: 3px;
+    font-size: 11px;
+    opacity: 0.7;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    overflow-y: auto;
+    padding-right: 3px;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+
+/* One unified rule for every sidebar link style your templates might use.
+   NOTE: once you confirm which class names base.html actually uses
+   (.sidebar-nav / .sidebar-bottom / .bottom-links / "sidebar nav > a"),
+   we should delete the ones you don't need — kept all four here so
+   nothing breaks in the meantime. */
+.sidebar-nav a,
+.sidebar-bottom a,
+.bottom-links a,
+.sidebar nav > a {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    width: 100%;
+    min-height: 46px;
+    padding: 0 var(--space-md);
+    border-radius: var(--radius-md);
+    color: white;
+    text-decoration: none;
+    font-size: 15px;
+    transition: background var(--transition), padding-left var(--transition);
+}
+
+.sidebar-nav a:hover,
+.sidebar-bottom a:hover,
+.bottom-links a:hover,
+.sidebar nav > a:hover {
+    background: var(--primary-dark);
+    text-decoration: none;
+    padding-left: calc(var(--space-md) + 4px);
+}
+
+.sidebar-nav a.active,
+.sidebar-bottom a.active,
+.bottom-links a.active,
+.sidebar nav > a.active {
+    background: var(--primary-dark);
+    color: white;
+    font-weight: 600;
+    box-shadow: inset 3px 0 0 white;
+}
+
+.nav-icon {
+    width: 22px;
+    min-width: 22px;
+    text-align: center;
+    font-size: 17px;
+    opacity: 0.9;
+}
+
+/* Bottom section (settings / logout) — pinned via margin-top: auto */
+.sidebar-bottom,
+.bottom-links {
+    margin-top: auto;
+    padding-top: var(--space-md);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    flex-shrink: 0;
+}
+
+/* Logout link gets a subtle danger tint on hover instead of the default */
+.sidebar-bottom a:last-child:hover,
+.bottom-links a:last-child:hover {
+    background: rgba(192, 86, 64, 0.35);
+}
+
+
+/* =========================================================
+   MAIN CONTENT
+   ========================================================= */
+
+.main-content {
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    padding: var(--space-xl);
+    min-height: calc(100vh - var(--navbar-height));
+}
+
+.main-content h1 {
+    margin-top: 0;
+    font-size: 28px;
+    color: var(--text);
+}
+
+.main-content h2 {
+    margin-top: var(--space-xl);
+    font-size: 20px;
+}
+
+.main-content h3 {
+    margin-top: 0;
+}
+
+
+/* =========================================================
+   CARDS
+   ========================================================= */
+
+.report-cards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-lg);
+    margin: var(--space-lg) 0;
+}
+
+.report-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+    box-shadow: var(--shadow);
+    transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.report-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.report-card h3 {
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+
+.report-card p {
+    font-size: 25px;
+    font-weight: 700;
+    margin: 0;
+    color: var(--primary);
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+    margin-top: var(--space-md);
+}
+
+.dashboard-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+    box-shadow: var(--shadow);
+}
+
+.dashboard-card h2,
+.dashboard-card h3 {
+    margin-top: 0;
+}
+
+
+/* =========================================================
+   TABLES
+   ========================================================= */
+
+/* Wrap any table in <div class="table-wrap"> to get horizontal
+   scroll on small screens instead of a broken, overflowing layout. */
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+th {
+    background: var(--primary-light);
+    color: var(--primary);
+    font-weight: 600;
+    text-align: left;
+}
+
+th,
+td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+}
+
+tbody tr:hover {
+    background: #f8fbfc;
+}
+
+
+/* =========================================================
+   STATUS BADGES
+   ========================================================= */
+
+/* Use on statuses your reports already render as plain text —
+   e.g. <span class="badge badge-success">Completed</span> */
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.badge-success {
+    background: var(--success-light);
+    color: var(--success);
+}
+
+.badge-warning {
+    background: var(--warning-light);
+    color: var(--warning);
+}
+
+.badge-danger {
+    background: var(--danger-light);
+    color: var(--danger);
+}
+
+.badge-muted {
+    background: var(--primary-light);
+    color: var(--muted);
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+button,
+.btn {
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 10px 16px;
+    background: var(--primary);
+    color: white;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+    display: inline-block;
+    transition: background var(--transition), transform 0.1s ease;
+}
+
+button:hover,
+.btn:hover {
+    background: var(--primary-dark);
+}
+
+button:active,
+.btn:active {
+    transform: scale(0.98);
+}
+
+button:disabled,
+.btn:disabled {
+    background: var(--muted);
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+}
+
+.btn-outline:hover {
+    background: var(--primary-light);
+}
+
+.btn-danger {
+    background: var(--danger);
+}
+
+.btn-danger:hover {
+    background: #a34834;
+}
+
+
+/* =========================================================
+   FORMS
+   ========================================================= */
+
+form {
+    box-shadow: 0 0 0 1px var(--border);
+    width: auto;
+    padding: var(--space-md);
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    align-items: flex-end;
+}
+
+form label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 4px;
+    display: block;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: white;
+    color: var(--text);
+    font-size: 14px;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(31, 95, 120, 0.15);
+}
+
+
+/* =========================================================
+   ALERTS / MESSAGES
+   ========================================================= */
+
+.messages {
+    margin-bottom: var(--space-lg);
+}
+
+.alert {
+    padding: 12px 16px;
+    margin-bottom: var(--space-sm);
+    border-radius: var(--radius-sm);
+    background: var(--primary-light);
+    border: 1px solid var(--border);
+}
+
+.alert.success {
+    border-left: 4px solid var(--success);
+}
+
+.alert.warning {
+    border-left: 4px solid var(--warning);
+}
+
+.alert.error {
+    border-left: 4px solid var(--danger);
+}
+
+
+/* =========================================================
+   LINKS
+   ========================================================= */
+
+a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.footer {
+    margin-left: var(--sidebar-width);
+    padding: 18px var(--space-xl);
+    text-align: center;
+    color: var(--muted);
+    background: var(--card);
+    border-top: 1px solid var(--border);
+}
+
+
+/* =========================================================
+   PAGINATION
+   ========================================================= */
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+}
+
+.pagination a {
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--card);
+}
+
+.pagination a:hover {
+    background: var(--primary-light);
+    text-decoration: none;
+}
+
+
+/* =========================================================
+   PRINT — makes the "Print" button on every report page
+   actually produce a clean printout, not the full app chrome.
+   ========================================================= */
+
+@media print {
+    .navbar,
+    .sidebar,
+    .footer,
+    form,
+    button,
+    .btn,
+    .pagination {
+        display: none !important;
+    }
+
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 0;
+    }
+
+    body {
+        background: white;
+    }
+
+    table {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+
+    th,
+    td {
+        border: 1px solid #999;
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1100px) {
+    .report-cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 800px) {
+    :root {
+        --sidebar-width: 210px;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .sidebar {
+        width: 220px;
+        top: 0;
+        height: 100vh;
+    }
+
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: var(--space-lg);
+    }
+
+    .footer {
+        margin-left: 0;
+    }
+
+    .report-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .navbar {
+        padding: 0 15px;
+    }
+
+    form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+/* =========================================================
+   AUTH / LOGIN
+   ========================================================= */
+
+.auth-wrap {
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xl) var(--space-lg);
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 380px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-hover);
+    padding: var(--space-xl) var(--space-lg);
+}
+
+.auth-card h1 {
+    text-align: center;
+    font-size: 22px;
+    margin: 0 0 var(--space-lg);
+    color: var(--text);
+}
+
+/* Override the generic inline filter-bar form styling for this
+   one context — login is a single stacked column, not a
+   horizontal filter bar like the report pages use. */
+.auth-card form {
+    box-shadow: none;
+    background: transparent;
+    padding: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-md);
+}
+
+.auth-card form > div {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.auth-card label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.auth-card input {
+    padding: 12px 14px;
+    font-size: 15px;
+}
+
+.auth-card button[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: var(--space-xs);
+}
+
+.auth-messages {
+    max-width: 380px;
+    margin: 0 auto var(--space-md);
+}
+
+.auth-messages p {
+    background: var(--danger-light);
+    color: var(--danger);
+    border-left: 4px solid var(--danger);
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    margin: 0 0 8px;
+}
+/* =========================================================
+   SECTION DIVIDERS (replaces <hr>)
+   ========================================================= */
+.section {
+    padding-bottom: var(--space-lg);
+    margin-bottom: var(--space-lg);
+    box-shadow: 0 4px 6px -6px rgba(0, 0, 0, 0.15);
+}
+
+.section:last-child {
+    box-shadow: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+hr {
+    display: none;
+}
+/* =================================
+   INVENTORY ACTION BUTTONS
+================================= */
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+
+/* VIEW - BLUE */
+
+.action-btn.action-view {
+    display: inline-block;
+    padding: 7px 14px;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    border-radius: 6px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition: background 0.2s ease;
+}
+
+.action-btn.action-view:hover {
+    background: #1d4ed8;
+    color: #ffffff;
+}
+
+
+/* UPDATE - GREEN */
+
+.action-btn.action-update {
+    display: inline-block;
+    padding: 7px 14px;
+
+    background: #16a34a;
+    color: #ffffff;
+
+    border-radius: 6px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition: background 0.2s ease;
+}
+
+.action-btn.action-update:hover {
+    background: #15803d;
+    color: #ffffff;
+}
+/* =========================================================
+   REPORT DASHBOARD
+========================================================= */
+
+.reports-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-lg);
+}
+
+.reports-header h1 {
+    margin: 0;
+}
+
+.reports-header p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   REPORT CARD ENHANCEMENT
+========================================================= */
+
+.report-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.report-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+}
+
+.report-card-icon {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: var(--radius-md);
+
+    background: var(--primary-light);
+    color: var(--primary);
+
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.report-card-value {
+    margin-top: 10px;
+
+    font-size: 25px;
+    font-weight: 700;
+
+    color: var(--text);
+}
+
+.report-card-description {
+    margin-top: 5px;
+
+    color: var(--muted);
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   CHART CONTAINER
+========================================================= */
+
+.chart-card {
+    background: var(--card);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-lg);
+
+    padding: var(--space-lg);
+
+    box-shadow: var(--shadow);
+
+    min-height: 350px;
+}
+
+.chart-header {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: var(--space-lg);
+}
+
+.chart-header h2 {
+    margin: 0;
+
+    font-size: 18px;
+}
+
+.chart-header p {
+    margin: 4px 0 0;
+
+    color: var(--muted);
+
+    font-size: 13px;
+}
+
+.chart-container {
+    width: 100%;
+    height: 280px;
+}
+
+
+/* =========================================================
+   REPORT GRID
+========================================================= */
+
+.report-grid {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 2fr)
+        minmax(300px, 1fr);
+
+    gap: var(--space-lg);
+
+    margin-top: var(--space-lg);
+}
+
+
+/* =========================================================
+   QUICK REPORT ACTIONS
+========================================================= */
+
+.report-actions {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: var(--space-sm);
+}
+
+.report-action {
+    display: flex;
+
+    align-items: center;
+
+    gap: var(--space-sm);
+
+    padding: 13px;
+
+    background: var(--card);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-md);
+
+    color: var(--text);
+
+    text-decoration: none;
+
+    transition:
+        background var(--transition),
+        transform var(--transition),
+        box-shadow var(--transition);
+}
+
+.report-action:hover {
+    background: var(--primary-light);
+
+    transform: translateY(-2px);
+
+    box-shadow: var(--shadow);
+
+    text-decoration: none;
+}
+
+.report-action-icon {
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: var(--radius-sm);
+
+    background: var(--primary-light);
+
+    color: var(--primary);
+
+    font-weight: 700;
+}
+
+.report-action-content strong {
+    display: block;
+
+    font-size: 14px;
+}
+
+.report-action-content small {
+    display: block;
+
+    margin-top: 2px;
+
+    color: var(--muted);
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   REPORT FILTER BAR
+========================================================= */
+
+.report-filter {
+    display: flex;
+
+    align-items: flex-end;
+
+    gap: var(--space-md);
+
+    padding: var(--space-md);
+
+    margin-bottom: var(--space-lg);
+
+    background: var(--card);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-lg);
+
+    box-shadow: var(--shadow);
+}
+
+.report-filter .filter-field {
+    flex: 1;
+}
+
+.report-filter .filter-field label {
+    margin-bottom: 5px;
+}
+
+.report-filter button {
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   REPORT SUMMARY
+========================================================= */
+
+.report-summary {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: var(--space-md);
+
+    margin-bottom: var(--space-lg);
+}
+
+.summary-item {
+    background: var(--card);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-md);
+
+    padding: var(--space-md);
+}
+
+.summary-item-label {
+    display: block;
+
+    color: var(--muted);
+
+    font-size: 12px;
+
+    margin-bottom: 5px;
+}
+
+.summary-item-value {
+    display: block;
+
+    color: var(--text);
+
+    font-size: 20px;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   REPORT PERIOD BUTTONS
+========================================================= */
+
+.period-buttons {
+    display: flex;
+
+    gap: var(--space-xs);
+
+    margin-bottom: var(--space-lg);
+}
+
+.period-buttons a {
+    padding: 7px 13px;
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-sm);
+
+    background: var(--card);
+
+    color: var(--text);
+
+    font-size: 13px;
+
+    text-decoration: none;
+}
+
+.period-buttons a:hover {
+    background: var(--primary-light);
+
+    color: var(--primary);
+
+    text-decoration: none;
+}
+
+.period-buttons a.active {
+    background: var(--primary);
+
+    border-color: var(--primary);
+
+    color: white;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   REPORT ACTION BUTTONS
+========================================================= */
+
+.report-btn-view {
+    background: #2563eb;
+}
+
+.report-btn-view:hover {
+    background: #1d4ed8;
+}
+
+.report-btn-update {
+    background: var(--success);
+}
+
+.report-btn-update:hover {
+    background: #2f7665;
+}
+
+.report-btn-delete {
+    background: var(--danger);
+}
+
+.report-btn-delete:hover {
+    background: #a34834;
+}
+
+
+/* =========================================================
+   FINANCIAL COLORS
+========================================================= */
+
+.amount-positive {
+    color: var(--success);
+    font-weight: 700;
+}
+
+.amount-negative {
+    color: var(--danger);
+    font-weight: 700;
+}
+
+.amount-neutral {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   MOBILE REPORTS
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .report-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .report-summary {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .report-filter {
+        flex-wrap: wrap;
+    }
+
+    .report-filter .filter-field {
+        min-width: 200px;
+    }
+}
+
+
+@media (max-width: 600px) {
+
+    .reports-header {
+        display: block;
+    }
+
+    .report-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .report-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .report-filter {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    .report-filter .filter-field {
+        width: 100%;
+    }
+
+    .period-buttons {
+        overflow-x: auto;
+    }
+
+    .chart-card {
+        padding: var(--space-md);
+    }
+}
+/* =========================================================
+   SALE FORM LAYOUT (New Sale page)
+========================================================= */
+
+#sale-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    align-items: stretch;
+    box-shadow: none;
+    background: transparent;
+    padding: 0;
+}
+
+.sale-form-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-lg);
+    align-items: start;
+}
+
+.sale-form-row.sale-form-row-wide {
+    grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
+}
+
+.form-actions {
+    display: flex;
+    gap: var(--space-md);
+}
+
+@media (max-width: 900px) {
+    .sale-form-row,
+    .sale-form-row.sale-form-row-wide {
+        grid-template-columns: 1fr;
+    }
+}
+.progress-container {
+    width: 100%;
+    height: 20px;
+    background: #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 50%;
+    border-radius: 10px;
+}
+/* =====================================================
+   ADMINISTRATION SECTION
+===================================================== */
+
+.admin-section {
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+
+/* -----------------------------------------------------
+   SECTION HEADING
+----------------------------------------------------- */
+
+.section-heading {
+    margin-bottom: 22px;
+}
+
+.section-heading h2 {
+    margin: 0 0 6px;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.section-heading p {
+    margin: 0;
+    font-size: 14px;
+    color: #64748b;
+}
+
+
+/* -----------------------------------------------------
+   ADMIN GRID
+----------------------------------------------------- */
+
+.admin-grid {
+    display: grid;
+
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(250px, 1fr)
+    );
+
+    gap: 20px;
+}
+
+
+/* -----------------------------------------------------
+   ADMIN CARD
+----------------------------------------------------- */
+
+.admin-card {
+    display: flex;
+
+    gap: 18px;
+
+    padding: 24px;
+
+    background: #ffffff;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 14px;
+
+    box-shadow:
+        0 2px 6px rgba(15, 23, 42, 0.05);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+/* -----------------------------------------------------
+   CARD HOVER
+----------------------------------------------------- */
+
+.admin-card:hover {
+    transform: translateY(-3px);
+
+    border-color: #cbd5e1;
+
+    box-shadow:
+        0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+
+/* -----------------------------------------------------
+   ICON
+----------------------------------------------------- */
+
+.admin-card-icon {
+    width: 48px;
+    height: 48px;
+
+    min-width: 48px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #f1f5f9;
+
+    border-radius: 12px;
+
+    font-size: 23px;
+}
+
+
+/* -----------------------------------------------------
+   CARD CONTENT
+----------------------------------------------------- */
+
+.admin-card-content {
+    flex: 1;
+}
+
+
+.admin-card-content h3 {
+    margin: 0 0 8px;
+
+    font-size: 18px;
+
+    font-weight: 700;
+
+    color: #0f172a;
+}
+
+
+.admin-card-content p {
+    margin: 0 0 18px;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+
+    color: #64748b;
+}
+
+
+/* -----------------------------------------------------
+   CARD LINK
+----------------------------------------------------- */
+
+.admin-card-link {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    color: #0f766e;
+
+    text-decoration: none;
+
+    transition:
+        color 0.2s ease,
+        gap 0.2s ease;
+}
+
+
+.admin-card-link span {
+    font-size: 18px;
+
+    line-height: 1;
+
+    transition:
+        transform 0.2s ease;
+}
+
+
+.admin-card-link:hover {
+    color: #115e59;
+
+    gap: 11px;
+}
+
+
+.admin-card-link:hover span {
+    transform: translateX(3px);
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 768px) {
+
+    .admin-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-card {
+        padding: 20px;
+    }
+
+}
+
+/* =========================================================
+   RECEIPT / INVOICE PRINT LAYOUTS
+   ========================================================= */
+
+.receipt-page {
+    display: flex;
+    justify-content: center;
+    padding: 30px;
+}
+
+.receipt {
+    width: 380px;
+    background: white;
+    padding: 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.receipt .center {
+    text-align: center;
+}
+
+.business-name {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.receipt-info {
+    font-size: 14px;
+    margin-top: 15px;
+}
+
+.receipt table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.receipt th,
+.receipt td {
+    padding: 7px 3px;
+    border-bottom: 1px dashed #aaa;
+    font-size: 13px;
+}
+
+.receipt th {
+    text-align: left;
+}
+
+.receipt .number {
+    text-align: right;
+}
+
+.totals {
+    margin-top: 20px;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 7px 0;
+}
+
+.grand-total {
+    font-size: 20px;
+    font-weight: bold;
+    border-top: 2px solid black;
+    padding-top: 10px;
+}
+
+.receipt-buttons {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.receipt-buttons button,
+.receipt-buttons a {
+    padding: 10px 18px;
+    margin: 5px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.print-button {
+    background: black;
+    color: white;
+}
+
+.new-sale {
+    background: #ddd;
+    color: black;
+}
+
+.purchase-invoice {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 30px;
+    background: white;
+}
+
+.invoice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.invoice-title {
+    text-align: right;
+}
+
+.invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.invoice-table th,
+.invoice-table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+}
+
+.invoice-table th {
+    font-weight: bold;
+}
+
+.summary-table {
+    margin-left: auto;
+    margin-top: 20px;
+    min-width: 300px;
+}
+
+.summary-table td,
+.summary-table th {
+    padding: 8px;
+}
+
+.invoice-actions {
+    margin-top: 30px;
+}
+
+/* Purchase reports keep their page-specific spacing scoped so the
+   shared table styles remain consistent everywhere else. */
+.purchase-reports-page .report-cards {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.purchase-reports-page .report-card {
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: white;
+}
+
+.purchase-reports-page .report-card h3 {
+    margin-top: 0;
+}
+
+.purchase-reports-page .report-card p {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.purchase-reports-page table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.purchase-reports-page th,
+.purchase-reports-page td {
+    padding: 10px;
+    text-align: left;
+}
+
+.is-hidden {
+    display: none !important;
+}
+
+.inline-form {
+    display: inline;
+}
+
+@media print {
+    .receipt-page {
+        padding: 0;
+    }
+
+    .receipt {
+        width: 100%;
+        padding: 0;
+        box-shadow: none;
+    }
+
+    .receipt-buttons,
+    .invoice-actions {
+        display: none;
+    }
+
+    .purchase-invoice {
+        max-width: none;
+        margin: 0;
+        padding: 10px;
+    }
+}
