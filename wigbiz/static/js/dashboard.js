@@ -1,16 +1,38 @@
 function initSidebar() {
-    const button = document.getElementById("sidebarToggle");
-    const sidebar = document.getElementById("sidebar");
+    const button = document.getElementById("menuToggle");
+    const sidebar = document.querySelector(".sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
 
-    if (!button || !sidebar) {
+    if (!button || !sidebar || !overlay) {
         return;
     }
 
+    function setOpen(open) {
+        sidebar.classList.toggle("open", open);
+        overlay.classList.toggle("show", open);
+        button.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+
     button.addEventListener("click", function () {
-        if (window.innerWidth <= 768) {
-            sidebar.classList.toggle("show");
-        } else {
-            sidebar.classList.toggle("collapsed");
+        setOpen(!sidebar.classList.contains("open"));
+    });
+
+    // Tapping the dark area closes the menu
+    overlay.addEventListener("click", function () {
+        setOpen(false);
+    });
+
+    // Tapping a menu link closes the menu
+    sidebar.addEventListener("click", function (event) {
+        if (event.target.closest("a")) {
+            setOpen(false);
+        }
+    });
+
+    // Reset if the screen grows (e.g. rotating a tablet)
+    window.addEventListener("resize", function () {
+        if (window.innerWidth > 900) {
+            setOpen(false);
         }
     });
 }

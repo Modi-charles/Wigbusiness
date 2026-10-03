@@ -15,7 +15,12 @@
         Sales Dashboard
         {% endblock %}
     </title>
-
+<script>
+try {
+  var t = localStorage.getItem('wigbiz-theme');
+  if (t) document.documentElement.setAttribute('data-theme', t);
+} catch (e) {}
+</script>
     <link rel="stylesheet"
           href="{% static 'css/dashboard.css' %}">
 
