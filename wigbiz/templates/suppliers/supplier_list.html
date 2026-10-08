@@ -110,7 +110,7 @@ Suppliers
     </button>
 
 
-    <a href="{% url 'suppliers:supplier_list' %}">
+    <a class="page-link" href="{% url 'suppliers:supplier_list' %}">
         Clear
     </a>
 
@@ -120,7 +120,7 @@ Suppliers
 <br>
 
 
-<a href="{% url 'suppliers:supplier_create' %}">
+<a class="page-link" href="{% url 'suppliers:supplier_create' %}">
     + Add Supplier
 </a>
 
@@ -175,7 +175,7 @@ Suppliers
 
             <td>
 
-                <a
+                <a class="page-link"
                     href="{% url 'suppliers:supplier_detail' supplier.pk %}"
                 >
                     {{ supplier.name }}
@@ -217,7 +217,7 @@ Suppliers
 
             <td>
 
-                <a
+                <a class="page-link"
                     href="{% url 'suppliers:supplier_detail' supplier.pk %}"
                 >
                     View
@@ -225,7 +225,7 @@ Suppliers
 
                 |
 
-                <a
+                <a class="page-link"
                     href="{% url 'suppliers:supplier_update' supplier.pk %}"
                 >
                     Edit
@@ -235,7 +235,7 @@ Suppliers
 
                 |
 
-                <a
+                <a class="page-link"
                     href="{% url 'suppliers:supplier_deactivate' supplier.pk %}"
                 >
                     Deactivate
@@ -272,7 +272,7 @@ Suppliers
 
     {% if page_obj.has_previous %}
 
-        <a href="?q={{ query }}&status={{ status }}&page={{ page_obj.previous_page_number }}">
+        <a class="page-link" href="?q={{ query }}&status={{ status }}&page={{ page_obj.previous_page_number }}">
             Previous
         </a>
 
@@ -286,7 +286,7 @@ Suppliers
 
     {% if page_obj.has_next %}
 
-        <a href="?q={{ query }}&status={{ status }}&page={{ page_obj.next_page_number }}">
+        <a class="page-link" href="?q={{ query }}&status={{ status }}&page={{ page_obj.next_page_number }}">
             Next
         </a>
 

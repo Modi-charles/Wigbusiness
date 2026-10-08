@@ -222,7 +222,7 @@
 
                         <td>
 
-                            <a
+                            <a class="page-link"
                                 href="{% url 'sales:return_detail' return.pk %}"
                                 class="btn btn-secondary"
                             >
@@ -268,7 +268,7 @@
 
     {% if returns.has_previous %}
 
-        <a
+        <a class="page-link"
             href="?page={{ returns.previous_page_number }}&search={{ search }}&status={{ selected_status }}"
         >
             ← Previous
@@ -289,7 +289,7 @@
 
     {% if returns.has_next %}
 
-        <a
+        <a class="page-link"
             href="?page={{ returns.next_page_number }}&search={{ search }}&status={{ selected_status }}"
         >
             Next →

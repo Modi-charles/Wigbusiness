@@ -42,7 +42,7 @@
      ADD CUSTOMER
 ========================= -->
 
-<a href="{% url 'customers:customer_create' %}">
+<a class="page-link" href="{% url 'customers:customer_create' %}">
     Add Customer
 </a>
 
@@ -93,7 +93,7 @@
 
             <td>
 
-                <a href="{% url 'customers:customer_details' customer.pk %}">
+                <a class="page-link" href="{% url 'customers:customer_details' customer.pk %}">
 
                     {{ customer.first_name }}
 
@@ -186,19 +186,19 @@
 
             <td>
 
-                <a href="{% url 'customers:customer_details' customer.pk %}">
+                <a class="page-link" href="{% url 'customers:customer_details' customer.pk %}">
                     View
                 </a>
 
                 |
 
-                <a href="{% url 'customers:customer_update' customer.pk %}">
+                <a class="page-link" href="{% url 'customers:customer_update' customer.pk %}">
                     Edit
                 </a>
 
                 |
 
-                <a href="{% url 'customers:customer_delete' customer.pk %}">
+                <a class="page-link" href="{% url 'customers:customer_delete' customer.pk %}">
                     Delete
                 </a>
 
@@ -238,7 +238,7 @@
 
     {% if page_obj.has_previous %}
 
-        <a href="?q={{ query }}&page={{ page_obj.previous_page_number }}">
+        <a class="page-link" href="?q={{ query }}&page={{ page_obj.previous_page_number }}">
             Previous
         </a>
 
@@ -256,7 +256,7 @@
 
     {% if page_obj.has_next %}
 
-        <a href="?q={{ query }}&page={{ page_obj.next_page_number }}">
+        <a class="page-link" href="?q={{ query }}&page={{ page_obj.next_page_number }}">
             Next
         </a>
 

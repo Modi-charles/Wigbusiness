@@ -68,7 +68,7 @@
 <br>
 
 
-<a href="{% url 'suppliers:supplier_update' supplier.pk %}">
+<a class="page-link" href="{% url 'suppliers:supplier_update' supplier.pk %}">
     Edit Supplier
 </a>
 
@@ -77,13 +77,13 @@
 
 |
 
-<a href="{% url 'suppliers:supplier_payment' supplier.pk %}">
+<a class="page-link" href="{% url 'suppliers:supplier_payment' supplier.pk %}">
     Make Payment
 </a>
 
 |
 
-<a href="{% url 'suppliers:supplier_deactivate' supplier.pk %}">
+<a class="page-link" href="{% url 'suppliers:supplier_deactivate' supplier.pk %}">
     Deactivate
 </a>
 
@@ -281,17 +281,17 @@
 
 
 <br>
-<a href="{% url 'suppliers:supplier_payment' supplier.pk %}">
+<a class="page-link" href="{% url 'suppliers:supplier_payment' supplier.pk %}">
     Make Payment
 </a>
-<a href="{% url 'suppliers:supplier_ledger' supplier.pk %}">
+<a class="page-link" href="{% url 'suppliers:supplier_ledger' supplier.pk %}">
     View Supplier Ledger
 </a>
-<a href="{% url 'suppliers:supplier_statement' supplier.pk %}">
+<a class="page-link" href="{% url 'suppliers:supplier_statement' supplier.pk %}">
     Supplier Statement
 </a>
 
-<a href="{% url 'suppliers:supplier_list' %}">
+<a class="page-link" href="{% url 'suppliers:supplier_list' %}">
     Back to Suppliers
 </a>
 

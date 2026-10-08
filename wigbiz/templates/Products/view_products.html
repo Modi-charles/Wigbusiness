@@ -14,11 +14,11 @@ Product Lists | WigBiz ERP
     <h1>
         Products
     </h1>
-    <a href="{% url 'BrandCategory'%}" class="btn-primary">
+    <a class="page-link" href="{% url 'BrandCategory'%}" class="btn-primary">
         + Add Category and  Brand
     </a>
 
-    <a href="{% url 'add_product' %}" class="btn-primary">
+    <a class="page-link" href="{% url 'add_product' %}" class="btn-primary">
         + Add Product
     </a>
 
@@ -124,17 +124,17 @@ Inactive
 
 <td>
 
-<a href="{% url 'product-detail' product.id %}">
+<a class="page-link" href="{% url 'product-detail' product.id %}">
 View
 </a>
 
 
-<a href="{% url 'product-edit' product.id %}">
+<a class="page-link" href="{% url 'product-edit' product.id %}">
 Edit
 </a>
 
 
-<a href="{% url 'product-delete' product.id %}">
+<a class="page-link" href="{% url 'product-delete' product.id %}">
 Delete
 </a>
 

@@ -130,7 +130,7 @@
         </button>
 
 
-        <a
+        <a class="page-link"
             href="{% url 'sales:refund_history' %}"
             class="btn btn-secondary"
         >
@@ -293,7 +293,7 @@
 
     {% if refunds.has_previous %}
 
-        <a
+        <a class="page-link"
             href="?page={{ refunds.previous_page_number }}&search={{ search }}&payment_method={{ selected_payment_method }}&status={{ selected_status }}"
         >
             ← Previous
@@ -314,7 +314,7 @@
 
     {% if refunds.has_next %}
 
-        <a
+        <a class="page-link"
             href="?page={{ refunds.next_page_number }}&search={{ search }}&payment_method={{ selected_payment_method }}&status={{ selected_status }}"
         >
             Next →

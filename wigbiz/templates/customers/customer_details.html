@@ -192,7 +192,7 @@
 
     {% if page_obj.has_previous %}
 
-        <a href="?page={{ page_obj.previous_page_number }}">
+        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
             Previous
         </a>
 
@@ -210,7 +210,7 @@
 
     {% if page_obj.has_next %}
 
-        <a href="?page={{ page_obj.next_page_number }}">
+        <a class="page-link" href="?page={{ page_obj.next_page_number }}">
             Next
         </a>
 
@@ -237,13 +237,13 @@
      CUSTOMER ACTIONS
 ========================= -->
 
-<a href="{% url 'customers:customer_update' customer.pk %}">
+<a class="page-link" href="{% url 'customers:customer_update' customer.pk %}">
     Edit Customer
 </a>
 
 &nbsp; | &nbsp;
 
-<a href="{% url 'customers:customer_list' %}">
+<a class="page-link" href="{% url 'customers:customer_list' %}">
     Back to Customers
 </a>
 

@@ -36,11 +36,11 @@
 {% if suppliers.has_other_pages %}
 <div>
     {% if suppliers.has_previous %}
-        <a href="?{{ page_querystring }}&page={{ suppliers.previous_page_number }}">Previous</a>
+        <a class="page-link" href="?{{ page_querystring }}&page={{ suppliers.previous_page_number }}">Previous</a>
     {% endif %}
     Page {{ suppliers.number }} of {{ suppliers.paginator.num_pages }}
     {% if suppliers.has_next %}
-        <a href="?{{ page_querystring }}&page={{ suppliers.next_page_number }}">Next</a>
+        <a class="page-link" href="?{{ page_querystring }}&page={{ suppliers.next_page_number }}">Next</a>
     {% endif %}
 </div>
 {% endif %}

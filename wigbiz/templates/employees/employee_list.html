@@ -111,7 +111,7 @@ Employees
     </button>
 
 
-    <a href="{% url 'employees:employee_list' %}">
+    <a class="page-link" href="{% url 'employees:employee_list' %}">
         Clear
     </a>
 
@@ -121,7 +121,7 @@ Employees
 <br>
 
 
-<a href="{% url 'employees:employee_create' %}">
+<a class="page-link" href="{% url 'employees:employee_create' %}">
     + Add Employee
 </a>
 
@@ -275,17 +275,13 @@ Employees
 
             <td>
 
-                <a
-                    href="{% url 'employees:employee_detail' employee.pk %}"
-                >
+                <a class="page-link" href="{% url 'employees:employee_detail' employee.pk %}">
                     View
                 </a>
 
                 |
 
-                <a
-                    href="{% url 'employees:employee_update' employee.pk %}"
-                >
+                <a class="page-link" href="{% url 'employees:employee_update' employee.pk %}">
                     Edit
                 </a>
 
@@ -293,9 +289,7 @@ Employees
 
                 {% if employee.status %}
 
-                    <a
-                        href="{% url 'employees:employee_delete' employee.pk %}"
-                    >
+                    <a class="page-link" href="{% url 'employees:employee_delete' employee.pk %}">
                         Deactivate
                     </a>
 
@@ -338,9 +332,7 @@ Employees
 
     {% if page_obj.has_previous %}
 
-        <a
-            href="?q={{ query }}&status={{ status }}&page={{ page_obj.previous_page_number }}"
-        >
+        <a class="page-link" href="?q={{ query }}&status={{ status }}&page={{ page_obj.previous_page_number }}">
             Previous
         </a>
 
@@ -358,9 +350,7 @@ Employees
 
     {% if page_obj.has_next %}
 
-        <a
-            href="?q={{ query }}&status={{ status }}&page={{ page_obj.next_page_number }}"
-        >
+        <a class="page-link" href="?q={{ query }}&status={{ status }}&page={{ page_obj.next_page_number }}>
             Next
         </a>
 

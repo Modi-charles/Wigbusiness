@@ -9,5 +9,5 @@
     {% csrf_token %}
     <button type="submit">Yes, deactivate</button>
 </form>
-<a href="{% url 'customers:customer_detail' customer.pk %}">Cancel</a>
+<a class="page-link" href="{% url 'customers:customer_detail' customer.pk %}">Cancel</a>
 {% endblock %}

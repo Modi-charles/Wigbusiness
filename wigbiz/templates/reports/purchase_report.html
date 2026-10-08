@@ -89,11 +89,11 @@
 {% if purchases.has_other_pages %}
 <div>
     {% if purchases.has_previous %}
-        <a href="?{{ page_querystring }}&page={{ purchases.previous_page_number }}">Previous</a>
+        <a class="page-link" href="?{{ page_querystring }}&page={{ purchases.previous_page_number }}">Previous</a>
     {% endif %}
     Page {{ purchases.number }} of {{ purchases.paginator.num_pages }}
     {% if purchases.has_next %}
-        <a href="?{{ page_querystring }}&page={{ purchases.next_page_number }}">Next</a>
+        <a class="page-link" href="?{{ page_querystring }}&page={{ purchases.next_page_number }}">Next</a>
     {% endif %}
 </div>
 {% endif %}

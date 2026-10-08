@@ -33,11 +33,11 @@
 {% if customers.has_other_pages %}
 <div>
     {% if customers.has_previous %}
-        <a href="?{{ page_querystring }}&page={{ customers.previous_page_number }}">Previous</a>
+        <a class="page-link" href="?{{ page_querystring }}&page={{ customers.previous_page_number }}">Previous</a>
     {% endif %}
     Page {{ customers.number }} of {{ customers.paginator.num_pages }}
     {% if customers.has_next %}
-        <a href="?{{ page_querystring }}&page={{ customers.next_page_number }}">Next</a>
+        <a class="page-link" href="?{{ page_querystring }}&page={{ customers.next_page_number }}">Next</a>
     {% endif %}
 </div>
 {% endif %}
