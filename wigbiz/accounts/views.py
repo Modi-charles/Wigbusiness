@@ -6,6 +6,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.core.paginator import Paginator
 from .models import User, Role
 from .decorators import role_required
+from .forms import UserForm
 
 
 # ============================================================
@@ -331,3 +332,15 @@ def settings_view(request):
         request,
         "accounts/settings.html"
     )
+#Adding users
+@login_required
+def edit_user_details(request,user_id):
+    user_instance=get_object_or_404(User, id=user_id)
+    if request.method == 'POST':
+        form=UserForm(request.POST, instance=user_instance)
+        if form.is_valid():
+            form.save()
+            return redirect("accounts:user_list")
+        else:
+            form=UserForm(instance=user_instance)
+        return render(request,'edit_user.html',{'form':form,'user_instance':user_instance})     
