@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Expense Categories{% endblock %}
+
+{% block content %}
+
+<h1>Expense Categories</h1>
+
+<div class="list-toolbar">
+
+    <form method="get" class="search-form">
+        <input type="text" name="q" value="{{ query }}" placeholder="Search categories...">
+        <button type="submit">Search</button>
+    </form>
+
+    <a class="btn" href="{% url 'expenses:category_create' %}">+ Add Category</a>
+
+</div>
+
+<table>
+
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Expenses</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        {% for c in page_obj %}
+        <tr>
+            <td>{{ c.name }}</td>
+            <td>{{ c.description|default:"—"|truncatechars:60 }}</td>
+            <td>{{ c.expense_count }}</td>
+            <td>
+                {% if c.is_active %}
+                    <span class="badge badge-success">Active</span>
+                {% else %}
+                    <span class="badge badge-danger">Inactive</span>
+                {% endif %}
+            </td>
+            <td>
+                <div class="action-buttons">
+                    <a class="action-btn action-update" href="{% url 'expenses:category_update' c.pk %}">Edit</a>
+
+                    <form method="post" action="{% url 'expenses:category_toggle' c.pk %}" class="inline-form">
+                        {% csrf_token %}
+                        {% if c.is_active %}
+                            <button class="btn-danger btn-sm" type="submit">Deactivate</button>
+                        {% else %}
+                            <button class="btn-sm" type="submit">Activate</button>
+                        {% endif %}
+                    </form>
+                </div>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">No categories found.</td>
+        </tr>
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% if page_obj.has_previous %}
+<a class="page-link" href="?q={{ query|urlencode }}&page={{ page_obj.previous_page_number }}">Previous</a>
+{% endif %}
+
+Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+
+{% if page_obj.has_next %}
+<a class="page-link" href="?q={{ query|urlencode }}&page={{ page_obj.next_page_number }}">Next</a>
+{% endif %}
+
+{% endblock %}

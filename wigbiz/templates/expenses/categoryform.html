@@ -1,0 +1,51 @@
+
+This response didn’t load.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Category form · HTML
+{% extends "base.html" %}
+ 
+{% block title %}
+{{ title }}
+{% endblock %}
+ 
+{% block content %}
+<h1>{{ title }}</h1>
+ 
+<div class="dashboard-card">
+    <form method="POST" class="two-col-form">
+        {% csrf_token %}
+ 
+        {% if form.errors %}
+            <div class="alert error">
+                <strong>Please fix the errors below:</strong>
+                {{ form.errors }}
+            </div>
+        {% endif %}
+ 
+        {{ form.as_p }}
+ 
+        <div class="form-actions">
+            <button class="btn" type="submit">Save Changes</button>
+            <a class="btn btn-outline" href="{% url 'expenses:category_list' %}">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+ 

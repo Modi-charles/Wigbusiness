@@ -14,9 +14,13 @@
             </p>
         </div>
 
-        <a href="{% url 'create_expense' %}"
+        <a href="{% url 'expenses:create_expense' %}"
            class="btn btn-primary">
             Add Expense
+        </a>
+        <a href="{% url 'expenses:category_create' %}"
+           class="btn btn-primary">
+            Add category
         </a>
 
     </div>
@@ -227,7 +231,7 @@
                         </button>
 
                         <a
-                            href="{% url 'expense_list' %}"
+                            href="{% url 'expenses:expense_list' %}"
                             class="btn btn-secondary"
                         >
                             Clear
