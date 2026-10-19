@@ -33,7 +33,7 @@ try {
         <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
     {% endif %}
     <div class="brand">
-        WigBiz ERP
+                MCK Beauty Enterprise
     </div>
 
     <div class="navbar-right">
@@ -67,6 +67,15 @@ try {
                 Customers
             </a>
 
+            <a href="{% url 'expenses:expense_list' %}">
+                Expenses
+            </a>
+
+            <a href="{% url 'sales:return_history' %}">
+                Return History
+            </a>
+
+           
 
             <!-- BOTTOM NAVIGATION -->
 
@@ -113,7 +122,7 @@ try {
 <footer class="footer">
 
     <p>
-        &copy; {% now "Y" %} WigBiz ERP.
+        &copy; {% now "Y" %} MCK Beauty Enterprise.
     </p>
 
 </footer>

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+
+<h1>Notifications</h1>
+
+<div class="list-toolbar" style="display: flex; justify-content: space-between; padding: 15px;">
+    <div class="action-buttons">
+        <a class="btn {% if show == 'unread' %}btn-outline{% endif %}" href="?show=all">All</a>
+        <a class="btn {% if show != 'unread' %}btn-outline{% endif %}" href="?show=unread">Unread</a>
+    </div>
+
+    <form method="post" action="{% url 'notifications:notification_mark_all_read' %}" class="inline-form">
+        {% csrf_token %}
+        <button type="submit" class="btn-outline">Mark all as read</button>
+    </form>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Notification</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Received</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for n in page_obj %}
+        <tr {% if not n.is_read %}style="font-weight:600;"{% endif %}>
+            <td>
+                {{ n.title }}
+                <div style="font-weight:400; color:var(--muted); font-size:13px;">{{ n.message }}</div>
+            </td>
+            <td><span class="badge badge-muted">{{ n.get_notification_type_display }}</span></td>
+            <td>
+                {% if n.expense_status == "PENDING" %}
+                    <span class="badge badge-warning">Waiting for approval</span>
+                {% elif n.expense_status == "APPROVED" %}
+                    <span class="badge badge-success">Approved</span>
+                {% elif n.expense_status == "REJECTED" %}
+                    <span class="badge badge-danger">Rejected</span>
+                {% elif n.return_status == "PENDING" %}
+                    <span class="badge badge-warning">Waiting for approval</span>
+                {% elif n.return_status == "APPROVED" %}
+                    <span class="badge badge-success">Approved - ready to return</span>
+                {% elif n.return_status == "REJECTED" %}
+                    <span class="badge badge-danger">Rejected</span>
+                {% elif n.return_status == "COMPLETED" %}
+                    <span class="badge badge-success">Completed</span>
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+            <td>{{ n.created_at|timesince }} ago</td>
+            <td>
+                <a class="action-btn action-view" href="{% url 'notifications:notification_open' n.pk %}">
+                    {% if n.action_url %}Open{% else %}Mark read{% endif %}
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">No notifications.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="action-buttons" style="margin-top: var(--space-md); align-items: center;">
+    {% if page_obj.has_previous %}
+    <a class="btn btn-outline" href="?show={{ show }}&page={{ page_obj.previous_page_number }}">Previous</a>
+    {% endif %}
+    <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+    <a class="btn btn-outline" href="?show={{ show }}&page={{ page_obj.next_page_number }}">Next</a>
+    {% endif %}
+</div>
+
+{% endblock %}

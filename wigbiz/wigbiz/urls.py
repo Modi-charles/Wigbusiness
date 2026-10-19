@@ -28,20 +28,9 @@ urlpatterns = [
     path("sales/",include("sales.urls")),
     path("purchase/",include("purchases.urls")),
     path('customers/', include('customers.urls')),
-    path(
-    "employees/",
-    include("employees.urls")
-),
-    path(
-    "suppliers/",
-    include("suppliers.urls")
-),
-    path(
-        "reports/",
-        include("reports.urls")
-    ),
-    path(
-        "expenses/",
-        include("expenses.urls")
-    ),
+    path("employees/",include("employees.urls")),
+    path("suppliers/",include("suppliers.urls")),
+    path("reports/",include("reports.urls")),
+    path("expenses/",include("expenses.urls")),
+    path("notifications/", include("notifications.urls"))
     ]

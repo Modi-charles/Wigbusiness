@@ -1,5 +1,5 @@
 /* =========================================================
-   WIGBIZ ERP - COMPLETE STYLESHEET
+   MCK Beauty Enterprise - COMPLETE STYLESHEET
    Works on phones, tablets and desktops.
 
    Breakpoints used:
@@ -57,7 +57,7 @@
 
     --transition: 0.2s ease;
 }
-
+ .progress-bar { background: var(--primary); }
 
 /* =========================================================
    2. RESET / BASE

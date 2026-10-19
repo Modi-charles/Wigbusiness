@@ -1,18 +1,16 @@
-from django.db import transaction
+from django.contrib.auth import get_user_model
 
 from .models import Notification
 
 
 def create_notification(
-    *,
     recipient,
     title,
     message,
-    notification_type=Notification.NotificationType.GENERAL,
     action_url="",
+    notification_type=Notification.NotificationType.GENERAL,
     metadata=None,
 ):
-    """Create one notification for a specific user."""
     return Notification.objects.create(
         recipient=recipient,
         notification_type=notification_type,
@@ -23,39 +21,26 @@ def create_notification(
     )
 
 
-@transaction.atomic
-def create_notifications(
-    *,
-    recipients,
-    title,
-    message,
-    notification_type=Notification.NotificationType.GENERAL,
-    action_url="",
-    metadata=None,
-):
-    """Create the same notification for multiple users efficiently."""
+def notify_role(role_name, title, message, action_url="", notification_type=Notification.NotificationType.GENERAL, metadata=None, exclude=None):
+    """Send one notification to every active user holding the given role.
+
+    Returns the number of notifications created.
+    """
+    User = get_user_model()
+    recipients = User.objects.filter(is_active=True, role__name__iexact=role_name)
+    if exclude is not None:
+        recipients = recipients.exclude(pk=exclude.pk)
+
     notifications = [
         Notification(
-            recipient=recipient,
+            recipient=user,
             notification_type=notification_type,
             title=title,
             message=message,
             action_url=action_url,
             metadata=metadata or {},
         )
-        for recipient in recipients
+        for user in recipients
     ]
-    return Notification.objects.bulk_create(notifications)
-
-
-def get_notifications_for_user(user, *, unread_only=False, limit=None):
-    """Return a user's notifications in newest-first order."""
-    notifications = Notification.objects.filter(recipient=user)
-
-    if unread_only:
-        notifications = notifications.filter(is_read=False)
-
-    if limit is not None:
-        notifications = notifications[:limit]
-
-    return notifications
+    Notification.objects.bulk_create(notifications)
+    return len(notifications)

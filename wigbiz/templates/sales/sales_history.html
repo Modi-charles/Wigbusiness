@@ -1,423 +1,129 @@
 {% extends "base.html" %}
 
-
-{% block title %}
-    Sales History
-{% endblock %}
-
+{% block title %}Sales history{% endblock %}
 
 {% block content %}
 
-<div class="page-header">
+<h1>Sales history</h1>
 
-    <h1>
-        Sales History
-    </h1>
+<style>
+    form.sales-filter {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+        padding: 0;
+        box-shadow: none;
+        background: transparent;
+    }
+    .sales-filter-fields { display: flex; flex-wrap: nowrap; align-items: flex-end; gap: 16px; width: 100%; }
+    .sales-filter-fields .filter-search { flex: 2 1 0; min-width: 0; }
+    .sales-filter-fields .filter-field  { flex: 1 1 0; min-width: 0; }
+    .sales-filter-actions { display: flex; gap: 10px; }
+    @media (max-width: 900px) {
+        .sales-filter-fields { flex-wrap: wrap; }
+        .sales-filter-fields .filter-search,
+        .sales-filter-fields .filter-field { flex: 1 1 200px; }
+    }
+</style>
 
-</div>
-
-
-<!-- ================================================== -->
-<!-- SEARCH AND FILTERS -->
-<!-- ================================================== -->
-
-<div class="report-card">
-
-    <form method="get">
-
-        <div class="form-group">
-
-            <label for="search">
-                Search
-            </label>
-
-            <input
-                type="text"
-                id="search"
-                name="search"
-                placeholder="Search invoice or customer..."
-                value="{{ search }}"
-            >
-
+<div class="dashboard-card" style="margin-bottom: var(--space-lg);">
+    <form method="get" class="sales-filter">
+        <div class="sales-filter-fields">
+            <div class="filter-search">
+                <label>Search</label>
+                <input type="text" name="search" value="{{ search }}" placeholder="Invoice number or customer">
+            </div>
+            <div class="filter-field">
+                <label>Status</label>
+                <select name="status">
+                    <option value="">All</option>
+                    {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-field">
+                <label>Method</label>
+                <select name="payment_method">
+                    <option value="">All</option>
+                    {% for value, label in payment_choices %}
+                    <option value="{{ value }}" {% if selected_payment_method == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-field">
+                <label>From</label>
+                <input type="date" name="date_from" value="{{ date_from }}">
+            </div>
+            <div class="filter-field">
+                <label>To</label>
+                <input type="date" name="date_to" value="{{ date_to }}">
+            </div>
         </div>
-
-
-        <br>
-
-
-        <div class="form-group">
-
-            <label for="status">
-                Status
-            </label>
-
-            <select
-                id="status"
-                name="status"
-            >
-
-                <option value="">
-                    All Statuses
-                </option>
-
-
-                {% for value, label in status_choices %}
-
-                    <option
-                        value="{{ value }}"
-                        {% if selected_status == value %}
-                            selected
-                        {% endif %}
-                    >
-
-                        {{ label }}
-
-                    </option>
-
-                {% endfor %}
-
-            </select>
-
+        <div class="sales-filter-actions">
+            <button type="submit">Search</button>
+            <a class="btn btn-outline" href="{% url 'sales:sales_history' %}">Clear</a>
         </div>
-
-
-        <br>
-
-
-        <div class="form-group">
-
-            <label for="payment_method">
-                Payment Method
-            </label>
-
-            <select
-                id="payment_method"
-                name="payment_method"
-            >
-
-                <option value="">
-                    All Payment Methods
-                </option>
-
-
-                {% for value, label in payment_choices %}
-
-                    <option
-                        value="{{ value }}"
-                        {% if selected_payment_method == value %}
-                            selected
-                        {% endif %}
-                    >
-
-                        {{ label }}
-
-                    </option>
-
-                {% endfor %}
-
-            </select>
-
-        </div>
-
-
-        <br>
-
-
-        <div class="form-group">
-
-            <label for="date_from">
-                From
-            </label>
-
-            <input
-                type="date"
-                id="date_from"
-                name="date_from"
-                value="{{ date_from }}"
-            >
-
-        </div>
-
-
-        <br>
-
-
-        <div class="form-group">
-
-            <label for="date_to">
-                To
-            </label>
-
-            <input
-                type="date"
-                id="date_to"
-                name="date_to"
-                value="{{ date_to }}"
-            >
-
-        </div>
-
-
-        <br>
-
-
-        <button
-            type="submit"
-            class="btn btn-primary"
-        >
-            Search
-        </button>
-
-
-        <a class="page-link"
-            href="{% url 'sales:sales_history' %}"
-            class="btn btn-secondary"
-        >
-            Clear
-        </a>
-
     </form>
-
 </div>
 
-
-<br>
-
-
-<!-- ================================================== -->
-<!-- SALES TABLE -->
-<!-- ================================================== -->
-
-<div class="report-card">
-
-    <div class="table-container">
-
-        <table>
-
-            <thead>
-
-                <tr>
-
-                    <th>
-                        Invoice
-                    </th>
-
-                    <th>
-                        Date
-                    </th>
-
-                    <th>
-                        Customer
-                    </th>
-
-                    <th>
-                        Cashier
-                    </th>
-
-                    <th>
-                        Total
-                    </th>
-
-                    <th>
-                        Paid
-                    </th>
-
-                    <th>
-                        Balance
-                    </th>
-
-                    <th>
-                        Payment
-                    </th>
-
-                    <th>
-                        Status
-                    </th>
-
-                    <th>
-                        Action
-                    </th>
-
-                </tr>
-
-            </thead>
-
-
-            <tbody>
-
-                {% for sale in sales %}
-
-                    <tr>
-
-                        <td>
-                            {{ sale.invoice_number }}
-                        </td>
-
-
-                        <td>
-                            {{ sale.sale_date|date:"d M Y H:i" }}
-                        </td>
-
-
-                        <td>
-
-                            {% if sale.customer %}
-
-                                {{ sale.customer }}
-
-                            {% else %}
-
-                                Walk-in Customer
-
-                            {% endif %}
-
-                        </td>
-
-
-                        <td>
-
-                            {% if sale.created_by %}
-
-                                {{ sale.created_by.get_full_name|default:sale.created_by.username }}
-
-                            {% else %}
-
-                                —
-
-                            {% endif %}
-
-                        </td>
-
-
-                        <td>
-                            UGX {{ sale.total_amount }}
-                        </td>
-
-
-                        <td>
-                            UGX {{ sale.paid_amount }}
-                        </td>
-
-
-                        <td>
-                            UGX {{ sale.balance }}
-                        </td>
-
-
-                        <td>
-                            {{ sale.get_payment_method_display }}
-                        </td>
-
-
-                        <td>
-
-                            {% if sale.status == "COMPLETED" %}
-
-                                <span class="status-success">
-                                    {{ sale.get_status_display }}
-                                </span>
-
-                            {% elif sale.status == "CANCELLED" %}
-
-                                <span class="status-danger">
-                                    {{ sale.get_status_display }}
-                                </span>
-
-                            {% elif sale.status == "REFUNDED" %}
-
-                                <span class="status-warning">
-                                    {{ sale.get_status_display }}
-                                </span>
-
-                            {% else %}
-
-                                <span class="status-warning">
-                                    {{ sale.get_status_display }}
-                                </span>
-
-                            {% endif %}
-
-                        </td>
-
-
-                        <td>
-
-                            <a class="page-link"
-                                href="{% url 'sales:sale_detail' sale.pk %}"
-                                class="btn btn-secondary"
-                            >
-                                View
-                            </a>
-
-                        </td>
-
-                    </tr>
-
-
-                {% empty %}
-
-                    <tr>
-
-                        <td colspan="10">
-
-                            No sales found.
-
-                        </td>
-
-                    </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-
-    </div>
-
+<div class="action-buttons" style="margin-bottom: var(--space-md);">
+    <a class="btn" href="{% url 'sales:create_sale' %}">New sale</a>
+    <a class="btn btn-outline" href="{% url 'sales:return_history' %}">Returns</a>
 </div>
 
+<table>
+    <thead>
+        <tr>
+            <th>Invoice</th>
+            <th>Customer</th>
+            <th>Date</th>
+            <th>Total</th>
+            <th>Method</th>
+            <th>Status</th>
+            <th>Sold by</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for sale in sales %}
+        <tr>
+            <td>{{ sale.invoice_number }}</td>
+            <td>{{ sale.customer|default:"Walk-in" }}</td>
+            <td>{{ sale.sale_date|date:"d M Y, H:i" }}</td>
+            <td>UGX {{ sale.total_amount|floatformat:2 }}</td>
+            <td>{{ sale.get_payment_method_display }}</td>
+            <td>
+                {% if sale.status == "COMPLETED" %}<span class="badge badge-success">Completed</span>
+                {% elif sale.status == "REFUNDED" %}<span class="badge badge-muted">Refunded</span>
+                {% elif sale.status == "CANCELLED" %}<span class="badge badge-danger">Cancelled</span>
+                {% else %}<span class="badge badge-warning">{{ sale.get_status_display }}</span>{% endif %}
+            </td>
+            <td>{{ sale.created_by|default:"-" }}</td>
+            <td>
+                <div class="action-buttons">
+                    <a class="action-btn action-view" href="{% url 'sales:sale_detail' sale.pk %}">View</a>
+                    {% if sale.can_return %}
+                    <a class="action-btn action-edit" href="{% url 'sales:create_return' sale.pk %}">Return</a>
+                    {% endif %}
+                </div>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8">No sales found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
 
-<br>
-
-
-<!-- ================================================== -->
-<!-- PAGINATION -->
-<!-- ================================================== -->
-
-<div class="pagination">
-
+<div class="action-buttons" style="margin-top: var(--space-md); align-items: center;">
     {% if sales.has_previous %}
-
-        <a class="page-link"
-            href="?page={{ sales.previous_page_number }}&search={{ search }}&status={{ selected_status }}&payment_method={{ selected_payment_method }}&date_from={{ date_from }}&date_to={{ date_to }}"
-        >
-            ← Previous
-        </a>
-
+    <a class="btn btn-outline" href="?page={{ sales.previous_page_number }}&search={{ search|urlencode }}&status={{ selected_status }}&payment_method={{ selected_payment_method }}&date_from={{ date_from }}&date_to={{ date_to }}">Previous</a>
     {% endif %}
-
-
-    <span>
-
-        Page
-        {{ sales.number }}
-        of
-        {{ sales.paginator.num_pages }}
-
-    </span>
-
-
+    <span>Page {{ sales.number }} of {{ sales.paginator.num_pages }}</span>
     {% if sales.has_next %}
-
-        <a class="page-link"
-            href="?page={{ sales.next_page_number }}&search={{ search }}&status={{ selected_status }}&payment_method={{ selected_payment_method }}&date_from={{ date_from }}&date_to={{ date_to }}"
-        >
-            Next →
-
-        </a>
-
+    <a class="btn btn-outline" href="?page={{ sales.next_page_number }}&search={{ search|urlencode }}&status={{ selected_status }}&payment_method={{ selected_payment_method }}&date_from={{ date_from }}&date_to={{ date_to }}">Next</a>
     {% endif %}
-
 </div>
 
 {% endblock %}

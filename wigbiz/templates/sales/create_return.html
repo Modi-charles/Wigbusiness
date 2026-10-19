@@ -1,195 +1,72 @@
 {% extends "base.html" %}
 
-
-{% block title %}
-    Return {{ sale.invoice_number }}
-{% endblock %}
-
+{% block title %}Request return {{ sale.invoice_number }}{% endblock %}
 
 {% block content %}
 
-<div class="page-header">
+<h1>Request a return</h1>
 
-    <h1>
-        Return Sale
-    </h1>
-
+<div class="dashboard-card" style="margin-bottom: var(--space-lg);">
+    <p><strong>Invoice:</strong> {{ sale.invoice_number }}</p>
+    <p><strong>Customer:</strong> {{ sale.customer|default:"Walk-in" }}</p>
+    <p><strong>Sold on:</strong> {{ sale.sale_date|date:"d M Y, H:i" }}</p>
+    <p><strong>Total:</strong> UGX {{ sale.total_amount|floatformat:2 }}</p>
 </div>
-
-
-<div class="report-card">
-
-    <div class="detail-row">
-
-        <strong>
-            Invoice:
-        </strong>
-
-        <span>
-            {{ sale.invoice_number }}
-        </span>
-
-    </div>
-
-
-    <div class="detail-row">
-
-        <strong>
-            Date:
-        </strong>
-
-        <span>
-            {{ sale.sale_date|date:"d M Y H:i" }}
-        </span>
-
-    </div>
-
-</div>
-
-
-<br>
-
 
 {% if error %}
-
-    <div class="alert error">
-        {{ error }}
-    </div>
-
+<div class="dashboard-card" style="margin-bottom: var(--space-lg); border-left: 4px solid var(--danger, #dc2626);">
+    {{ error }}
+</div>
 {% endif %}
 
+<form method="post">
+    {% csrf_token %}
 
-<div class="report-card">
+    <table>
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Sold</th>
+                <th>Returned</th>
+                <th>Waiting</th>
+                <th>Available</th>
+                <th>Return quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>UGX {{ item.selling_price|floatformat:2 }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.returned_qty }}</td>
+                <td>{{ item.pending_qty }}</td>
+                <td>{{ item.available_qty }}</td>
+                <td>
+                    <input
+                        type="number"
+                        name="quantity_{{ item.id }}"
+                        min="0"
+                        max="{{ item.available_qty }}"
+                        value="0"
+                        {% if item.available_qty <= 0 %}disabled{% endif %}
+                    >
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-    <h2>
-        Select Items to Return
-    </h2>
+    <div style="flex: 1 1 100%;">
+        <label for="reason">Reason for the return</label>
+        <textarea name="reason" id="reason" rows="3" required placeholder="Why is the customer returning the product?">{{ reason|default:"" }}</textarea>
+    </div>
 
-
-    <form method="post">
-
-        {% csrf_token %}
-
-
-        <div class="table-container">
-
-            <table>
-
-                <thead>
-
-                    <tr>
-
-                        <th>
-                            Product
-                        </th>
-
-                        <th>
-                            Sold
-                        </th>
-
-                        <th>
-                            Selling Price
-                        </th>
-
-                        <th>
-                            Return Quantity
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    {% for item in sale.items.all %}
-
-                        <tr>
-
-                            <td>
-                                {{ item.product.name }}
-                            </td>
-
-                            <td>
-                                {{ item.quantity }}
-                            </td>
-
-                            <td>
-                                UGX {{ item.selling_price }}
-                            </td>
-
-                            <td>
-
-                                <input
-                                    type="number"
-                                    name="quantity_{{ item.id }}"
-                                    min="0"
-                                    max="{{ item.quantity }}"
-                                    value="0"
-                                >
-
-                            </td>
-
-                        </tr>
-
-                    {% empty %}
-
-                        <tr>
-
-                            <td colspan="4">
-                                No items found for this sale.
-                            </td>
-
-                        </tr>
-
-                    {% endfor %}
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-
-        <br>
-
-
-        <div class="form-group">
-
-            <label for="reason">
-
-                Return Reason
-
-            </label>
-
-
-            <textarea
-                id="reason"
-                name="reason"
-                placeholder="Enter reason for return..."
-            ></textarea>
-
-        </div>
-
-
-        <br>
-
-
-        <div class="form-actions">
-
-            <button
-                type="submit"
-                class="btn btn-primary"
-            >
-
-                Submit Return for Manager Approval
-
-            </button>
-
-        </div>
-
-    </form>
-
-</div>
+    <div class="action-buttons">
+        <button type="submit">Submit return request</button>
+        <a class="btn btn-outline" href="{% url 'sales:sales_history' %}">Cancel</a>
+    </div>
+</form>
 
 {% endblock %}

@@ -9,9 +9,7 @@
 
         <div>
             <h2>Expenses</h2>
-            <p class="text-muted mb-0">
-                Manage and track business expenses
-            </p>
+
         </div>
 
         <a href="{% url 'expenses:create_expense' %}"
@@ -48,7 +46,7 @@
         <div class="card-body">
 
             <h6 class="text-muted">
-                Total Expenses
+                Total Approved Expenses
             </h6>
 
             <h3>
@@ -62,23 +60,44 @@
 
     <!-- SEARCH AND FILTERS -->
 
-    <div class="card mb-4">
+    <style>
+        form.expense-filter {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 16px;
+            padding: 0;
+            box-shadow: none;
+            background: transparent;
+        }
+        .expense-filter-fields {
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: flex-end;
+            gap: 16px;
+            width: 100%;
+        }
+        .expense-filter-fields .filter-search { flex: 2 1 0; min-width: 0; }
+        .expense-filter-fields .filter-field  { flex: 1 1 0; min-width: 0; }
+        .expense-filter-actions { display: flex; gap: 10px; }
+        @media (max-width: 900px) {
+            .expense-filter-fields { flex-wrap: wrap; }
+            .expense-filter-fields .filter-search,
+            .expense-filter-fields .filter-field { flex: 1 1 200px; }
+        }
+    </style>
 
-        <div class="card-body">
+    <div class="dashboard-card" style="margin-bottom: var(--space-lg);">
 
-            <form method="GET">
+        <div>
 
-                <div class="row g-3">
+            <form method="GET" class="expense-filter">
 
+                <div class="expense-filter-fields">
 
                     <!-- SEARCH -->
-
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Search
-                        </label>
-
+                    <div class="filter-search">
+                        <label class="form-label">Search</label>
                         <input
                             type="text"
                             name="search"
@@ -86,159 +105,54 @@
                             placeholder="Expense number, description, category..."
                             value="{{ search }}"
                         >
-
                     </div>
 
-
                     <!-- CATEGORY -->
-
-                    <div class="col-md-2">
-
-                        <label class="form-label">
-                            Category
-                        </label>
-
-                        <select
-                            name="category"
-                            class="form-select"
-                        >
-
-                            <option value="">
-                                All Categories
-                            </option>
-
+                    <div class="filter-field">
+                        <label class="form-label">Category</label>
+                        <select name="category" class="form-select">
+                            <option value="">All Categories</option>
                             {% for category in categories %}
-
                                 <option
                                     value="{{ category.id }}"
-                                    {% if category_id == category.id|stringformat:"s" %}
-                                        selected
-                                    {% endif %}
+                                    {% if category_id == category.id|stringformat:"s" %}selected{% endif %}
                                 >
                                     {{ category.name }}
                                 </option>
-
                             {% endfor %}
-
                         </select>
-
                     </div>
-
 
                     <!-- PAYMENT METHOD -->
-
-                    <div class="col-md-2">
-
-                        <label class="form-label">
-                            Payment Method
-                        </label>
-
-                        <select
-                            name="payment_method"
-                            class="form-select"
-                        >
-
-                            <option value="">
-                                All Methods
-                            </option>
-
-                            <option
-                                value="CASH"
-                                {% if payment_method == "CASH" %}
-                                    selected
-                                {% endif %}
-                            >
-                                Cash
-                            </option>
-
-                            <option
-                                value="MOBILE_MONEY"
-                                {% if payment_method == "MOBILE_MONEY" %}
-                                    selected
-                                {% endif %}
-                            >
-                                Mobile Money
-                            </option>
-
-                            <option
-                                value="BANK"
-                                {% if payment_method == "BANK" %}
-                                    selected
-                                {% endif %}
-                            >
-                                Bank
-                            </option>
-
-                            <option
-                                value="CARD"
-                                {% if payment_method == "CARD" %}
-                                    selected
-                                {% endif %}
-                            >
-                                Card
-                            </option>
-
+                    <div class="filter-field">
+                        <label class="form-label">Method</label>
+                        <select name="payment_method" class="form-select">
+                            <option value="">All Methods</option>
+                            <option value="CASH" {% if payment_method == "CASH" %}selected{% endif %}>Cash</option>
+                            <option value="MOBILE_MONEY" {% if payment_method == "MOBILE_MONEY" %}selected{% endif %}>Mobile Money</option>
+                            <option value="BANK" {% if payment_method == "BANK" %}selected{% endif %}>Bank</option>
+                            <option value="CARD" {% if payment_method == "CARD" %}selected{% endif %}>Card</option>
                         </select>
-
                     </div>
-
 
                     <!-- DATE FROM -->
-
-                    <div class="col-md-2">
-
-                        <label class="form-label">
-                            From
-                        </label>
-
-                        <input
-                            type="date"
-                            name="date_from"
-                            class="form-control"
-                            value="{{ date_from }}"
-                        >
-
+                    <div class="filter-field">
+                        <label class="form-label">From</label>
+                        <input type="date" name="date_from" class="form-control" value="{{ date_from }}">
                     </div>
-
 
                     <!-- DATE TO -->
-
-                    <div class="col-md-2">
-
-                        <label class="form-label">
-                            To
-                        </label>
-
-                        <input
-                            type="date"
-                            name="date_to"
-                            class="form-control"
-                            value="{{ date_to }}"
-                        >
-
+                    <div class="filter-field">
+                        <label class="form-label">To</label>
+                        <input type="date" name="date_to" class="form-control" value="{{ date_to }}">
                     </div>
 
+                </div>
 
-                    <!-- BUTTONS -->
-
-                    <div class="col-12">
-
-                        <button
-                            type="submit"
-                            class="btn btn-primary"
-                        >
-                            Search / Filter
-                        </button>
-
-                        <a
-                            href="{% url 'expenses:expense_list' %}"
-                            class="btn btn-secondary"
-                        >
-                            Clear
-                        </a>
-
-                    </div>
-
+                <!-- BUTTONS -->
+                <div class="expense-filter-actions">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                    <a href="{% url 'expenses:expense_list' %}" class="btn btn-secondary">Clear</a>
                 </div>
 
             </form>
@@ -246,7 +160,7 @@
         </div>
 
     </div>
-
+<br>
 
     <!-- EXPENSE TABLE -->
 
@@ -263,17 +177,13 @@
                         <tr>
 
                             <th>Expense No.</th>
-
                             <th>Category</th>
-
                             <th>Description</th>
-
                             <th>Amount</th>
-
                             <th>Date</th>
-
                             <th>Payment Method</th>
-
+                            <th>Status</th>
+                            <th>Action</th>
                             <th>Created By</th>
 
                         </tr>
@@ -310,10 +220,38 @@
                                 <td>
                                     {{ expense.get_payment_method_display }}
                                 </td>
-
                                 <td>
+                                    {% if expense.status == "APPROVED" %}<span class="badge badge-success">Approved</span>
+                                    {% elif expense.status == "REJECTED" %}<span class="badge badge-danger">Rejected</span>
+                                    {% else %}<span class="badge badge-warning">Pending</span>{% endif %}
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
 
-                                    {% if expense.created_by %}
+                                        <a class="action-btn action-view" href="{% url 'expenses:expense_detail' expense.pk %}">{% if is_manager and expense.status == "PENDING" %}Review{% else %}View{% endif %}</a>
+
+                                        {% if expense.can_delete %}
+                                        <form
+                                            method="post"
+                                            action="{% url 'expenses:expense_delete' expense.pk %}"
+                                            class="inline-form"
+                                            onsubmit="return confirm('Delete expense {{ expense.expense_number }}? This cannot be undone.');"
+                                        >
+                                            {% csrf_token %}
+                                            <button
+                                                type="submit"
+                                                class="btn-danger"
+                                                style="padding: 7px 14px; font-size: 13px;"
+                                            >
+                                                Delete
+                                            </button>
+                                        </form>
+                                        {% endif %}
+
+                                    </div>
+                                </td>
+                                <td>
+                                        {% if expense.created_by %}
                                         {{ expense.created_by }}
                                     {% else %}
                                         -
@@ -328,7 +266,7 @@
                             <tr>
 
                                 <td
-                                    colspan="7"
+                                    colspan="9"
                                     class="text-center py-4"
                                 >
                                     No expenses found.

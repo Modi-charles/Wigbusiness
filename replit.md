@@ -1,4 +1,4 @@
-# WigBiz ERP
+# MCK Beauty Enterprise
 
 ## Run on Replit
 

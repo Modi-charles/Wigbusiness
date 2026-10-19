@@ -1,437 +1,221 @@
+
 {% extends "administrator/base.html" %}
 
 {% block title %}
 Administrator Dashboard
 {% endblock %}
 
-
 {% block content %}
 
-<div class="dashboard-header">
+<style>
+/* Layout changes only. Existing colors and card styles are preserved. */
 
+.admin-layout-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.admin-layout-two-column {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.admin-layout-full-width {
+    width: 100%;
+    margin-bottom: 24px;
+    min-width: 0;
+}
+
+.admin-layout-kpis > *,
+.admin-layout-two-column > *,
+.admin-layout-full-width > * {
+    min-width: 0;
+}
+
+.admin-layout-two-column .dashboard-card {
+    margin-bottom: 0;
+}
+
+.admin-layout-full-width .dashboard-card {
+    margin-bottom: 0;
+}
+
+.admin-layout-kpis .report-cards {
+    display: contents;
+}
+
+.admin-layout-kpis .report-card {
+    min-width: 0;
+}
+
+.admin-layout-kpis .dashboard-section {
+    margin: 0;
+}
+
+@media (max-width: 1000px) {
+    .admin-layout-kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 650px) {
+    .admin-layout-kpis,
+    .admin-layout-two-column {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+</style>
+
+<!-- DASHBOARD HEADER -->
+
+<div class="dashboard-header">
     <h1>Administrator Dashboard</h1>
 
     <p>
         Welcome,
         {{ user.get_full_name|default:user.username }}
     </p>
+</div>
+
+
+<!-- =====================================================
+     ROW 1: FOUR KPI CARDS
+====================================================== -->
+
+<div class="admin-layout-kpis">
+
+    <div class="report-card">
+        <h3>Total Users</h3>
+        <p>{{ total_users|default:"0" }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Active Users</h3>
+        <p>{{ active_users|default:"0" }}</p>
+        <small>Active within the last 30 days</small>
+    </div>
+
+    <div class="report-card">
+        <h3>Pending Approvals</h3>
+        <p>{{ pending_approvals_count|default:"0" }}</p>
+    </div>
+
+    <div class="report-card">
+        <h3>Failed Login Attempts</h3>
+        <p>{{ failed_login_attempts|default:"0" }}</p>
+    </div>
 
 </div>
 
 
 <!-- =====================================================
-     1. USER & IDENTITY MANAGEMENT
+     ROW 2: FULL-WIDTH CHART
+     Existing chart retained; no revenue data is invented.
 ====================================================== -->
 
-<section class="dashboard-section">
-    <div class="section-header">
-        <h2>User & Identity Management</h2>
-    </div>
-    <div class="report-cards">
-
-        <!-- TOTAL USERS -->
-        <div class="report-card">
-            <h3>Total Users</h3>
-            <p>
-                {{ total_users|default:"0" }}
-            </p>
-        </div>
-
-
-        <!-- ACTIVE USERS -->
-        <div class="report-card">
-            <h3>Active Users</h3>
-            <p>
-                {{ active_users|default:"0" }}
-            </p>
-            <small>
-                Active within the last 30 days
-            </small>
-        </div>
-
-        <!-- PENDING APPROVALS -->
-        <div class="report-card">
-            <h3>Pending Approvals</h3>
-            <p>
-                {{ pending_approvals_count|default:"0" }}
-            </p>
-        </div>
-    </div>
-
-
-    <!-- SIGNUP CHART -->
+<div class="admin-layout-full-width">
 
     <div class="dashboard-card">
 
         <div class="card-header">
-
             <h3>New Sign-ups</h3>
-
-            <span>
-                Last 30 days
-            </span>
-
+            <span>Last 30 days</span>
         </div>
 
-        <div
-            style="
-                position: relative;
-                height: 320px;
-                width: 100%;
-            "
-        >
-
+        <div style="position: relative; height: 320px; width: 100%;">
             <canvas id="signupChart"></canvas>
-
         </div>
 
     </div>
 
-
-    <!-- ROLE BREAKDOWN -->
-
-    <div class="dashboard-card">
-
-        <div class="card-header">
-
-            <h3>User Roles Breakdown</h3>
-
-        </div>
-
-        <div
-            style="
-                position: relative;
-                height: 320px;
-                width: 100%;
-            "
-        >
-
-            <canvas id="roleChart"></canvas>
-
-        </div>
-
-    </div>
-
-
-    <!-- PENDING APPROVALS -->
-
-    <div class="dashboard-card">
-
-        <div class="card-header">
-
-            <h3>Pending Approvals</h3>
-
-            <span>
-                {{ pending_approvals_count }}
-            </span>
-
-        </div>
-
-
-        {% if pending_users %}
-
-            <div class="table-responsive">
-
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>Username</th>
-
-                            <th>Email</th>
-
-                            <th>Date Joined</th>
-
-                            <th>Action</th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-                        {% for pending_user in pending_users %}
-
-                            <tr>
-
-                                <td>
-                                    {{ pending_user.username }}
-                                </td>
-
-                                <td>
-                                    {{ pending_user.email }}
-                                </td>
-
-                                <td>
-                                    {{ pending_user.date_joined|date:"d M Y H:i" }}
-                                </td>
-
-                                <td>
-
-                                    <a
-                                        href="{% url 'accounts:user_list' %}"
-                                    >
-                                        Review
-                                    </a>
-
-                                </td>
-
-                            </tr>
-
-                        {% endfor %}
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        {% else %}
-
-            <p>
-                No pending approvals.
-            </p>
-
-        {% endif %}
-
-    </div>
-
-</section>
-
+</div>
 
 
 <!-- =====================================================
-     2. SYSTEM HEALTH & PERFORMANCE
+     ROW 3: ADMIN ACTIONS + NOTIFICATIONS
 ====================================================== -->
 
-<section class="dashboard-section">
+<div class="admin-layout-two-column">
 
-    <div class="section-header">
-
-        <h2>System Health & Performance</h2>
-
-    </div>
-
-
-    <div class="report-cards">
-
-        <!-- SERVER UPTIME -->
-
-        <div class="report-card">
-
-            <h3>Server Uptime</h3>
-
-            {% if server_uptime != None %}
-
-                <p>
-                    {{ server_uptime }}%
-                </p>
-
-            {% else %}
-
-                <p>—</p>
-
-                <small>
-                    Monitoring not configured
-                </small>
-
-            {% endif %}
-
-        </div>
-
-
-        <!-- API RESPONSE -->
-
-        <div class="report-card">
-
-            <h3>API Response Time</h3>
-
-            {% if api_response_time != None %}
-
-                <p>
-                    {{ api_response_time }} ms
-                </p>
-
-            {% else %}
-
-                <p>—</p>
-
-                <small>
-                    Monitoring not configured
-                </small>
-
-            {% endif %}
-
-        </div>
-
-
-        <!-- STORAGE -->
-
-        <div class="report-card">
-
-            <h3>Storage Usage</h3>
-
-            {% if storage_percentage != None %}
-
-                <p>
-                    {{ storage_percentage }}%
-                </p>
-
-            {% else %}
-
-                <p>—</p>
-
-                <small>
-                    Monitoring not configured
-                </small>
-
-            {% endif %}
-
-        </div>
-
-
-        <!-- ERRORS -->
-
-        <div class="report-card">
-
-            <h3>Error Rate</h3>
-
-            {% if error_rate != None %}
-
-                <p>
-                    {{ error_rate }}
-                </p>
-
-            {% else %}
-
-                <p>—</p>
-
-                <small>
-                    Error monitoring not configured
-                </small>
-
-            {% endif %}
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     3. SECURITY & AUDIT
-====================================================== -->
-
-<section class="dashboard-section">
-
-    <div class="section-header">
-
-        <h2>Security & Audit</h2>
-
-    </div>
-
-
-    <div class="report-cards">
-
-        <!-- FAILED LOGINS -->
-
-        <div class="report-card">
-
-            <h3>Failed Login Attempts</h3>
-
-            <p>
-                {{ failed_login_attempts|default:"0" }}
-            </p>
-
-        </div>
-
-    </div>
-
-
-    <!-- ADMIN ACTIONS -->
+    <!-- RECENT ADMIN ACTIONS -->
 
     <div class="dashboard-card">
 
         <div class="card-header">
-
             <h3>Recent Admin Actions</h3>
-
         </div>
-
 
         {% if recent_admin_actions %}
 
             <div class="table-responsive">
-
                 <table>
-
                     <thead>
-
                         <tr>
-
                             <th>User</th>
-
                             <th>Action</th>
-
                             <th>Date</th>
-
                         </tr>
-
                     </thead>
 
-
                     <tbody>
-
                         {% for action in recent_admin_actions %}
-
                             <tr>
-
-                                <td>
-                                    {{ action.user }}
-                                </td>
-
-                                <td>
-                                    {{ action.action }}
-                                </td>
-
-                                <td>
-                                    {{ action.created_at }}
-                                </td>
-
+                                <td>{{ action.user }}</td>
+                                <td>{{ action.action }}</td>
+                                <td>{{ action.created_at }}</td>
                             </tr>
-
                         {% endfor %}
-
                     </tbody>
-
                 </table>
-
             </div>
 
         {% else %}
 
-            <p>
-                No audit activity available yet.
-            </p>
+            <p>No audit activity available yet.</p>
 
         {% endif %}
 
     </div>
 
 
-    <!-- LOGIN LOCATIONS -->
+    <!-- NOTIFICATIONS -->
 
     <div class="dashboard-card">
 
         <div class="card-header">
+            <h3>Notification Center</h3>
+        </div>
 
+        <p>
+            Send system-wide announcements,
+            maintenance messages and important alerts.
+        </p>
+
+        <button type="button" data-notifications>
+            Create System Notification
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ROW 4: IP TRACKING + FEATURE ADOPTION
+====================================================== -->
+
+<div class="admin-layout-two-column">
+
+    <!-- IP / LOCATION TRACKING -->
+
+    <div class="dashboard-card">
+
+        <div class="card-header">
             <h3>IP / Location Tracking</h3>
-
         </div>
 
         {% if login_locations %}
@@ -448,75 +232,35 @@ Administrator Dashboard
 
     </div>
 
-</section>
-
-
-
-<!-- =====================================================
-     4. BUSINESS & USAGE OVERVIEW
-====================================================== -->
-
-<section class="dashboard-section">
-
-    <div class="section-header">
-
-        <h2>Business & Usage Overview</h2>
-
-    </div>
-
 
     <!-- FEATURE ADOPTION -->
 
     <div class="dashboard-card">
 
         <div class="card-header">
-
             <h3>Feature Adoption</h3>
-
         </div>
-
 
         {% if feature_adoption %}
 
             <div class="table-responsive">
-
                 <table>
-
                     <thead>
-
                         <tr>
-
                             <th>Feature</th>
-
                             <th>Usage</th>
-
                         </tr>
-
                     </thead>
 
-
                     <tbody>
-
                         {% for feature in feature_adoption %}
-
                             <tr>
-
-                                <td>
-                                    {{ feature.name }}
-                                </td>
-
-                                <td>
-                                    {{ feature.usage }}
-                                </td>
-
+                                <td>{{ feature.name }}</td>
+                                <td>{{ feature.usage }}</td>
                             </tr>
-
                         {% endfor %}
-
                     </tbody>
-
                 </table>
-
             </div>
 
         {% else %}
@@ -529,23 +273,41 @@ Administrator Dashboard
 
     </div>
 
+</div>
 
-    <!-- SUBSCRIPTIONS -->
+
+<!-- =====================================================
+     ROW 5: USER ROLES + SUBSCRIPTION STATUS
+====================================================== -->
+
+<div class="admin-layout-two-column">
+
+    <!-- USER ROLES BREAKDOWN -->
 
     <div class="dashboard-card">
 
         <div class="card-header">
-
-            <h3>Subscription / Revenue Status</h3>
-
+            <h3>User Roles Breakdown</h3>
         </div>
 
+        <div style="position: relative; height: 320px; width: 100%;">
+            <canvas id="roleChart"></canvas>
+        </div>
+
+    </div>
+
+
+    <!-- SUBSCRIPTION / REVENUE STATUS -->
+
+    <div class="dashboard-card">
+
+        <div class="card-header">
+            <h3>Subscription / Revenue Status</h3>
+        </div>
 
         {% if subscription_status %}
 
-            <p>
-                {{ subscription_status }}
-            </p>
+            <p>{{ subscription_status }}</p>
 
         {% else %}
 
@@ -557,37 +319,133 @@ Administrator Dashboard
 
     </div>
 
+</div>
 
-    <!-- NOTIFICATIONS -->
 
-    <div class="dashboard-card">
+<!-- =====================================================
+     ROW 6: SYSTEM HEALTH & PERFORMANCE
+====================================================== -->
 
-        <div class="card-header">
+<section class="dashboard-section">
 
-            <h3>Notification Center</h3>
+    <div class="section-header">
+        <h2>System Health & Performance</h2>
+    </div>
 
+    <div class="report-cards">
+
+        <div class="report-card">
+            <h3>Server Uptime</h3>
+
+            {% if server_uptime != None %}
+                <p>{{ server_uptime }}%</p>
+            {% else %}
+                <p>—</p>
+                <small>Monitoring not configured</small>
+            {% endif %}
         </div>
 
 
-        <p>
-            Send system-wide announcements,
-            maintenance messages and important alerts.
-        </p>
+        <div class="report-card">
+            <h3>API Response Time</h3>
+
+            {% if api_response_time != None %}
+                <p>{{ api_response_time }} ms</p>
+            {% else %}
+                <p>—</p>
+                <small>Monitoring not configured</small>
+            {% endif %}
+        </div>
 
 
-        <button
-            type="button"
-            data-notifications
-        >
-            Create System Notification
-        </button>
+        <div class="report-card">
+            <h3>Storage Usage</h3>
+
+            {% if storage_percentage != None %}
+                <p>{{ storage_percentage }}%</p>
+            {% else %}
+                <p>—</p>
+                <small>Monitoring not configured</small>
+            {% endif %}
+        </div>
+
+
+        <div class="report-card">
+            <h3>Error Rate</h3>
+
+            {% if error_rate != None %}
+                <p>{{ error_rate }}</p>
+            {% else %}
+                <p>—</p>
+                <small>Error monitoring not configured</small>
+            {% endif %}
+        </div>
 
     </div>
 
 </section>
 
+
 <!-- =====================================================
-     ADMINISTRATION
+     ROW 7: PENDING APPROVALS TABLE
+====================================================== -->
+
+<section class="dashboard-section">
+
+    <div class="dashboard-card">
+
+        <div class="card-header">
+            <h3>Pending Approvals</h3>
+            <span>{{ pending_approvals_count|default:"0" }}</span>
+        </div>
+
+        {% if pending_users %}
+
+            <div class="table-responsive">
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Date Joined</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for pending_user in pending_users %}
+                            <tr>
+                                <td>{{ pending_user.username }}</td>
+                                <td>{{ pending_user.email }}</td>
+                                <td>
+                                    {{ pending_user.date_joined|date:"d M Y H:i" }}
+                                </td>
+                                <td>
+                                    <a href="{% url 'accounts:user_list' %}">
+                                        Review
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+
+        {% else %}
+
+            <p>No pending approvals.</p>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     ROW 8: ADMINISTRATION
 ====================================================== -->
 
 <section class="admin-section">
@@ -599,32 +457,26 @@ Administrator Dashboard
         </p>
     </div>
 
-
     <div class="admin-grid">
 
         <!-- USERS -->
 
         <div class="admin-card">
 
-            <div class="admin-card-icon">
-            </div>
+            <div class="admin-card-icon"></div>
 
             <div class="admin-card-content">
-
                 <h3>Users</h3>
 
                 <p>
                     Manage system users, accounts and roles.
                 </p>
 
-                <a
-                    href="{% url 'accounts:user_list' %}"
-                    class="admin-card-link"
-                >
+                <a href="{% url 'accounts:user_list' %}"
+                   class="admin-card-link">
                     Manage Users
-                <span>→</span>
+                    <span>→</span>
                 </a>
-
             </div>
 
         </div>
@@ -634,26 +486,20 @@ Administrator Dashboard
 
         <div class="admin-card">
 
-            <div class="admin-card-icon">
-        
-            </div>
+            <div class="admin-card-icon"></div>
 
             <div class="admin-card-content">
-
                 <h3>Employees</h3>
 
                 <p>
                     Manage employees and their information.
                 </p>
 
-                <a
-                    href="{% url 'employees:employee_list' %}"
-                    class="admin-card-link"
-                >
+                <a href="{% url 'employees:employee_list' %}"
+                   class="admin-card-link">
                     Manage Employees
                     <span>→</span>
                 </a>
-
             </div>
 
         </div>
@@ -663,36 +509,32 @@ Administrator Dashboard
 
         <div class="admin-card">
 
-            <div class="admin-card-icon">
-    
-            </div>
+            <div class="admin-card-icon"></div>
 
             <div class="admin-card-content">
-
                 <h3>Reports</h3>
 
                 <p>
                     View business, financial and operational reports.
                 </p>
 
-                <a
-                    href="{% url 'reports:dashboard' %}"
-                    class="admin-card-link"
-                >
+                <a href="{% url 'reports:dashboard' %}"
+                   class="admin-card-link">
                     View Reports
                     <span>→</span>
                 </a>
-
             </div>
 
         </div>
 
     </div>
+
 </section>
 
 
 <!-- =====================================================
-     CHART.JS
+     CHART DATA
+     Existing chart data variables preserved.
 ====================================================== -->
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

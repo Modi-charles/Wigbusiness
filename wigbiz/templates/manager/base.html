@@ -32,7 +32,7 @@ try {
 <header class="navbar">
 
     <div class="brand">
-        WigBiz ERP
+                MCK Beauty Enterprise
     </div>
 
     <div class="navbar-right">
@@ -78,11 +78,14 @@ try {
                 Suppliers
             </a>
 
-            <a href="{% url 'employees:employee_list' %}">
-                Employees
-            </a>
-            <a href="{% url 'expenses:expense_list' %}">
+            <a href="{% url 'expenses:expense_list'%}">
                 Expenses
+            </a>
+            <a href="{% url 'notifications:notification_list'%}">
+                Expense Approvals
+            </a>
+            <a href="{% url 'sales:return_approval_list'%}">
+                Return Approvals
             </a>
 
             <a href="{% url 'reports:dashboard' %}">
@@ -136,7 +139,7 @@ try {
 <footer class="footer">
 
     <p>
-        &copy; {% now "Y" %} WigBiz ERP.
+        &copy; {% now "Y" %} MCK Beauty Enterprise.
     </p>
 
 </footer>

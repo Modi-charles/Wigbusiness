@@ -12,7 +12,7 @@
 
     <title>
         {% block title %}
-            WigBiz ERP
+                MCK Beauty Enterprise
         {% endblock %}
     </title>
 
@@ -39,7 +39,7 @@
         <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
          {% endif %}
         <span class="brand">
-            WigBiz ERP
+            MCK Beauty Enterprise
         </span>
 
     </div>
@@ -184,6 +184,7 @@
                 </span>
 
             </a>
+               
 
 
             <a href="{% url 'accounts:user_list' %}"
@@ -271,6 +272,8 @@
                 </span>
 
             </a>
+            <a href="{% url 'notifications:notification_list' %}">Expense Approvals{% if unread_notifications_count %} ({{ unread_notifications_count }}){% endif %}</a>
+
             <a href="{% url 'sales:return_approval_list' %}"
             class="{% if request.resolver_match.url_name == 'return_approval_list' or request.resolver_match.url_name == 'return_approval_detail' %}active{% endif %}">
 
@@ -307,7 +310,24 @@
                 </span>
 
             </a>
+            <a href="{% url 'expenses:expense_list' %}"
+               class="{% if request.resolver_match.app_name == 'expense' %}active{% endif %}">
 
+                <span>
+                    Expenses
+                </span>
+
+            </a>
+
+             </a>
+            <a href="{% url 'sales:return_history' %}"
+               class="{% if request.resolver_match.app_name == 'sales' %}active{% endif %}">
+
+                <span>
+                    Return History
+                </span>
+
+            </a>
 
 
         <!-- =================================================
@@ -325,6 +345,16 @@
                 </span>
 
             </a>
+
+            <a href="{% url 'view_product' %}"
+               class="{% if request.resolver_match.app_name == 'inventory' %}active{% endif %}">
+
+                <span>
+                    Products
+                </span>
+
+            </a>
+
 
 
             <a href="{% url 'purchase:view_purchase' %}"
@@ -494,7 +524,7 @@
 
     <p>
 
-        &copy; {% now "Y" %} WigBiz ERP.
+        &copy; {% now "Y" %} MCK Beauty Enterprise.
         All rights reserved.
 
     </p>

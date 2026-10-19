@@ -1,47 +1,44 @@
 {% extends "base.html" %}
 
-{% block title %}Return Approvals{% endblock %}
+{% block title %}Return approvals{% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h1>Return Approvals</h1>
+
+<h1>Returns waiting for approval</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Return</th>
+            <th>Invoice</th>
+            <th>Requested by</th>
+            <th>Units</th>
+            <th>Refund value</th>
+            <th>Requested</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for r in returns %}
+        <tr>
+            <td>{{ r.return_number }}</td>
+            <td>{{ r.sale.invoice_number }}</td>
+            <td>{{ r.created_by|default:"-" }}</td>
+            <td>{{ r.items.all|length }} line(s)</td>
+            <td>UGX {{ r.total_refund|floatformat:2 }}</td>
+            <td>{{ r.created_at|timesince }} ago</td>
+            <td>
+                <a class="action-btn action-view" href="{% url 'sales:return_approval_detail' r.pk %}">Review</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7">No returns are waiting for approval.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="action-buttons" style="margin-top: var(--space-md);">
+    <a class="btn btn-outline" href="{% url 'sales:return_history' %}">All returns</a>
 </div>
 
-<div class="report-card">
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Return Number</th>
-                    <th>Invoice</th>
-                    <th>Requested By</th>
-                    <th>Refund Amount</th>
-                    <th>Date</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for sale_return in returns %}
-                    <tr>
-                        <td>{{ sale_return.return_number }}</td>
-                        <td>{{ sale_return.sale.invoice_number }}</td>
-                        <td>{{ sale_return.created_by }}</td>
-                        <td>UGX {{ sale_return.total_refund }}</td>
-                        <td>{{ sale_return.created_at|date:"d M Y H:i" }}</td>
-                        <td>
-                            <a class="btn btn-primary"
-                               href="{% url 'sales:return_approval_detail' sale_return.pk %}">
-                                Review
-                            </a>
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="6">No returns are waiting for approval.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
 {% endblock %}

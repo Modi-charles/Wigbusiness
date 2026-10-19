@@ -1,4 +1,5 @@
 {% extends "salesperson/base.html" %}
+{% load l10n %}
 
 {% block title %}
 Sales Dashboard
@@ -7,194 +8,227 @@ Sales Dashboard
 {% block content %}
 
 <div class="dashboard-header">
-
     <div>
         <h1>Sales Dashboard</h1>
-
-        <p>
-            Welcome,
-            {{ user.get_full_name|default:user.username }}
-        </p>
+        <p>Welcome, {{ user.get_full_name|default:user.username }}</p>
     </div>
-
 </div>
 
 
 <!-- DATE FILTER -->
 
-<div class="filter-card">
+<style>
+    .filter-card form {
+        display: block;
+        padding: 0;
+        box-shadow: none;
+        background: transparent;
+    }
+    .filter-group {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 16px;
+    }
+    .filter-group .filter-field {
+        flex: 0 1 200px;
+        min-width: 150px;
+    }
+    .filter-group .filter-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+</style>
 
+<div class="filter-card dashboard-card dashboard-card-full">
+    <h2>Filter by Date</h2>
     <form method="GET">
-
         <div class="filter-group">
 
-            <div>
-                <label for="date_from">
-                    From
-                </label>
-
-                <input
-                    type="date"
-                    id="date_from"
-                    name="date_from"
-                    value="{{ date_from }}"
-                >
+            <div class="filter-field">
+                <label for="date_from">From</label>
+                <input type="date" id="date_from" name="date_from" value="{{ date_from }}">
             </div>
 
-
-            <div>
-                <label for="date_to">
-                    To
-                </label>
-
-                <input
-                    type="date"
-                    id="date_to"
-                    name="date_to"
-                    value="{{ date_to }}"
-                >
+            <div class="filter-field">
+                <label for="date_to">To</label>
+                <input type="date" id="date_to" name="date_to" value="{{ date_to }}">
             </div>
 
-
-            <div>
-                <button type="submit">
-                    Filter
-                </button>
-            </div>
-
-
-            <div>
-                <a href="{% url 'dashboard:dashboard' %}">
-                    Clear
-                </a>
+            <div class="filter-actions">
+                <button type="submit">Filter</button>
+                <a class="btn btn-outline" href="{% url 'dashboard:dashboard' %}">Clear</a>
             </div>
 
         </div>
-
     </form>
-
 </div>
 
 
 <!-- REPORT CARDS -->
 
+<section class="dashboard-section dashboard-card dashboard-card-full">
+
+<h2>Overview</h2>
+
 <div class="report-cards">
 
-
-    <!-- TODAY'S SALES -->
-
     <div class="report-card">
-
-        <h3>
-            Today's Sales
-        </h3>
-
-        <p>
-            UGX {{ today_sales|default:"0" }}
-        </p>
-
+        <h3>Today's Sales</h3>
+        <p>UGX {{ today_sales|default:"0" }}</p>
     </div>
 
-
-    <!-- SALES COUNT -->
-
     <div class="report-card">
-
-        <h3>
-            Sales Count
-        </h3>
-
-        <p>
-            {{ sales_count|default:"0" }}
-        </p>
-
+        <h3>Sales Count</h3>
+        <p>{{ sales_count|default:"0" }}</p>
     </div>
-
-
-    <!-- REVENUE -->
 
     <div class="report-card">
         <h3>Revenue</h3>
         <p>UGX {{ revenue|default:"0" }}</p>
-
     </div>
 
-
-    <!-- AVERAGE SALE -->
-
     <div class="report-card">
-
-        <h3>
-            Average Sale
-        </h3>
-
-        <p>
-            UGX {{ average_sale|default:"0" }}
-        </p>
-
+        <h3>Average Sale</h3>
+        <p>UGX {{ average_sale|default:"0" }}</p>
     </div>
 
-
-    <!-- CUSTOMER OUTSTANDING -->
-
     <div class="report-card">
-
-        <h3>
-            Customer Outstanding
-        </h3>
-
-        <p>
-            UGX {{ customer_outstanding|default:"0" }}
-        </p>
-
+        <h3>Customer Outstanding</h3>
+        <p>UGX {{ customer_outstanding|default:"0" }}</p>
     </div>
 
-
-    <!-- TARGET -->
-
     <div class="report-card">
-
-        <h3>
-            Revenue vs Target
-        </h3>
-
-        <p>
-            {{ target_percentage|default:"0" }}%
-        </p>
-
-        <small>
-            Target:
-            UGX {{ monthly_target|default:"0" }}
-        </small>
-
+        <h3>Revenue vs Target</h3>
+        <p>{{ target_percentage|default:"0" }}%</p>
+        <small>Target: UGX {{ monthly_target|default:"0" }}</small>
     </div>
 
 </div>
+
+</section>
+
+
+<!-- CARD LAYOUT -->
+
+<style>
+    /* Each section becomes its own card; cards sit side by side
+       and stack into one column on narrow screens. */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+        align-items: start;
+    }
+    .dashboard-card {
+        min-width: 0;                           /* lets wide tables scroll inside the card */
+        margin: 0;
+        padding: 20px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .dashboard-card-full {
+        margin-bottom: 20px;                    /* full-width cards stack, so they need a gap */
+    }
+    .dashboard-card h2 {
+        margin-top: 0;
+    }
+    .dashboard-card .table-container {
+        overflow-x: auto;
+    }
+    .target-chart {
+        position: relative;
+        max-width: 260px;
+        margin: 0 auto 16px;
+    }
+</style>
+
+
+<!-- ROW 1: TARGET + TREND -->
+
+<div class="dashboard-grid">
 
 
 <!-- REVENUE TARGET -->
 
-<section class="dashboard-section">
+<section class="dashboard-section dashboard-card">
 
-    <h2>
-        Revenue vs Target
-    </h2>
+    <h2>Revenue vs Target</h2>
 
-    <div class="progress-container">
-
-    <div class="progress-container">
-    <div class="progress-bar"></div>
-</div>
-
-<p>
-    {{ target_percentage }}% of target achieved
-</p>
-</div>
-
+    <div class="target-chart">
+        <canvas
+            id="targetChart"
+            data-achieved="{{ month_revenue|default:0|unlocalize }}"
+            data-target="{{ monthly_target|default:0|unlocalize }}"
+            data-percent="{{ target_percentage|default:0|unlocalize }}"
+        ></canvas>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script>
+        (function () {
+            var canvas = document.getElementById("targetChart");
+            var achieved = parseFloat(canvas.dataset.achieved) || 0;
+            var target = parseFloat(canvas.dataset.target) || 0;
+            var percent = parseFloat(canvas.dataset.percent) || 0;
+
+            // Two slices: what we've earned (capped at the target) and what is left.
+            var done = Math.min(achieved, target);
+            var remaining = Math.max(target - achieved, 0);
+
+            // Small plugin that writes the percentage in the middle of the ring.
+            var centerText = {
+                id: "centerText",
+                afterDraw: function (chart) {
+                    var ctx = chart.ctx;
+                    var area = chart.chartArea;
+                    var x = (area.left + area.right) / 2;
+                    var y = (area.top + area.bottom) / 2;
+                    ctx.save();
+                    ctx.font = "600 28px sans-serif";
+                    ctx.fillStyle = "#e6edf0";
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.fillText(percent.toFixed(1) + "%", x, y);
+                    ctx.restore();
+                }
+            };
+
+            new Chart(canvas, {
+                type: "doughnut",
+                plugins: [centerText],
+                data: {
+                    labels: ["Achieved", "Remaining"],
+                    datasets: [{
+                        data: [done, remaining],
+                        backgroundColor: ["#4fc3f7", "#26363d"],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    cutout: "72%",
+                    plugins: {
+                        legend: { position: "bottom", labels: { color: "#e6edf0" } },
+                        tooltip: {
+                            callbacks: {
+                                label: function (c) {
+                                    return c.label + ": UGX " + c.parsed.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        })();
+    </script>
+
+    <p>{{ target_percentage|default:"0" }}% of this month's target achieved</p>
+
     <p>
-        UGX {{ revenue|default:"0" }}
+        UGX {{ month_revenue|default:"0" }}
         /
         UGX {{ monthly_target|default:"0" }}
     </p>
@@ -204,155 +238,89 @@ Sales Dashboard
 
 <!-- SALES TREND -->
 
-<section class="dashboard-section">
+<section class="dashboard-section dashboard-card">
 
-    <h2>
-        Sales Trend
-    </h2>
+    <h2>Sales Trend</h2>
 
     <div class="table-container">
-
         <table>
 
             <thead>
-
                 <tr>
-
-                    <th>
-                        Date
-                    </th>
-
-                    <th>
-                        Sales
-                    </th>
-
-                    <th>
-                        Revenue
-                    </th>
-
+                    <th>Date</th>
+                    <th>Sales</th>
+                    <th>Revenue</th>
                 </tr>
-
             </thead>
-
 
             <tbody>
 
-                {% for day in sales_trend %}
-
+                {# Each row is a dict: {"day": date, "revenue": ..., "sales_count": ...} #}
+                {% for row in sales_trend %}
                 <tr>
-
-                    <td>
-                        {{ day.day }}
-                    </td>
-
-                    <td>
-                        {{ day.sales_count }}
-                    </td>
-
-                    <td>
-                        UGX {{ day.revenue }}
-                    </td>
-
+                    <td>{{ row.day|date:"d M Y" }}</td>
+                    <td>{{ row.sales_count }}</td>
+                    <td>UGX {{ row.revenue }}</td>
                 </tr>
 
                 {% empty %}
-
                 <tr>
-
-                    <td colspan="3">
-                        No sales found.
-                    </td>
-
+                    <td colspan="3">No sales found.</td>
                 </tr>
-
                 {% endfor %}
 
             </tbody>
 
         </table>
-
     </div>
 
 </section>
 
+</div>
+
+
+<!-- ROW 2: LEADERBOARD + OPERATIONS -->
+
+<div class="dashboard-grid">
+
 
 <!-- SALESPERSON LEADERBOARD -->
 
-<section class="dashboard-section">
+<section class="dashboard-section dashboard-card">
 
-    <h2>
-        Top Salespeople
-    </h2>
+    <h2>Top Salespeople</h2>
 
     <div class="table-container">
-
         <table>
 
             <thead>
-
                 <tr>
-
-                    <th>
-                        Rank
-                    </th>
-
-                    <th>
-                        Salesperson
-                    </th>
-
-                    <th>
-                        Sales
-                    </th>
-
-                    <th>
-                        Revenue
-                    </th>
-
+                    <th>Rank</th>
+                    <th>Salesperson</th>
+                    <th>Sales</th>
+                    <th>Revenue</th>
                 </tr>
-
             </thead>
-
 
             <tbody>
 
                 {% for person in leaderboard %}
-
                 <tr>
-
-                    <td>
-                        {{ forloop.counter }}
-                    </td>
-
-                    <td>
-                        {{ person.created_by__username }}
-                    </td>
-
-                    <td>
-                        {{ person.sales_count }}
-                    </td>
-
-                    <td>
-                        UGX {{ person.revenue }}
-                    </td>
-
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ person.created_by__username }}</td>
+                    <td>{{ person.sales_count }}</td>
+                    <td>UGX {{ person.revenue }}</td>
                 </tr>
 
                 {% empty %}
-
                 <tr>
-
-                    <td colspan="4">
-                        No salesperson data available.
-                    </td>
-
+                    <td colspan="4">No salesperson data available.</td>
                 </tr>
-
                 {% endfor %}
 
             </tbody>
 
         </table>
-
     </div>
 
 </section>
@@ -360,33 +328,18 @@ Sales Dashboard
 
 <!-- SALES OPERATIONS -->
 
-<section class="dashboard-section">
+<section class="dashboard-section dashboard-card">
 
-    <h2>
-        Sales Operations
-    </h2>
-
+    <h2>Sales Operations</h2>
 
     <div class="operations">
-
-        <a
-            href="{% url 'sales:create_sale' %}"
-            class="btn-primary"
-        >
-            + New Sale
-        </a>
-
-
-        <a
-            href="{% url 'customers:customer_list' %}"
-            class="btn-secondary"
-        >
-            Customers
-        </a>
-
+        <a href="{% url 'sales:create_sale' %}" class="btn-primary">+ New Sale</a>
+        <a href="{% url 'customers:customer_list' %}" class="btn-secondary">Customers</a>
     </div>
 
 </section>
+
+</div>
 
 
 {% endblock %}

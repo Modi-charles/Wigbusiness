@@ -3,72 +3,71 @@
 {% block title %}Review {{ sale_return.return_number }}{% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h1>Review Return {{ sale_return.return_number }}</h1>
+
+<h1>Review return {{ sale_return.return_number }}</h1>
+
+<div class="dashboard-card" style="margin-bottom: var(--space-lg);">
+    <p>{% include "sales/_return_status.html" with status=sale_return.status %}</p>
+
+    <table>
+        <tbody>
+            <tr><th>Invoice</th><td><a href="{% url 'sales:sale_detail' sale_return.sale.pk %}">{{ sale_return.sale.invoice_number }}</a></td></tr>
+            <tr><th>Customer</th><td>{{ sale_return.sale.customer|default:"Walk-in" }}</td></tr>
+            <tr><th>Requested by</th><td>{{ sale_return.created_by|default:"-" }}</td></tr>
+            <tr><th>Requested on</th><td>{{ sale_return.created_at|date:"d M Y, H:i" }}</td></tr>
+            <tr><th>Reason</th><td>{{ sale_return.reason|default:"-" }}</td></tr>
+            <tr><th>Refund value</th><td>UGX {{ sale_return.total_refund|floatformat:2 }}</td></tr>
+            {% if sale_return.approved_by %}
+            <tr><th>Reviewed by</th><td>{{ sale_return.approved_by }} on {{ sale_return.approved_at|date:"d M Y, H:i" }}</td></tr>
+            {% endif %}
+            {% if sale_return.status == "REJECTED" %}
+            <tr><th>Rejection reason</th><td>{{ sale_return.rejection_reason }}</td></tr>
+            {% endif %}
+        </tbody>
+    </table>
 </div>
 
-<div class="report-card">
-    <p><strong>Original Invoice:</strong> {{ sale_return.sale.invoice_number }}</p>
-    <p><strong>Requested By:</strong> {{ sale_return.created_by }}</p>
-    <p><strong>Date:</strong> {{ sale_return.created_at|date:"d M Y H:i" }}</p>
-    <p><strong>Reason:</strong> {{ sale_return.reason|default:"No reason provided." }}</p>
-    <p><strong>Refund Amount:</strong> UGX {{ sale_return.total_refund }}</p>
-</div>
-
-<div class="report-card">
-    <h2>Returned Items</h2>
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Selling Price</th>
-                    <th>Refund</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in sale_return.items.all %}
-                    <tr>
-                        <td>{{ item.sale_item.product.name }}</td>
-                        <td>{{ item.quantity }}</td>
-                        <td>UGX {{ item.sale_item.selling_price }}</td>
-                        <td>UGX {{ item.refund_amount }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+<h3>Items</h3>
+<table>
+    <thead>
+        <tr><th>Product</th><th>Quantity</th><th>Refund</th></tr>
+    </thead>
+    <tbody>
+        {% for item in sale_return.items.all %}
+        <tr>
+            <td>{{ item.sale_item.product.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>UGX {{ item.refund_amount|floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
 {% if sale_return.status == "PENDING" %}
-    <div class="report-card">
-        <h2>Manager Decision</h2>
-        <form method="post" action="{% url 'sales:approve_return' sale_return.pk %}">
+<div class="dashboard-card" style="margin-top: var(--space-lg);">
+    <h3>Decision</h3>
+
+    <div class="action-buttons">
+        <form method="post" action="{% url 'sales:approve_return' sale_return.pk %}" class="inline-form"
+              onsubmit="return confirm('Approve return {{ sale_return.return_number }}?');">
             {% csrf_token %}
-            <button type="submit" class="btn btn-primary">Approve Return</button>
-        </form>
-        <br>
-        <form method="post" action="{% url 'sales:reject_return' sale_return.pk %}">
-            {% csrf_token %}
-            <label for="rejection_reason">Rejection Reason</label>
-            <textarea id="rejection_reason" name="rejection_reason" required></textarea>
-            <br><br>
-            <button type="submit" class="btn btn-secondary">Reject Return</button>
+            <button type="submit">Approve</button>
         </form>
     </div>
-{% elif sale_return.status == "COMPLETED" %}
-    <div class="alert success">
-        Approved by {{ sale_return.approved_by }}. Inventory has been updated.
-        The manager must complete the refund from the return details page.
-    </div>
-{% elif sale_return.status == "REJECTED" %}
-    <div class="alert error">
-        This return was rejected: {{ sale_return.rejection_reason }}
-    </div>
+
+    <form method="post" action="{% url 'sales:reject_return' sale_return.pk %}" style="margin-top: var(--space-md);">
+        {% csrf_token %}
+        <div style="flex: 1 1 320px;">
+            <label for="rejection_reason">Reason for rejecting</label>
+            <textarea name="rejection_reason" id="rejection_reason" rows="2" required placeholder="Required if you reject"></textarea>
+        </div>
+        <button type="submit" class="btn-danger">Reject</button>
+    </form>
+</div>
 {% endif %}
 
-<a class="page-link" href="{% url 'sales:return_approval_list' %}" class="btn btn-secondary">
-    Back to Return Approvals
-</a>
+<div class="action-buttons" style="margin-top: var(--space-lg);">
+    <a class="btn btn-outline" href="{% url 'sales:return_approval_list' %}">Back to approvals</a>
+</div>
+
 {% endblock %}

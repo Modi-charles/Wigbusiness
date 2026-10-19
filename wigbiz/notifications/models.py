@@ -9,6 +9,7 @@ class Notification(models.Model):
         OUT_OF_STOCK = "out_of_stock", "Out of Stock"
         EXPENSE = "expense", "Expense"
         PAYMENT = "payment", "Payment"
+        RETURN="return","Return"
 
     recipient = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -40,6 +41,5 @@ class Notification(models.Model):
                 name="notif_recipient_created_idx",
             ),
         ]
-
     def __str__(self):
         return f"{self.title} for {self.recipient}"

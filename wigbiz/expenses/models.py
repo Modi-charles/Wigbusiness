@@ -1,10 +1,10 @@
-from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator
+from django.db import models
 
 
 class ExpenseCategory(models.Model):
-    name = models.CharField(max_length=100,unique=True)
+    name = models.CharField(max_length=100, unique=True)
 
     description = models.TextField(
         blank=True
@@ -35,6 +35,16 @@ class Expense(models.Model):
         ("CARD", "Card"),
     )
 
+    STATUS_PENDING = "PENDING"
+    STATUS_APPROVED = "APPROVED"
+    STATUS_REJECTED = "REJECTED"
+
+    STATUS_CHOICES = (
+        (STATUS_PENDING, "Pending Approval"),
+        (STATUS_APPROVED, "Approved"),
+        (STATUS_REJECTED, "Rejected"),
+    )
+
     expense_number = models.CharField(
         max_length=50,
         unique=True
@@ -63,6 +73,34 @@ class Expense(models.Model):
         choices=PAYMENT_METHODS,
         default="CASH"
     )
+
+    # ---------------- Approval workflow ----------------
+
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default=STATUS_PENDING,
+        db_index=True,
+    )
+
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="expenses_reviewed",
+    )
+
+    reviewed_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+
+    rejection_reason = models.TextField(
+        blank=True
+    )
+
+    # ---------------------------------------------------
 
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
