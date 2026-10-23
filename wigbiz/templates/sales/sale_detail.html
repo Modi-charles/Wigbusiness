@@ -3,314 +3,134 @@
 {% block title %}
     Receipt {{ sale.invoice_number }}
 {% endblock %}
-
-
+<style>
+    @page{
+        size: 80mm auto;
+        margin: 0;
+    }
+    html,body{
+        width: 72mm;
+        margin: 0 auto ;
+    }
+    body{
+        margin: 0 ;
+        padding: 0;
+    }
+    @media print{
+        .no-print { display: none !important; }
+    }
+</style>
 {% block content %}
-
 <div class="receipt-page">
-
     <div class="receipt">
-
-
         <!-- ====================================== -->
         <!-- BUSINESS HEADER -->
         <!-- ====================================== -->
-
         <div class="center">
-
             <div class="business-name">
                 Mck Beauty Enterprise
             </div>
-
-            <p>
-                Sales Receipt
-            </p>
-
+            <p> Sales Receipt </p>
         </div>
-
 
         <!-- ====================================== -->
         <!-- RECEIPT INFORMATION -->
         <!-- ====================================== -->
-
         <div class="receipt-info">
-
-            <p>
-                <strong>Invoice:</strong>
-                {{ sale.invoice_number }}
-            </p>
-
-
-            <p>
-                <strong>Date:</strong>
-                {{ sale.sale_date|date:"d M Y H:i" }}
-            </p>
-
-
-            <p>
-                <strong>Cashier:</strong>
-
+            <p><strong>Invoice:</strong> {{ sale.invoice_number }}</p>
+            <p><strong>Date:</strong> {{ sale.sale_date|date:"d M Y H:i" }} </p>
+            <p><strong>Cashier:</strong>
                 {% if sale.created_by %}
-
                     {{ sale.created_by.get_full_name|default:sale.created_by.username }}
-
                 {% else %}
-
-                    —
-
                 {% endif %}
-
             </p>
-
-
-            <p>
-
-                <strong>Customer:</strong>
-
+            <p><strong>Customer:</strong>
                 {% if sale.customer %}
-
                     {{ sale.customer }}
-
                 {% else %}
-
                     Walk-in Customer
-
                 {% endif %}
-
             </p>
-
         </div>
-
 
         <!-- ====================================== -->
         <!-- ITEMS -->
         <!-- ====================================== -->
-
         <table>
-
             <thead>
-
                 <tr>
-
-                    <th>
-                        Product
-                    </th>
-
-                    <th>
-                        Qty
-                    </th>
-
-                    <th class="number">
-                        Price
-                    </th>
-
-                    <th class="number">
-                        Total
-                    </th>
-
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th class="number"> Price</th>
+                    <th class="number"> Total</th>
                 </tr>
-
             </thead>
-
-
             <tbody>
-
                 {% for item in sale.items.all %}
-
                     <tr>
-
-                        <td>
-                            {{ item.product.name }}
-                        </td>
-
-                        <td>
-                            {{ item.quantity }}
-                        </td>
-
-                        <td class="number">
-                            {{ item.selling_price }}
-                        </td>
-
-                        <td class="number">
-                            {{ item.line_total }}
-                        </td>
-
+                        <td>{{ item.product.name }} </td>
+                        <td>{{ item.quantity }}</td>
+                        <td class="number"> {{ item.selling_price }}</td>
+                        <td class="number"> {{ item.line_total }}</td>
                     </tr>
-
                 {% endfor %}
-
             </tbody>
-
         </table>
-
 
         <!-- ====================================== -->
         <!-- TOTALS -->
         <!-- ====================================== -->
-
         <div class="totals">
-
-
             <div class="total-row">
-
-                <span>
-                    Subtotal
-                </span>
-
-                <span>
-                    UGX {{ sale.subtotal }}
-                </span>
-
+                <span> Subtotal </span>
+                <span> UGX {{ sale.subtotal }}</span>
             </div>
-
-
             <div class="total-row">
-
-                <span>
-                    Discount
-                </span>
-
-                <span>
-                    UGX {{ sale.discount }}
-                </span>
-
+                <span> Discount </span>
+                <span> UGX {{ sale.discount }}</span>
             </div>
-
-
             <div class="total-row">
-
-                <span>
-                    Tax
-                </span>
-
-                <span>
-                    UGX {{ sale.tax }}
-                </span>
-
+                <span>Tax</span>
+                <span> UGX {{ sale.tax }}</span>
             </div>
-
-
             <div class="total-row grand-total">
-
-                <span>
-                    TOTAL
-                </span>
-
-                <span>
-                    UGX {{ sale.total_amount }}
-                </span>
-
+                <span> TOTAL </span>
+                <span>UGX {{ sale.total_amount }} </span>
             </div>
-
-
             <div class="total-row">
-
-                <span>
-                    Paid
-                </span>
-
-                <span>
-                    UGX {{ sale.paid_amount }}
-                </span>
-
+                <span>Paid </span>
+                <span>UGX {{ sale.paid_amount }}</span>
             </div>
-
-
             <div class="total-row">
-
-                <span>
-                    Balance
-                </span>
-
-                <span>
-                    UGX {{ sale.balance }}
-                </span>
-
+                <span> Balance</span>
+                <span> UGX {{ sale.balance }}</span>
             </div>
-
-
             <div class="total-row">
-
-                <span>
-                    Payment
-                </span>
-
-                <span>
-                    {{ sale.get_payment_method_display }}
-                </span>
-
+                <span> Payment</span>
+                <span>{{ sale.get_payment_method_display }}</span>
             </div>
-
         </div>
-
 
         <!-- ====================================== -->
         <!-- THANK YOU -->
         <!-- ====================================== -->
-
         <div class="center">
-
-            <p>
-                Thank you for your business!
-            </p>
-
+            <p> Thank you for your business!</p>
         </div>
-
 
         <!-- ====================================== -->
         <!-- ACTIONS -->
         <!-- ====================================== -->
-
         <div class="receipt-buttons">
-
-            <button
-                type="button"
-                class="print-button"
-                data-print
-            >
-                Print Receipt
-            </button>
-
-
-           
-
+            <button type="button" class="print-button" data-print> Print Receipt </button>     
         </div>
-
     </div>
-
 </div>
 <div style="display: flex; justify-self:center;">
-    <a class="page-link"
-                href="{% url 'sales:create_sale' %}"
-                class="new-sale"
-            >
-                New Sale
-            </a>
-
-
-            <a class="page-link"
-                href="{% url 'sales:create_return' sale.pk %}"
-                class="new-sale"
-            >
-                Return Items
-            </a>
-
-
-            <a class="page-link"
-                href="{% url 'sales:refund_history' %}"
-                class="new-sale"
-            >
-                Refund History
-            </a>
-
-
-            <a class="page-link"
-                href="{% url 'sales:return_history' %}"
-                class="new-sale"
-            >
-                Return History
-            </a>
+    <a class="page-link"  href="{% url 'sales:create_sale' %}" class="new-sale"> New Sale </a>
+    <a class="page-link"  href="{% url 'sales:create_return' sale.pk %}" class="new-sale"> Return Items </a>
+    <a class="page-link"  href="{% url 'sales:refund_history' %}" class="new-sale"> Refund History </a>
+    <a class="page-link"  href="{% url 'sales:return_history' %}" class="new-sale"> Return History </a>
 </div>
- 
-
 {% endblock %}

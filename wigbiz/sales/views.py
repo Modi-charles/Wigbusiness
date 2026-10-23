@@ -8,24 +8,13 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
-
 from accounts.decorators import role_required
 from core.utils import parse_date_or_none
 from products.models import Product
-
 from .forms import SaleForm, SaleItemFormSet
 from .models import Refund, Sale, SaleReturn
-from .notify import (
-    notify_managers_return_requested,
-    notify_return_completed,
-    notify_return_decision,
-)
-from .returns import (
-    attach_return_quantities,
-    complete_sale_return,
-    create_refund,
-    create_sale_return,
-)
+from .notify import notify_managers_return_requested, notify_return_completed, notify_return_decision
+from .returns import attach_return_quantities,complete_sale_return, create_refund,create_sale_return
 from .services import create_sale
 
 
@@ -58,8 +47,9 @@ def create_sale_view(request):
         if sale_form.is_valid() and item_formset.is_valid():
             items = []
             for form in item_formset:
-                if form.cleaned_data:
-                    items.append({
+                if not form.cleaned_data or form.cleaned_data.get("DELETE"):
+                   continue                   
+                items.append({
                         "product": form.cleaned_data["product"],
                         "quantity": form.cleaned_data["quantity"],
                     })
