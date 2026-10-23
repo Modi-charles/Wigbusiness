@@ -1,136 +1,352 @@
 {% extends "base.html" %}
 
-{% block title %}
-    Receipt {{ sale.invoice_number }}
-{% endblock %}
+{% block title %}Receipt {{ sale.invoice_number }}{% endblock %}
+
+{% block content %}
 <style>
-    @page{
-        size: 80mm auto;
+    /* =========================================================
+       SCREEN
+       ========================================================= */
+    .receipt-page {
+        display: flex;
+        justify-content: center;
+        padding: 24px 12px 8px;
+    }
+
+    .receipt {
+        position: relative;
+        background: #fff;
+        color: #111;
+        width: 100%;
+        max-width: 380px;
+        padding: 28px 22px 24px;
+        font-family: "Segoe UI", Roboto, Arial, sans-serif;
+        font-size: 14px;
+        line-height: 1.45;
+        border-radius: 6px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+    }
+
+    /* zig-zag "torn paper" edges */
+    .receipt::before,
+    .receipt::after {
+        content: "";
+        position: absolute;
+        left: 0; right: 0;
+        height: 10px;
+        background:
+            linear-gradient(135deg, #fff 5px, transparent 0) 0 0 / 14px 10px repeat-x,
+            linear-gradient(225deg, #fff 5px, transparent 0) 0 0 / 14px 10px repeat-x;
+    }
+    .receipt::before { top: -9px;  transform: scaleY(-1); }
+    .receipt::after  { bottom: -9px; }
+
+    .receipt .center { text-align: center; }
+
+    /* ---------- Header ---------- */
+    .brand {
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: .5px;
+        text-transform: uppercase;
         margin: 0;
     }
-    html,body{
-        width: 72mm;
-        margin: 0 auto ;
+    .brand-sub {
+        font-size: 11px;
+        color: #555;
+        margin: 2px 0 0;
     }
-    body{
-        margin: 0 ;
-        padding: 0;
+    .doc-title {
+        display: inline-block;
+        margin: 12px 0 0;
+        padding: 3px 14px;
+        border: 1.5px solid #111;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
     }
-    @media print{
+
+    /* ---------- Divider ---------- */
+    .rule {
+        border: 0;
+        border-top: 1.5px dashed #999;
+        margin: 14px 0;
+    }
+    .rule-solid {
+        border: 0;
+        border-top: 2px solid #111;
+        margin: 8px 0;
+    }
+
+    /* ---------- Info block ---------- */
+    .meta { display: grid; gap: 3px; }
+    .meta-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 13px;
+    }
+    .meta-row .label { color: #666; }
+    .meta-row .value { font-weight: 600; text-align: right; }
+
+    /* ---------- Items ---------- */
+    .items-head {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: #555;
+        padding-bottom: 6px;
+        border-bottom: 1.5px solid #111;
+    }
+    .item {
+        padding: 8px 0;
+        border-bottom: 1px dashed #ccc;
+    }
+    .item:last-child { border-bottom: 0; }
+    .item-name {
+        font-weight: 600;
+        word-break: break-word;
+    }
+    .item-calc {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        color: #444;
+        margin-top: 1px;
+    }
+    .item-calc .line-total { font-weight: 700; color: #111; }
+
+    /* ---------- Totals ---------- */
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 2px 0;
+        font-size: 14px;
+    }
+    .total-row.muted { color: #555; }
+    .grand-total {
+        font-size: 19px;
+        font-weight: 800;
+        padding: 6px 0;
+    }
+
+    /* ---------- Status badge ---------- */
+    .status {
+        margin: 14px 0 4px;
+        text-align: center;
+    }
+    .status span {
+        display: inline-block;
+        padding: 5px 22px;
+        border: 2px solid;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: 800;
+        letter-spacing: 3px;
+        transform: rotate(-3deg);
+    }
+    .status .paid { color: #1a7f37; border-color: #1a7f37; }
+    .status .due  { color: #b42318; border-color: #b42318; }
+
+    /* ---------- Footer ---------- */
+    .thanks { font-weight: 600; margin: 4px 0 0; }
+    .footnote { font-size: 11px; color: #777; margin: 2px 0 0; }
+
+    /* ---------- Buttons ---------- */
+    .receipt-buttons { margin-top: 18px; }
+    .print-button {
+        background: #111;
+        color: #fff;
+        border: 0;
+        border-radius: 8px;
+        padding: 11px 28px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .print-button:hover { background: #333; }
+
+    .receipt-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        margin: 20px 0 30px;
+    }
+
+    /* =========================================================
+       PRINT  (80mm thermal roll)
+       ========================================================= */
+    @page {
+        size: 80mm auto;
+        margin: 0;               /* removes Chrome's date / URL header & footer */
+    }
+
+    @media print {
+        html, body {
+            background: #fff !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* hide navbar, sidebar, buttons, everything except the receipt */
+        body * { visibility: hidden; }
+        .receipt, .receipt * { visibility: visible; }
         .no-print { display: none !important; }
+
+        .receipt-page { padding: 0; display: block; }
+
+        .receipt {
+            position: absolute;
+            left: 0; top: 0;
+            width: 72mm;
+            max-width: 72mm;
+            margin: 0 4mm;
+            padding: 4mm 0;
+            font-size: 11.5px;
+            box-shadow: none;
+            border-radius: 0;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        .receipt::before, .receipt::after { display: none; }
+
+        .brand { font-size: 17px; }
+        .grand-total { font-size: 16px; }
+        .status span { transform: none; font-size: 13px; }
     }
 </style>
-{% block content %}
+
+{% load humanize %}
+
 <div class="receipt-page">
     <div class="receipt">
-        <!-- ====================================== -->
-        <!-- BUSINESS HEADER -->
-        <!-- ====================================== -->
+
+        <!-- ================= HEADER ================= -->
         <div class="center">
-            <div class="business-name">
-                Mck Beauty Enterprise
+            <h1 class="brand">Mck Beauty Enterprise</h1>
+            <!-- <p class="brand-sub">Kampala, Uganda &bull; Tel: 07XX XXX XXX</p> -->
+            <span class="doc-title">Sales Receipt</span>
+        </div>
+
+        <hr class="rule">
+
+        <!-- ================= INFO ================= -->
+        <div class="meta">
+            <div class="meta-row">
+                <span class="label">Invoice</span>
+                <span class="value">{{ sale.invoice_number }}</span>
             </div>
-            <p> Sales Receipt </p>
+            <div class="meta-row">
+                <span class="label">Date</span>
+                <span class="value">{{ sale.sale_date|date:"d M Y, H:i" }}</span>
+            </div>
+            <div class="meta-row">
+                <span class="label">Cashier</span>
+                <span class="value">
+                    {% if sale.created_by %}
+                        {{ sale.created_by.get_full_name|default:sale.created_by.username }}
+                    {% else %}-{% endif %}
+                </span>
+            </div>
+            <div class="meta-row">
+                <span class="label">Customer</span>
+                <span class="value">
+                    {% if sale.customer %}{{ sale.customer }}{% else %}Walk-in Customer{% endif %}
+                </span>
+            </div>
         </div>
 
-        <!-- ====================================== -->
-        <!-- RECEIPT INFORMATION -->
-        <!-- ====================================== -->
-        <div class="receipt-info">
-            <p><strong>Invoice:</strong> {{ sale.invoice_number }}</p>
-            <p><strong>Date:</strong> {{ sale.sale_date|date:"d M Y H:i" }} </p>
-            <p><strong>Cashier:</strong>
-                {% if sale.created_by %}
-                    {{ sale.created_by.get_full_name|default:sale.created_by.username }}
-                {% else %}
-                {% endif %}
-            </p>
-            <p><strong>Customer:</strong>
-                {% if sale.customer %}
-                    {{ sale.customer }}
-                {% else %}
-                    Walk-in Customer
-                {% endif %}
-            </p>
+        <hr class="rule">
+
+        <!-- ================= ITEMS ================= -->
+        <div class="items-head">
+            <span>Item</span>
+            <span>Amount (UGX)</span>
         </div>
 
-        <!-- ====================================== -->
-        <!-- ITEMS -->
-        <!-- ====================================== -->
-        <table>
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Qty</th>
-                    <th class="number"> Price</th>
-                    <th class="number"> Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in sale.items.all %}
-                    <tr>
-                        <td>{{ item.product.name }} </td>
-                        <td>{{ item.quantity }}</td>
-                        <td class="number"> {{ item.selling_price }}</td>
-                        <td class="number"> {{ item.line_total }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        {% for item in sale.items.all %}
+        <div class="item">
+            <div class="item-name">{{ item.product.name }}</div>
+            <div class="item-calc">
+                <span>{{ item.quantity }} &times; {{ item.selling_price|floatformat:"0g" }}</span>
+                <span class="line-total">{{ item.line_total|floatformat:"0g" }}</span>
+            </div>
+        </div>
+        {% endfor %}
 
-        <!-- ====================================== -->
-        <!-- TOTALS -->
-        <!-- ====================================== -->
+        <hr class="rule-solid">
+
+        <!-- ================= TOTALS ================= -->
         <div class="totals">
-            <div class="total-row">
-                <span> Subtotal </span>
-                <span> UGX {{ sale.subtotal }}</span>
+            <div class="total-row muted">
+                <span>Subtotal</span>
+                <span>UGX {{ sale.subtotal|floatformat:"0g" }}</span>
             </div>
-            <div class="total-row">
-                <span> Discount </span>
-                <span> UGX {{ sale.discount }}</span>
+            <div class="total-row muted">
+                <span>Discount</span>
+                <span>- UGX {{ sale.discount|floatformat:"0g" }}</span>
             </div>
-            <div class="total-row">
+            <div class="total-row muted">
                 <span>Tax</span>
-                <span> UGX {{ sale.tax }}</span>
+                <span>UGX {{ sale.tax|floatformat:"0g" }}</span>
             </div>
+
+            <hr class="rule-solid">
+
             <div class="total-row grand-total">
-                <span> TOTAL </span>
-                <span>UGX {{ sale.total_amount }} </span>
+                <span>TOTAL</span>
+                <span>UGX {{ sale.total_amount|floatformat:"0g" }}</span>
+            </div>
+
+            <div class="total-row">
+                <span>Paid</span>
+                <span>UGX {{ sale.paid_amount|floatformat:"0g" }}</span>
             </div>
             <div class="total-row">
-                <span>Paid </span>
-                <span>UGX {{ sale.paid_amount }}</span>
+                <span>Balance</span>
+                <span>UGX {{ sale.balance|floatformat:"0g" }}</span>
             </div>
-            <div class="total-row">
-                <span> Balance</span>
-                <span> UGX {{ sale.balance }}</span>
-            </div>
-            <div class="total-row">
-                <span> Payment</span>
+            <div class="total-row muted">
+                <span>Payment method</span>
                 <span>{{ sale.get_payment_method_display }}</span>
             </div>
         </div>
 
-        <!-- ====================================== -->
-        <!-- THANK YOU -->
-        <!-- ====================================== -->
-        <div class="center">
-            <p> Thank you for your business!</p>
+        <!-- ================= STATUS ================= -->
+        <div class="status">
+            {% if sale.balance and sale.balance > 0 %}
+                <span class="due">BALANCE DUE</span>
+            {% else %}
+                <span class="paid">PAID</span>
+            {% endif %}
         </div>
 
-        <!-- ====================================== -->
-        <!-- ACTIONS -->
-        <!-- ====================================== -->
-        <div class="receipt-buttons">
-            <button type="button" class="print-button" data-print> Print Receipt </button>     
+        <hr class="rule">
+
+        <!-- ================= FOOTER ================= -->
+        <div class="center">
+            <p class="thanks">Thank you for your business!</p>
+            <p class="footnote">Goods once sold are not returnable without this receipt.</p>
+        </div>
+
+        <!-- ================= PRINT BUTTON ================= -->
+        <div class="receipt-buttons center no-print">
+            <button type="button" class="print-button" onclick="window.print()">Print Receipt</button>
         </div>
     </div>
 </div>
-<div style="display: flex; justify-self:center;">
-    <a class="page-link"  href="{% url 'sales:create_sale' %}" class="new-sale"> New Sale </a>
-    <a class="page-link"  href="{% url 'sales:create_return' sale.pk %}" class="new-sale"> Return Items </a>
-    <a class="page-link"  href="{% url 'sales:refund_history' %}" class="new-sale"> Refund History </a>
-    <a class="page-link"  href="{% url 'sales:return_history' %}" class="new-sale"> Return History </a>
+
+<!-- ================= NAV LINKS (never printed) ================= -->
+<div class="receipt-actions no-print">
+    <a class="page-link" href="{% url 'sales:create_sale' %}">New Sale</a>
+    <a class="page-link" href="{% url 'sales:create_return' sale.pk %}">Return Items</a>
+    <a class="page-link" href="{% url 'sales:refund_history' %}">Refund History</a>
+    <a class="page-link" href="{% url 'sales:return_history' %}">Return History</a>
 </div>
 {% endblock %}
