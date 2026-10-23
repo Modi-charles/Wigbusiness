@@ -125,7 +125,9 @@ TEMPLATES = [
         },
     },
 ]
-
+X_FRAME_OPTIONS="SAMEORIGIN"
+TIME_ZONE="Africa/kampala"
+USE_TZ=True
 WSGI_APPLICATION = 'wigbiz.wsgi.application'
 
 

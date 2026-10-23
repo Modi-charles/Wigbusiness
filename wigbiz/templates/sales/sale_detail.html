@@ -157,6 +157,25 @@
     .thanks { font-weight: 600; margin: 4px 0 0; }
     .footnote { font-size: 11px; color: #777; margin: 2px 0 0; }
 
+    /* ---------- QR code ---------- */
+    .qr-block { text-align: center; margin: 12px 0 4px; }
+    #qrcode {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto;
+    }
+    #qrcode img, #qrcode canvas {
+        width: 100% !important;
+        height: 100% !important;
+        image-rendering: pixelated;
+    }
+    .qr-caption {
+        font-size: 11px;
+        color: #555;
+        margin: 4px 0 0;
+        letter-spacing: 1px;
+    }
+
     /* ---------- Buttons ---------- */
     .receipt-buttons { margin-top: 18px; }
     .print-button {
@@ -219,10 +238,9 @@
         .brand { font-size: 17px; }
         .grand-total { font-size: 16px; }
         .status span { transform: none; font-size: 13px; }
+        #qrcode { width: 32mm; height: 32mm; }
     }
 </style>
-
-{% load humanize %}
 
 <div class="receipt-page">
     <div class="receipt">
@@ -335,6 +353,12 @@
             <p class="footnote">Goods once sold are not returnable without this receipt.</p>
         </div>
 
+        <!-- ================= QR CODE ================= -->
+        <div class="qr-block">
+            <div id="qrcode"></div>
+            <p class="qr-caption">{{ sale.invoice_number }}</p>
+        </div>
+
         <!-- ================= PRINT BUTTON ================= -->
         <div class="receipt-buttons center no-print">
             <button type="button" class="print-button" onclick="window.print()">Print Receipt</button>
@@ -349,4 +373,21 @@
     <a class="page-link" href="{% url 'sales:refund_history' %}">Refund History</a>
     <a class="page-link" href="{% url 'sales:return_history' %}">Return History</a>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var el = document.getElementById("qrcode");
+        if (el && window.QRCode) {
+            new QRCode(el, {
+                text: "{{ sale.invoice_number|escapejs }}",
+                width: 256,
+                height: 256,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.M
+            });
+        }
+    });
+</script>
 {% endblock %}
