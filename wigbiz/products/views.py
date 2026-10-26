@@ -63,7 +63,7 @@ def delete_product(request, id):
 @login_required
 def product_detail(request,id):
     product = get_object_or_404(Product,id=id)
-    return render(request,"products/product_detail.html",{"product":product})
+    return render(request,"Products/product_detail.html",{"product":product})
 @login_required
 def edit_product(request, id):
     product = get_object_or_404(Product,id=id)
