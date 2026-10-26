@@ -96,7 +96,7 @@ def edit_product(request, id):
 
     return render(
         request,
-        "products/edit_product.html",
+        "Products/edit_product.html",
         {
             "form": form,
             "product": product
