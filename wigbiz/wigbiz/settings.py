@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
-
+import dj_database_url
 from pathlib import Path
 import os
 
@@ -154,7 +154,9 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+DATABASES['default']=dj_database_url.parse("postgresql://wig_db_user:fWbJqAfVjO67ITdfPmIWPOY8MmLcSTFJ@dpg-dbhillm7bikc73eo3h3g-a.oregon-postgres.render.com/wig_db")
 
+#
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
