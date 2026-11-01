@@ -1,4 +1,4 @@
-# MCK Beauty Enterprise
+# Fred Beauty Enterprise
 
 ## Run on Replit
 

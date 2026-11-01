@@ -40,6 +40,7 @@ def _is_reviewer(user):
 # ==========================================================
 
 @login_required
+@role_required("Salesperson")
 def create_sale_view(request):
     if request.method == "POST":
         sale_form = SaleForm(request.POST)
